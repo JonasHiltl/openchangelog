@@ -1,9 +1,8 @@
 # Openchangelog
 
 ## Filename Format
-The ordering of the changelog files is important.
-The displayed Articles in the UI are ordered by their filename in descending order.
-We recommend prefix the file with the release version.
+The ordering of the changelog files is important.  
+The displayed Articles in the UI are ordered by their filename in descending order. We recommend prefixing the file with the release version.
 ```
 {version}.{title}.md
 v0.0.1.darkmode.md
