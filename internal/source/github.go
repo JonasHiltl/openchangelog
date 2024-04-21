@@ -76,12 +76,15 @@ func (s *githubSource) Load(ctx context.Context, params LoadParams) (LoadResult,
 			},
 		}, nil
 	}
+	return s.loadFiles(ctx, dir, params)
+}
 
-	dir = filter(dir, func(f *github.RepositoryContent) bool {
+func (s *githubSource) loadFiles(ctx context.Context, files []*github.RepositoryContent, params LoadParams) (LoadResult, error) {
+	files = filter(files, func(f *github.RepositoryContent) bool {
 		return filepath.Ext(f.GetName()) == ".md"
 	})
 
-	if params.StartIdx() >= len(dir) {
+	if params.StartIdx() >= len(files) {
 		return LoadResult{
 			Articles: []Article{},
 			HasMore:  false,
@@ -89,15 +92,15 @@ func (s *githubSource) Load(ctx context.Context, params LoadParams) (LoadResult,
 	}
 
 	// sort files in descending order by filename
-	sort.Slice(dir, func(i, j int) bool {
-		return dir[i].GetName() >= dir[j].GetName()
+	sort.Slice(files, func(i, j int) bool {
+		return files[i].GetName() >= files[j].GetName()
 	})
 
 	var wg sync.WaitGroup
-	articles := make([]Article, 0, len(dir))
+	articles := make([]Article, 0, params.PageSize())
 	mutex := &sync.Mutex{}
 
-	for i := params.StartIdx(); i <= params.EndIdx() && i < len(dir); i++ {
+	for i := params.StartIdx(); i <= params.EndIdx() && i < len(files); i++ {
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
@@ -110,13 +113,13 @@ func (s *githubSource) Load(ctx context.Context, params LoadParams) (LoadResult,
 				Bytes: b,
 			})
 			mutex.Unlock()
-		}(dir[i].GetName())
+		}(files[i].GetName())
 	}
 	wg.Wait()
 
 	return LoadResult{
 		Articles: articles,
-		HasMore:  params.EndIdx()+1 < len(dir),
+		HasMore:  params.EndIdx()+1 < len(files),
 	}, nil
 }
 

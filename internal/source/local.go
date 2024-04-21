@@ -43,16 +43,16 @@ func loadFromDir(path string, params LoadParams) (LoadResult, error) {
 		return LoadResult{}, err
 	}
 
-	files = filter(files, func(f fs.DirEntry) bool {
-		return filepath.Ext(f.Name()) == ".md"
-	})
-
 	if params.StartIdx() >= len(files) {
 		return LoadResult{
 			Articles: []Article{},
 			HasMore:  false,
 		}, nil
 	}
+
+	files = filter(files, func(f fs.DirEntry) bool {
+		return filepath.Ext(f.Name()) == ".md"
+	})
 
 	// sort files in descending order by filename
 	sort.Slice(files, func(i, j int) bool {
