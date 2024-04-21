@@ -1,0 +1,10 @@
+{{ block "article" . }}
+<article class="flex justify-between">
+    <p class="text-nowrap opacity-50">{{ .PublishedAt }}</p>
+    <div class="max-w-lg">
+        <h2>{{ .Title }}</h2>
+        <p class="opacity-50">{{ .Description }}</p>
+        {{ .Content }}
+    </div>
+</article>
+{{ end }}
