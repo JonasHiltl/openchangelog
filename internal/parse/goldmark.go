@@ -2,6 +2,7 @@ package parse
 
 import (
 	"bytes"
+	"context"
 	"sort"
 	"sync"
 
@@ -43,8 +44,8 @@ func NewParser() Parser {
 	}
 }
 
-func (g *gmark) Parse(s source.Source) ([]ParsedArticle, error) {
-	articles, err := s.Load()
+func (g *gmark) Parse(ctx context.Context, s source.Source) ([]ParsedArticle, error) {
+	articles, err := s.Load(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package source
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"sync"
@@ -10,13 +11,13 @@ type localFileSource struct {
 	path string
 }
 
-func LocalFileSource(path string) Source {
+func LocalFile(path string) Source {
 	return &localFileSource{
 		path: path,
 	}
 }
 
-func (s *localFileSource) Load() ([]Article, error) {
+func (s *localFileSource) Load(ctx context.Context) ([]Article, error) {
 	info, err := os.Stat(s.path)
 	if err != nil {
 		return nil, err

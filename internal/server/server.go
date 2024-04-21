@@ -76,7 +76,7 @@ type Logo struct {
 }
 
 func (s *server) renderChangeLog(c echo.Context) error {
-	res, err := s.parser.Parse(s.source)
+	res, err := s.parser.Parse(c.Request().Context(), s.source)
 	if err != nil {
 		return err
 	}

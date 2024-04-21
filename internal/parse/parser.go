@@ -2,6 +2,7 @@ package parse
 
 import (
 	"bytes"
+	"context"
 	"time"
 
 	"github.com/jonashiltl/openchangelog/internal/source"
@@ -19,5 +20,5 @@ type ParsedArticle struct {
 }
 
 type Parser interface {
-	Parse(s source.Source) ([]ParsedArticle, error)
+	Parse(ctx context.Context, s source.Source) ([]ParsedArticle, error)
 }
