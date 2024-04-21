@@ -67,6 +67,14 @@ type ArticleVars struct {
 	Content     template.HTML
 }
 
+type Logo struct {
+	Src    string
+	Width  string
+	Height string
+	Alt    string
+	Link   string
+}
+
 func (s *server) renderChangeLog(c echo.Context) error {
 	res, err := s.parser.Parse(s.source)
 	if err != nil {
@@ -84,7 +92,13 @@ func (s *server) renderChangeLog(c echo.Context) error {
 	}
 
 	vars := map[string]interface{}{
-		"articles": articles,
+		"Articles": articles,
+		"Logo": Logo{
+			Src:    "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png",
+			Width:  "70px",
+			Height: "25px",
+			Link:   "https://www.google.com",
+		},
 	}
 
 	return c.Render(200, "index", vars)

@@ -1,5 +1,15 @@
 {{ block "header" . }}
-<nav class="header">
-    <h3>Logo</h3>
+<nav class="sticky top-0 flex justify-center p-3 backdrop-blur-md border-solid border-b">
+    <div class="max-w-2xl w-full flex justify-between">
+        {{ with .Logo }}
+        {{ with .Link }}
+        <a href={{ . }}>
+            {{ end }}
+            <img src={{ .Src }} alt="{{.Alt}}" style="width: {{.Width}}; height: {{.Height}}" />
+            {{ with .Link }}
+        </a>
+        {{ end }}
+        {{ end }}
+    </div>
 </nav>
 {{ end }}

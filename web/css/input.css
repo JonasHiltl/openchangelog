@@ -28,7 +28,7 @@
     }
 
     * a {
-        @apply hover:underline underline-offset-4 text-blue-500 hover:text-blue-600
+        @apply hover:underline underline-offset-4 text-blue-500 hover:text-blue-600 cursor-pointer
     }
 
     strong {
@@ -53,11 +53,5 @@
 
     article {
         @apply mb-10
-    }
-}
-
-@layer components {
-    .header {
-        @apply sticky top-0 flex justify-between items-center p-3 backdrop-blur-md border-solid border-b
     }
 }
