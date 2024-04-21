@@ -44,8 +44,8 @@ func NewParser() Parser {
 	}
 }
 
-func (g *gmark) Parse(ctx context.Context, s source.Source) ([]ParsedArticle, error) {
-	res, err := s.Load(ctx, source.NewLoadParams(1, 1))
+func (g *gmark) Parse(ctx context.Context, s source.Source, params source.LoadParams) ([]ParsedArticle, error) {
+	res, err := s.Load(ctx, params)
 	if err != nil {
 		return nil, err
 	}

@@ -20,5 +20,5 @@ type ParsedArticle struct {
 }
 
 type Parser interface {
-	Parse(ctx context.Context, s source.Source) ([]ParsedArticle, error)
+	Parse(ctx context.Context, s source.Source, params source.LoadParams) ([]ParsedArticle, error)
 }

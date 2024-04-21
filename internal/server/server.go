@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"html/template"
+	"strconv"
 
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/source"
@@ -76,7 +77,15 @@ type Logo struct {
 }
 
 func (s *server) renderChangeLog(c echo.Context) error {
-	res, err := s.parser.Parse(c.Request().Context(), s.source)
+	page, err := strconv.Atoi(c.QueryParam("page"))
+	if err != nil {
+		page = 1
+	}
+	pageSize, err := strconv.Atoi(c.QueryParam("page-size"))
+	if err != nil {
+		pageSize = 10
+	}
+	res, err := s.parser.Parse(c.Request().Context(), s.source, source.NewLoadParams(pageSize, page))
 	if err != nil {
 		return err
 	}
