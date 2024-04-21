@@ -45,16 +45,16 @@ func NewParser() Parser {
 }
 
 func (g *gmark) Parse(ctx context.Context, s source.Source) ([]ParsedArticle, error) {
-	articles, err := s.Load(ctx)
+	res, err := s.Load(ctx, source.NewLoadParams(1, 1))
 	if err != nil {
 		return nil, err
 	}
 
 	var wg sync.WaitGroup
-	result := make([]ParsedArticle, 0, len(articles))
+	result := make([]ParsedArticle, 0, len(res.Articles))
 	mutex := &sync.Mutex{}
 
-	for _, a := range articles {
+	for _, a := range res.Articles {
 		wg.Add(1)
 		go func(a source.Article) {
 			defer wg.Done()

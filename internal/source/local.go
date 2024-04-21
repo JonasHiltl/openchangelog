@@ -2,8 +2,10 @@ package source
 
 import (
 	"context"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
 	"sync"
 )
 
@@ -17,51 +19,77 @@ func LocalFile(path string) Source {
 	}
 }
 
-func (s *localFileSource) Load(ctx context.Context) ([]Article, error) {
+func (s *localFileSource) Load(ctx context.Context, params LoadParams) (LoadResult, error) {
+	// sanitize params
+	if params.PageSize() < 1 {
+		return LoadResult{}, nil
+	}
+
 	info, err := os.Stat(s.path)
 	if err != nil {
-		return nil, err
+		return LoadResult{}, err
 	}
 
 	if info.IsDir() {
-		return loadFromDir(s.path)
+		return loadFromDir(s.path, params)
+	} else {
+		return loadFromFile(s.path)
 	}
-	b, err := os.ReadFile(s.path)
-	if err != nil {
-		return nil, err
-	}
-	return []Article{{Bytes: b}}, nil
 }
 
-func loadFromDir(path string) ([]Article, error) {
+func loadFromDir(path string, params LoadParams) (LoadResult, error) {
 	files, err := os.ReadDir(path)
 	if err != nil {
-		return nil, err
+		return LoadResult{}, err
 	}
 
+	files = filter(files, func(f fs.DirEntry) bool {
+		return filepath.Ext(f.Name()) == ".md"
+	})
+
+	if params.StartIdx() >= len(files) {
+		return LoadResult{
+			Articles: []Article{},
+			HasMore:  false,
+		}, nil
+	}
+
+	// sort files in descending order by filename
+	sort.Slice(files, func(i, j int) bool {
+		return files[i].Name() >= files[j].Name()
+	})
+
 	var wg sync.WaitGroup
-	results := make([]Article, 0)
+	results := make([]Article, 0, params.PageSize())
 	mutex := &sync.Mutex{}
 
-	// load all files to memory in parallel
-	for _, file := range files {
+	for i := params.StartIdx(); i <= params.EndIdx() && i < len(files); i++ {
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
-			if filepath.Ext(name) == ".md" {
-				b, err := os.ReadFile(filepath.Join(path, name))
-				if err != nil {
-					return
-				}
-				mutex.Lock()
-				results = append(results, Article{
-					Bytes: b,
-				})
-				mutex.Unlock()
+			b, err := os.ReadFile(filepath.Join(path, name))
+			if err != nil {
+				return
 			}
-		}(file.Name())
+			mutex.Lock()
+			results = append(results, Article{
+				Bytes: b,
+			})
+			mutex.Unlock()
+		}(files[i].Name())
 	}
 	wg.Wait()
 
-	return results, nil
+	return LoadResult{
+		Articles: results,
+		HasMore:  params.EndIdx()+1 < len(files),
+	}, nil
+}
+
+func loadFromFile(path string) (LoadResult, error) {
+	b, err := os.ReadFile(path)
+	return LoadResult{
+		Articles: []Article{{Bytes: b}},
+		HasMore:  false,
+	}, err
 }

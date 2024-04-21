@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
+	"sort"
 	"sync"
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
@@ -50,31 +52,53 @@ func GitHub(opts GitHubSourceOptions) (Source, error) {
 	}, nil
 }
 
-func (s *githubSource) Load(ctx context.Context) ([]Article, error) {
+func (s *githubSource) Load(ctx context.Context, params LoadParams) (LoadResult, error) {
+	// sanitize params
+	if params.PageSize() < 1 {
+		return LoadResult{}, nil
+	}
+
 	file, dir, _, err := s.client.Repositories.GetContents(ctx, s.owner, s.repo, s.path, nil)
 	if err != nil {
-		return nil, err
+		return LoadResult{}, err
 	}
 
 	if file != nil {
 		c, err := file.GetContent()
 		if err != nil {
-			return nil, err
+			return LoadResult{}, err
 		}
-		return []Article{
-			{
-				Bytes: []byte(c),
+		return LoadResult{
+			Articles: []Article{
+				{
+					Bytes: []byte(c),
+				},
 			},
 		}, nil
 	}
 
+	dir = filter(dir, func(f *github.RepositoryContent) bool {
+		return filepath.Ext(f.GetName()) == ".md"
+	})
+
+	if params.StartIdx() >= len(dir) {
+		return LoadResult{
+			Articles: []Article{},
+			HasMore:  false,
+		}, nil
+	}
+
+	// sort files in descending order by filename
+	sort.Slice(dir, func(i, j int) bool {
+		return dir[i].GetName() >= dir[j].GetName()
+	})
+
 	var wg sync.WaitGroup
-	results := make([]Article, 0, len(dir))
+	articles := make([]Article, 0, len(dir))
 	mutex := &sync.Mutex{}
 
-	for _, f := range dir {
+	for i := params.StartIdx(); i <= params.EndIdx() && i < len(dir); i++ {
 		wg.Add(1)
-		name := f.GetName()
 		go func(name string) {
 			defer wg.Done()
 			b, err := s.downloadFile(ctx, name)
@@ -82,15 +106,18 @@ func (s *githubSource) Load(ctx context.Context) ([]Article, error) {
 				return
 			}
 			mutex.Lock()
-			results = append(results, Article{
+			articles = append(articles, Article{
 				Bytes: b,
 			})
 			mutex.Unlock()
-		}(name)
+		}(dir[i].GetName())
 	}
 	wg.Wait()
 
-	return results, nil
+	return LoadResult{
+		Articles: articles,
+		HasMore:  params.EndIdx()+1 < len(dir),
+	}, nil
 }
 
 func (s *githubSource) downloadFile(ctx context.Context, filename string) ([]byte, error) {
