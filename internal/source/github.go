@@ -1,0 +1,102 @@
+package source
+
+import (
+	"context"
+	"fmt"
+	"io"
+	"net/http"
+	"sync"
+
+	"github.com/bradleyfalzon/ghinstallation/v2"
+	"github.com/google/go-github/github"
+)
+
+type GitHubSourceOptions struct {
+	// The account name of the owner of the repository
+	Owner string
+	// The repository which holds the markdown files
+	Repository string
+	// The path to the root of the directory which holds all markdown files
+	Path                string
+	GHAppPrivateKey     string
+	GHAppInstallationId int64
+}
+
+type githubSource struct {
+	client *github.Client
+	owner  string
+	repo   string
+	path   string
+}
+
+func GitHub(opts GitHubSourceOptions) (Source, error) {
+	tr := http.DefaultTransport
+
+	if opts.GHAppPrivateKey != "" && opts.GHAppInstallationId != 0 {
+		// Wrap the shared transport for use with the app ID 1 authenticating with installation ID 99.
+		itr, err := ghinstallation.NewKeyFromFile(tr, 881880, opts.GHAppInstallationId, opts.GHAppPrivateKey)
+		if err != nil {
+			return nil, err
+		}
+		tr = itr
+	}
+
+	client := github.NewClient(&http.Client{Transport: tr})
+	return &githubSource{
+		client: client,
+		owner:  opts.Owner,
+		repo:   opts.Repository,
+		path:   opts.Path,
+	}, nil
+}
+
+func (s *githubSource) Load(ctx context.Context) ([]Article, error) {
+	file, dir, _, err := s.client.Repositories.GetContents(ctx, s.owner, s.repo, s.path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if file != nil {
+		c, err := file.GetContent()
+		if err != nil {
+			return nil, err
+		}
+		return []Article{
+			{
+				Bytes: []byte(c),
+			},
+		}, nil
+	}
+
+	var wg sync.WaitGroup
+	results := make([]Article, 0, len(dir))
+	mutex := &sync.Mutex{}
+
+	for _, f := range dir {
+		wg.Add(1)
+		name := f.GetName()
+		go func(name string) {
+			defer wg.Done()
+			b, err := s.downloadFile(ctx, name)
+			if err != nil {
+				return
+			}
+			mutex.Lock()
+			results = append(results, Article{
+				Bytes: b,
+			})
+			mutex.Unlock()
+		}(name)
+	}
+	wg.Wait()
+
+	return results, nil
+}
+
+func (s *githubSource) downloadFile(ctx context.Context, filename string) ([]byte, error) {
+	read, err := s.client.Repositories.DownloadContents(ctx, s.owner, s.repo, fmt.Sprintf("%s/%s", s.path, filename), nil)
+	if err != nil {
+		return nil, err
+	}
+	return io.ReadAll(read)
+}
