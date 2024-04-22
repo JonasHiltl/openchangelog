@@ -90,8 +90,8 @@ func (s *server) renderChangeLog(c echo.Context) error {
 		return err
 	}
 
-	articles := make([]ArticleVars, 0, len(res))
-	for _, a := range res {
+	articles := make([]ArticleVars, 0, len(res.Articles))
+	for _, a := range res.Articles {
 		articles = append(articles, ArticleVars{
 			Title:       a.Meta.Title,
 			Description: a.Meta.Description,
@@ -108,9 +108,21 @@ func (s *server) renderChangeLog(c echo.Context) error {
 			Height: "25px",
 			Link:   "https://www.google.com",
 		},
+		"PageSize": pageSize,
+		"NextPage": page + 1,
+		"HasMore":  res.HasMore,
 	}
 
-	return c.Render(200, "index", vars)
+	// this is used by htmx to allow infinite scrolling
+	if htmxHeader := c.Request().Header.Get("HX-Request"); len(htmxHeader) > 0 {
+		if len(articles) > 0 {
+			return c.Render(200, "changelog/article_list", vars)
+		}
+	} else {
+		return c.Render(200, "changelog/index", vars)
+	}
+
+	return c.NoContent(200)
 }
 
 func (s *server) Start() {

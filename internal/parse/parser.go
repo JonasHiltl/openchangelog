@@ -19,6 +19,11 @@ type ParsedArticle struct {
 	Content *bytes.Buffer
 }
 
+type ParseResult struct {
+	Articles []ParsedArticle
+	HasMore  bool
+}
+
 type Parser interface {
-	Parse(ctx context.Context, s source.Source, params source.LoadParams) ([]ParsedArticle, error)
+	Parse(ctx context.Context, s source.Source, params source.LoadParams) (ParseResult, error)
 }

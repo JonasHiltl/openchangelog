@@ -44,10 +44,10 @@ func NewParser() Parser {
 	}
 }
 
-func (g *gmark) Parse(ctx context.Context, s source.Source, params source.LoadParams) ([]ParsedArticle, error) {
+func (g *gmark) Parse(ctx context.Context, s source.Source, params source.LoadParams) (ParseResult, error) {
 	res, err := s.Load(ctx, params)
 	if err != nil {
-		return nil, err
+		return ParseResult{}, err
 	}
 
 	var wg sync.WaitGroup
@@ -73,7 +73,10 @@ func (g *gmark) Parse(ctx context.Context, s source.Source, params source.LoadPa
 		return result[i].Meta.PublishedAt.After(result[j].Meta.PublishedAt)
 	})
 
-	return result, nil
+	return ParseResult{
+		Articles: result,
+		HasMore:  res.HasMore,
+	}, nil
 }
 
 func (g *gmark) parseArticle(a source.Article) (ParsedArticle, error) {

@@ -10,6 +10,7 @@ module.exports = {
       },
     },
   },
+  safelist: ["quail-image-wrapper"],
   plugins: [],
 }
 

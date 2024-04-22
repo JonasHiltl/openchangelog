@@ -8,13 +8,13 @@ import (
 )
 
 func main() {
-	cfg, err := config.Load()
+	_, err := config.Load()
 	if err != nil {
 		panic(err)
 	}
 
 	p := parse.NewParser()
-	s, err := source.GitHub(source.GitHubSourceOptions{
+	/* s, err := source.GitHub(source.GitHubSourceOptions{
 		Owner:               "jonashiltl",
 		Repository:          "openchangelog",
 		Path:                ".testdata",
@@ -24,7 +24,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	*/
+	s := source.LocalFile(".testdata")
 
-	srv := server.New(s, p, server.WithPort(4000))
+	srv := server.New(s, p, server.WithPort(80))
 	srv.Start()
 }

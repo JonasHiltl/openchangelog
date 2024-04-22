@@ -1,0 +1,31 @@
+{{ block "layout/header" . }}
+
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Changelog</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='static/output.css'>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <script src="https://unpkg.com/htmx.org@1.9.12"
+        integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <nav class="sticky top-0 flex justify-center p-3 backdrop-blur-md border-solid border-b">
+        <div class="max-w-2xl w-full flex justify-between">
+            {{ with .Logo }}
+            {{ with .Link }}
+            <a href={{ . }}>
+                {{ end }}
+                <img src={{ .Src }} alt="{{.Alt}}" style="width: {{.Width}}; height: {{.Height}}" />
+                {{ with .Link }}
+            </a>
+            {{ end }}
+            {{ end }}
+        </div>
+    </nav>
+    {{ end }}

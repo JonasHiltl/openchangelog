@@ -55,3 +55,9 @@
         @apply mb-10
     }
 }
+
+@layer components {
+    .quail-image-wrapper {
+        @apply max-w-full
+    }
+}
