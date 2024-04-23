@@ -1,8 +1,10 @@
-# github:
-#   appPrivateKey:
-#   appInstallationId:
-#   owner:
-#   repo:
-#   path:
+#github:
+#  owner:
+#  repo:
+#  path:
+#  auth:
+#    appPrivateKey:
+#    appInstallationId:
+#    or accessToken:
 local:
   filesPath: .testdata

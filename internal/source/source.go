@@ -56,16 +56,17 @@ type Source interface {
 }
 
 func NewFromConfig(cfg config.Config) (Source, error) {
-	if cfg.Local.FilesPath != "" {
+	if cfg.Local != nil {
 		return LocalFile(cfg.Local.FilesPath), nil
 	}
-	if cfg.GitHub.AppInstallationId != 0 && cfg.GitHub.AppPrivateKey != "" {
-		return GitHub(GitHubSourceOptions{
-			Owner:             cfg.GitHub.Owner,
-			Repository:        cfg.GitHub.Repo,
-			Path:              cfg.GitHub.Path,
-			AppPrivateKey:     cfg.GitHub.AppPrivateKey,
-			AppInstallationId: cfg.GitHub.AppInstallationId,
+	if cfg.Github != nil && cfg.Github.Auth != nil {
+		return Github(GithubSourceOptions{
+			Owner:             cfg.Github.Owner,
+			Repository:        cfg.Github.Repo,
+			Path:              cfg.Github.Path,
+			AppPrivateKey:     cfg.Github.Auth.AppPrivateKey,
+			AppInstallationId: cfg.Github.Auth.AppInstallationId,
+			AccessToken:       cfg.Github.Auth.AccessToken,
 		})
 	}
 

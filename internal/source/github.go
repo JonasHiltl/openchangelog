@@ -10,10 +10,10 @@ import (
 	"sync"
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v61/github"
 )
 
-type GitHubSourceOptions struct {
+type GithubSourceOptions struct {
 	// The account name of the owner of the repository
 	Owner string
 	// The repository which holds the markdown files
@@ -22,6 +22,7 @@ type GitHubSourceOptions struct {
 	Path              string
 	AppPrivateKey     string
 	AppInstallationId int64
+	AccessToken       string
 }
 
 type githubSource struct {
@@ -31,7 +32,7 @@ type githubSource struct {
 	path   string
 }
 
-func GitHub(opts GitHubSourceOptions) (Source, error) {
+func Github(opts GithubSourceOptions) (Source, error) {
 	tr := http.DefaultTransport
 
 	if opts.AppPrivateKey != "" && opts.AppInstallationId != 0 {
@@ -44,6 +45,10 @@ func GitHub(opts GitHubSourceOptions) (Source, error) {
 	}
 
 	client := github.NewClient(&http.Client{Transport: tr})
+	if opts.AccessToken != "" {
+		client.WithAuthToken(opts.AccessToken)
+	}
+
 	return &githubSource{
 		client: client,
 		owner:  opts.Owner,
@@ -124,7 +129,7 @@ func (s *githubSource) loadFiles(ctx context.Context, files []*github.Repository
 }
 
 func (s *githubSource) downloadFile(ctx context.Context, filename string) ([]byte, error) {
-	read, err := s.client.Repositories.DownloadContents(ctx, s.owner, s.repo, fmt.Sprintf("%s/%s", s.path, filename), nil)
+	read, _, err := s.client.Repositories.DownloadContents(ctx, s.owner, s.repo, fmt.Sprintf("%s/%s", s.path, filename), nil)
 	if err != nil {
 		return nil, err
 	}

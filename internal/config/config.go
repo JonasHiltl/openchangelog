@@ -4,12 +4,17 @@ import (
 	"github.com/spf13/viper"
 )
 
-type GitHubConfig struct {
-	Owner             string `mapstructure:"owner"`
-	Repo              string `mapstructure:"repo"`
-	Path              string `mapstructure:"path"`
+type GithubConfig struct {
+	Owner string      `mapstructure:"owner"`
+	Repo  string      `mapstructure:"repo"`
+	Path  string      `mapstructure:"path"`
+	Auth  *GithubAuth `mapstructure:"auth"`
+}
+
+type GithubAuth struct {
 	AppPrivateKey     string `mapstructure:"appPrivateKey"`
 	AppInstallationId int64  `mapstructure:"appInstallationId"`
+	AccessToken       string `mapstructure:"accessToken"`
 }
 
 type LocalConfig struct {
@@ -17,8 +22,8 @@ type LocalConfig struct {
 }
 
 type Config struct {
-	GitHub GitHubConfig `mapstructure:"github"`
-	Local  LocalConfig  `mapstructure:"local"`
+	Github *GithubConfig `mapstructure:"github"`
+	Local  *LocalConfig  `mapstructure:"local"`
 }
 
 func Load() (Config, error) {

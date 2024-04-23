@@ -4,7 +4,7 @@ go 1.22.2
 
 require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.10.0
-	github.com/google/go-github v17.0.0+incompatible
+	github.com/google/go-github/v61 v61.0.0
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/quail-ink/goldmark-enclave v0.0.8
