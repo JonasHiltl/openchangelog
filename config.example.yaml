@@ -1,0 +1,8 @@
+# github:
+#   appPrivateKey:
+#   appInstallationId:
+#   owner:
+#   repo:
+#   path:
+local:
+  filesPath: .testdata

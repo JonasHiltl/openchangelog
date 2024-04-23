@@ -1,6 +1,11 @@
 package source
 
-import "context"
+import (
+	"context"
+	"errors"
+
+	"github.com/jonashiltl/openchangelog/internal/config"
+)
 
 type Article struct {
 	Bytes []byte
@@ -48,4 +53,21 @@ type LoadResult struct {
 // Represents a source of the Changelog Markdown files.
 type Source interface {
 	Load(ctx context.Context, params LoadParams) (LoadResult, error)
+}
+
+func NewFromConfig(cfg config.Config) (Source, error) {
+	if cfg.Local.FilesPath != "" {
+		return LocalFile(cfg.Local.FilesPath), nil
+	}
+	if cfg.GitHub.AppInstallationId != 0 && cfg.GitHub.AppPrivateKey != "" {
+		return GitHub(GitHubSourceOptions{
+			Owner:             cfg.GitHub.Owner,
+			Repository:        cfg.GitHub.Repo,
+			Path:              cfg.GitHub.Path,
+			AppPrivateKey:     cfg.GitHub.AppPrivateKey,
+			AppInstallationId: cfg.GitHub.AppInstallationId,
+		})
+	}
+
+	return nil, errors.New("markdown file source not specififed in config")
 }

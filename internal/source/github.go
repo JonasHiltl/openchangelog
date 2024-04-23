@@ -19,9 +19,9 @@ type GitHubSourceOptions struct {
 	// The repository which holds the markdown files
 	Repository string
 	// The path to the root of the directory which holds all markdown files
-	Path                string
-	GHAppPrivateKey     string
-	GHAppInstallationId int64
+	Path              string
+	AppPrivateKey     string
+	AppInstallationId int64
 }
 
 type githubSource struct {
@@ -34,9 +34,9 @@ type githubSource struct {
 func GitHub(opts GitHubSourceOptions) (Source, error) {
 	tr := http.DefaultTransport
 
-	if opts.GHAppPrivateKey != "" && opts.GHAppInstallationId != 0 {
+	if opts.AppPrivateKey != "" && opts.AppInstallationId != 0 {
 		// Wrap the shared transport for use with the app ID 1 authenticating with installation ID 99.
-		itr, err := ghinstallation.NewKeyFromFile(tr, 881880, opts.GHAppInstallationId, opts.GHAppPrivateKey)
+		itr, err := ghinstallation.NewKeyFromFile(tr, 881880, opts.AppInstallationId, opts.AppPrivateKey)
 		if err != nil {
 			return nil, err
 		}

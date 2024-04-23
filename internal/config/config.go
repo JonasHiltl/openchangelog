@@ -4,13 +4,26 @@ import (
 	"github.com/spf13/viper"
 )
 
+type GitHubConfig struct {
+	Owner             string `mapstructure:"owner"`
+	Repo              string `mapstructure:"repo"`
+	Path              string `mapstructure:"path"`
+	AppPrivateKey     string `mapstructure:"appPrivateKey"`
+	AppInstallationId int64  `mapstructure:"appInstallationId"`
+}
+
+type LocalConfig struct {
+	FilesPath string `mapstructure:"filesPath"`
+}
+
 type Config struct {
-	GH_APP_PRIVATE_KEY     string `mapstructure:"GH_APP_PRIVATE_KEY"`
-	GH_APP_INSTALLATION_ID int64  `mapstructure:"GH_APP_INSTALLATION_ID"`
+	GitHub GitHubConfig `mapstructure:"github"`
+	Local  LocalConfig  `mapstructure:"local"`
 }
 
 func Load() (Config, error) {
-	viper.SetConfigFile(".env")
+	viper.SetConfigFile("config.yaml")
+	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
 		return Config{}, err
