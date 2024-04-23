@@ -660,6 +660,16 @@ article {
   max-width: 100%;
 }
 
+.article-skeleton:not(.htmx-request) {
+  height: 0px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.htmx-request.article-skeleton {
+  opacity: 1;
+}
+
 .sticky {
   position: sticky;
 }
@@ -671,6 +681,10 @@ article {
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
+}
+
+.mb-20 {
+  margin-bottom: 5rem;
 }
 
 .mr-2 {
@@ -685,8 +699,44 @@ article {
   display: flex;
 }
 
+.h-20 {
+  height: 5rem;
+}
+
+.h-4 {
+  height: 1rem;
+}
+
+.h-5 {
+  height: 1.25rem;
+}
+
+.h-8 {
+  height: 2rem;
+}
+
+.h-40 {
+  height: 10rem;
+}
+
+.h-24 {
+  height: 6rem;
+}
+
+.w-20 {
+  width: 5rem;
+}
+
+.w-3\/4 {
+  width: 75%;
+}
+
 .w-full {
   width: 100%;
+}
+
+.w-24 {
+  width: 6rem;
 }
 
 .max-w-2xl {
@@ -697,6 +747,16 @@ article {
   max-width: 32rem;
 }
 
+@keyframes pulse {
+  50% {
+    opacity: .5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 .justify-center {
   justify-content: center;
 }
@@ -705,8 +765,18 @@ article {
   justify-content: space-between;
 }
 
+.space-y-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
+}
+
 .text-nowrap {
   text-wrap: nowrap;
+}
+
+.rounded {
+  border-radius: 0.25rem;
 }
 
 .border-b {
@@ -715,6 +785,11 @@ article {
 
 .border-solid {
   border-style: solid;
+}
+
+.bg-gray-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
 }
 
 .p-3 {

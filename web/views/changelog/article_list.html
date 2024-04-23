@@ -3,7 +3,18 @@
 {{ template "changelog/article" . }}
 {{end}}
 {{ if .HasMore }}
-<div hx-trigger="revealed" hx-target="this" hx-get="/?page={{ .NextPage }}&page-size={{ .NextPage }}"
-    hx-swap="afterend"></div>
+<div hx-trigger="revealed" hx-target="this" hx-get="/?page={{ .NextPage }}&page-size={{ .NextPage }}" hx-swap="afterend"
+    hx-indicator="#skeleton">
+</div>
+<div id="skeleton" class="article-skeleton">
+    <div class="flex justify-between animate-pulse mb-20">
+        <div class="w-24 h-4 rounded bg-gray-100"></div>
+        <div class="w-full max-w-lg space-y-2">
+            <div class="w-3/4 max-w-lg h-8 rounded bg-gray-100"></div>
+            <div class="w-full max-w-lg h-5 rounded bg-gray-100"></div>
+            <div class="w-full max-w-lg h-24 rounded bg-gray-100"></div>
+        </div>
+    </div>
+</div>
 {{ end }}
 {{ end }}

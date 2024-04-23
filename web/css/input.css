@@ -60,4 +60,12 @@
     .quail-image-wrapper {
         @apply max-w-full
     }
+
+    .article-skeleton:not(.htmx-request) {
+        @apply opacity-0 h-0 overflow-hidden
+    }
+
+    .htmx-request.article-skeleton {
+        @apply opacity-100
+    }
 }
