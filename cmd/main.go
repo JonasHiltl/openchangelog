@@ -19,6 +19,6 @@ func main() {
 		panic(err)
 	}
 
-	srv := server.New(s, p, server.WithPort(80))
+	srv := server.New(s, p, cfg)
 	srv.Start()
 }

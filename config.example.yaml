@@ -1,3 +1,4 @@
+port: 80
 #github:
 #  owner:
 #  repo:
@@ -5,6 +6,13 @@
 #  auth:
 #    appPrivateKey:
 #    appInstallationId:
-#    or accessToken:
 local:
   filesPath: .testdata
+page:
+  title: Changelog
+  subtitle: The latest product updates from Openchangelog
+  logo:
+    src: https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png
+    width: 70px
+    height: 25px
+    link: https://www.openchangelog.com

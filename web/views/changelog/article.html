@@ -2,7 +2,13 @@
 <article class="flex justify-between">
     <p class="text-nowrap mr-2 opacity-50">{{ .PublishedAt }}</p>
     <div class="max-w-lg">
-        <h2>{{ .Title }}</h2>
+        <h2 id="{{ .Id }}" class="group align-middle">
+            {{ .Title }}
+            <a class="hover:no-underline opacity-0 group-hover:opacity-100 transition-opacity text-lg"
+                href="#{{ .Id }}">
+                #
+            </a>
+        </h2>
         <p class="opacity-50">{{ .Description }}</p>
         {{ .Content }}
     </div>

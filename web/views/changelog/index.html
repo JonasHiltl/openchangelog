@@ -1,6 +1,14 @@
 {{ block "changelog/index" . }}
 {{ template "layout/header" . }}
-<main class="max-w-2xl mx-auto pt-10">
+<main class="max-w-2xl mx-auto">
+    <div class="max-w-lg ml-auto mr-0 py-5">
+        {{ with .Title }}
+        <h1>{{ . }}</h1>
+        {{ end }}
+        {{ with .Subtitle }}
+        <p>{{ . }}</p>
+        {{ end }}
+    </div>
     {{ template "changelog/article_list" . }}
 </main>
 {{ template "layout/footer" . }}

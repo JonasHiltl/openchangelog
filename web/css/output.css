@@ -450,8 +450,14 @@ h1 {
   scroll-margin: 5rem;
   font-size: 1.875rem;
   line-height: 2.25rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.025em;
+}
+
+@media (min-width: 1280px) {
+  h1 {
+    font-size: 36px;
+  }
 }
 
 h2 {
@@ -459,7 +465,6 @@ h2 {
   font-size: 1.5rem;
   line-height: 2rem;
   font-weight: 600;
-  letter-spacing: -0.025em;
 }
 
 h3 {
@@ -467,7 +472,6 @@ h3 {
   font-size: 1.25rem;
   line-height: 1.75rem;
   font-weight: 600;
-  letter-spacing: -0.025em;
 }
 
 h4 {
@@ -475,7 +479,6 @@ h4 {
   font-size: 1.125rem;
   line-height: 1.75rem;
   font-weight: 600;
-  letter-spacing: -0.025em;
 }
 
 h5 {
@@ -483,7 +486,6 @@ h5 {
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 600;
-  letter-spacing: -0.025em;
 }
 
 ul {
@@ -687,6 +689,14 @@ article {
   margin-bottom: 5rem;
 }
 
+.ml-auto {
+  margin-left: auto;
+}
+
+.mr-0 {
+  margin-right: 0px;
+}
+
 .mr-2 {
   margin-right: 0.5rem;
 }
@@ -699,8 +709,8 @@ article {
   display: flex;
 }
 
-.h-20 {
-  height: 5rem;
+.h-24 {
+  height: 6rem;
 }
 
 .h-4 {
@@ -715,16 +725,8 @@ article {
   height: 2rem;
 }
 
-.h-40 {
-  height: 10rem;
-}
-
-.h-24 {
-  height: 6rem;
-}
-
-.w-20 {
-  width: 5rem;
+.w-24 {
+  width: 6rem;
 }
 
 .w-3\/4 {
@@ -733,10 +735,6 @@ article {
 
 .w-full {
   width: 100%;
-}
-
-.w-24 {
-  width: 6rem;
 }
 
 .max-w-2xl {
@@ -796,16 +794,52 @@ article {
   padding: 0.75rem;
 }
 
-.pt-10 {
-  padding-top: 2.5rem;
+.py-5 {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+.align-middle {
+  vertical-align: middle;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.no-underline {
+  text-decoration-line: none;
 }
 
 .opacity-50 {
   opacity: 0.5;
 }
 
+.opacity-0 {
+  opacity: 0;
+}
+
 .backdrop-blur-md {
   --tw-backdrop-blur: blur(12px);
   -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
           backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+}
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.hover\:no-underline:hover {
+  text-decoration-line: none;
+}
+
+.hover\:opacity-100:hover {
+  opacity: 1;
+}
+
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
 }

@@ -4,23 +4,23 @@
 
 @layer base {
     h1 {
-        @apply scroll-m-20 text-3xl font-bold tracking-tight;
+        @apply scroll-m-20 xl:text-[36px] text-3xl tracking-tight font-semibold;
     }
 
     h2 {
-        @apply scroll-m-20 text-2xl font-semibold tracking-tight;
+        @apply scroll-m-20 text-2xl font-semibold;
     }
 
     h3 {
-        @apply scroll-m-20 text-xl font-semibold tracking-tight;
+        @apply scroll-m-20 text-xl font-semibold;
     }
 
     h4 {
-        @apply scroll-m-20 text-lg font-semibold tracking-tight;
+        @apply scroll-m-20 text-lg font-semibold;
     }
 
     h5 {
-        @apply scroll-m-20 text-sm font-semibold tracking-tight;
+        @apply scroll-m-20 text-sm font-semibold;
     }
 
     ul {

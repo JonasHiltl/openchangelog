@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"strconv"
 
+	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/source"
 	"github.com/labstack/echo/v4"
@@ -15,35 +16,14 @@ type Server interface {
 	Start()
 }
 
-type ServerCfg struct {
-	Port int
-}
-
-func WithPort(p int) func(c *ServerCfg) {
-	return func(c *ServerCfg) {
-		c.Port = p
-	}
-}
-
-func newConfig() ServerCfg {
-	return ServerCfg{
-		Port: 80,
-	}
-}
-
 type server struct {
 	e      *echo.Echo
-	cfg    ServerCfg
+	cfg    config.Config
 	source source.Source
 	parser parse.Parser
 }
 
-func New(s source.Source, p parse.Parser, config ...func(c *ServerCfg)) Server {
-	c := newConfig()
-	for _, apply := range config {
-		apply(&c)
-	}
-
+func New(s source.Source, p parse.Parser, cfg config.Config) Server {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Static("/static", "./web/css")
@@ -51,7 +31,7 @@ func New(s source.Source, p parse.Parser, config ...func(c *ServerCfg)) Server {
 
 	srv := server{
 		e:      e,
-		cfg:    c,
+		cfg:    cfg,
 		source: s,
 		parser: p,
 	}
@@ -62,6 +42,7 @@ func New(s source.Source, p parse.Parser, config ...func(c *ServerCfg)) Server {
 }
 
 type ArticleVars struct {
+	Id          string
 	Title       string
 	Description string
 	PublishedAt string
@@ -93,6 +74,7 @@ func (s *server) renderChangeLog(c echo.Context) error {
 	articles := make([]ArticleVars, 0, len(res.Articles))
 	for _, a := range res.Articles {
 		articles = append(articles, ArticleVars{
+			Id:          fmt.Sprint(a.Meta.PublishedAt.Unix()),
 			Title:       a.Meta.Title,
 			Description: a.Meta.Description,
 			PublishedAt: a.Meta.PublishedAt.Format("02 Jan 2006"),
@@ -102,15 +84,24 @@ func (s *server) renderChangeLog(c echo.Context) error {
 
 	vars := map[string]interface{}{
 		"Articles": articles,
-		"Logo": Logo{
-			Src:    "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png",
-			Width:  "70px",
-			Height: "25px",
-			Link:   "https://www.google.com",
-		},
 		"PageSize": pageSize,
 		"NextPage": page + 1,
 		"HasMore":  res.HasMore,
+	}
+
+	if s.cfg.Page != nil {
+		vars["Title"] = s.cfg.Page.Title
+		vars["Subtitle"] = s.cfg.Page.Subtitle
+	}
+
+	if s.cfg.Page != nil && s.cfg.Page.Logo != nil {
+		vars["Logo"] = Logo{
+			Src:    s.cfg.Page.Logo.Src,
+			Width:  s.cfg.Page.Logo.Width,
+			Height: s.cfg.Page.Logo.Height,
+			Link:   s.cfg.Page.Logo.Link,
+			Alt:    s.cfg.Page.Logo.Alt,
+		}
 	}
 
 	// this is used by htmx to allow infinite scrolling

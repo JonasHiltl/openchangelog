@@ -21,9 +21,25 @@ type LocalConfig struct {
 	FilesPath string `mapstructure:"filesPath"`
 }
 
+type LogoConfig struct {
+	Src    string `mapstructure:"src"`
+	Width  string `mapstructure:"width"`
+	Height string `mapstructure:"height"`
+	Link   string `mapstructure:"link"`
+	Alt    string `mapstructure:"alt"`
+}
+
+type PageConfig struct {
+	Logo     *LogoConfig `mapstructure:"logo"`
+	Title    string      `mapstructure:"title"`
+	Subtitle string      `mapstructure:"subtitle"`
+}
+
 type Config struct {
+	Port   int           `mapstructure:"port"`
 	Github *GithubConfig `mapstructure:"github"`
 	Local  *LocalConfig  `mapstructure:"local"`
+	Page   *PageConfig   `mapstructure:"page"`
 }
 
 func Load() (Config, error) {
