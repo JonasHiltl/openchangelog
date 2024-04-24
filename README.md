@@ -1,6 +1,6 @@
 # Openchangelog
 Openchangelog is an open source, self hostable Changelog Rendering Website.
-Changelogs are written in Markdown and can be different sources, e.g `local` or `GitHub`.
+Changelogs are written in Markdown and can be integrated from different sources, e.g `local` or `GitHub`.
 
 ## Configuration
 You can configure your Changelog by adapting the `config.yaml` file.
@@ -49,7 +49,11 @@ github:
     accessToken: # access token with a access to the specified repo
 ```
 
-## Filename Format
+## Writing Changelogs
+Each new Changelog, e.g. from a new release, is written in a new Markdown file, this allows adding custom metadata for each article using the markdown Frontmatter.  
+All files are stored in the same directory, either local or in remote sources.
+
+### Filename Format
 The ordering of the changelog files is important.  
 The displayed Articles in the UI are ordered by their filename in descending order. We recommend prefixing the file with the release version.
 ```
@@ -58,7 +62,7 @@ v0.0.1.darkmode.md
 v0.0.2.i81n.md
 ```
 
-## Content Format
+### Content Format
 Changelogs are written in Markdown, we are compliant with CommonMark 0.31.2 (thanks to [goldmark](https://github.com/yuin/goldmark)).  
 You can use the Frontmatter to specify additional info:
 - `title`: Displayed as a bold title at the top of the Changelog Article.
