@@ -4,8 +4,7 @@ port: 80
 #  repo:
 #  path:
 #  auth:
-#    appPrivateKey:
-#    appInstallationId:
+#    accessToken:
 local:
   filesPath: .testdata
 page:
