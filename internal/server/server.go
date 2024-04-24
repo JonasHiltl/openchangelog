@@ -117,6 +117,10 @@ func (s *server) renderChangeLog(c echo.Context) error {
 }
 
 func (s *server) Start() {
-	addr := fmt.Sprintf(":%d", s.cfg.Port)
+	port := 8080
+	if s.cfg.Port != 0 {
+		port = 8080
+	}
+	addr := fmt.Sprintf(":%d", port)
 	s.e.Logger.Fatal(s.e.Start(addr))
 }
