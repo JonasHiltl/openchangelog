@@ -38,7 +38,7 @@ local:
 ```
 ### Github Data Source
 You can specify your repository and path to a directory inside the repo containing your Changelog Markdown files.
-You can **authenticate** via a `Personal Access Token`.
+You can **authenticate** via a `Github App` or `Personal Access Token`.
 ```yaml
 # config.yaml
 github:
@@ -47,6 +47,9 @@ github:
   path: # path inside repo
   auth:
     accessToken: # access token with a access to the specified repo
+    # or
+    appPrivateKey:
+    appInstallationId:
 ```
 
 ## Writing Changelogs
