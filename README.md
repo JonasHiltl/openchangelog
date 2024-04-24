@@ -1,4 +1,53 @@
 # Openchangelog
+Openchangelog is an open source, self hostable Changelog Rendering Website.
+Changelogs are written in Markdown and can be different sources, e.g `local` or `GitHub`.
+
+## Configuration
+You can configure your Changelog by adapting the `config.yaml` file.
+
+### Look & Feel
+**title**: The title is displayed above all Changelog articles.
+```yaml
+# config.yaml
+page:
+  title:
+```
+**subtitle**: The subtitle is displayed blow the title.
+```yaml
+# config.yaml
+page:
+  subtitle:
+```
+**Logo**: Your logo is displayed in the header.
+```yaml
+# config.yaml
+page:
+  logo:
+    src: # url to image
+    width: # width of logo as string e.g. 70px
+    height: # height of logo as string e.g 30px
+    link: # optional link that the logo points to
+```
+
+### Local Data Source
+You can specify a local file path to a directory containing your Changelog Markdown files.
+```yaml
+# config.yaml
+local:
+  filesPath: .testdata
+```
+### Github Data Source
+You can specify your repository and path to a directory inside the repo containing your Changelog Markdown files.
+You can **authenticate** via a `Personal Access Token`.
+```yaml
+# config.yaml
+github:
+  owner: # gh username
+  repo:
+  path: # path inside repo
+  auth:
+    accessToken: # access token with a access to the specified repo
+```
 
 ## Filename Format
 The ordering of the changelog files is important.  
