@@ -489,14 +489,25 @@ h5 {
 }
 
 ul {
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
   margin-left: 1.5rem;
   list-style-type: disc;
 }
 
 ul>li {
+  margin-top: 0.25rem;
+}
+
+ol {
   margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  margin-left: 1.5rem;
+  list-style-type: decimal;
+}
+
+ol>li {
+  margin-top: 0.25rem;
 }
 
 * a {
@@ -701,6 +712,10 @@ article {
   margin-right: 0.5rem;
 }
 
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
 .block {
   display: block;
 }
@@ -808,16 +823,12 @@ article {
   line-height: 1.75rem;
 }
 
-.no-underline {
-  text-decoration-line: none;
+.opacity-0 {
+  opacity: 0;
 }
 
 .opacity-50 {
   opacity: 0.5;
-}
-
-.opacity-0 {
-  opacity: 0;
 }
 
 .backdrop-blur-md {
@@ -834,10 +845,6 @@ article {
 
 .hover\:no-underline:hover {
   text-decoration-line: none;
-}
-
-.hover\:opacity-100:hover {
-  opacity: 1;
 }
 
 .group:hover .group-hover\:opacity-100 {
