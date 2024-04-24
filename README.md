@@ -12,7 +12,7 @@ You can configure your Changelog by adapting the `config.yaml` file.
 page:
   title:
 ```
-**subtitle**: The subtitle is displayed blow the title.
+**subtitle**: The subtitle is displayed below the title.
 ```yaml
 # config.yaml
 page:
