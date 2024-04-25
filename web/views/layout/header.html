@@ -16,12 +16,13 @@
 
 <body>
     <nav class="sticky top-0 flex justify-center p-3 backdrop-blur-md border-solid border-b">
-        <div class="max-w-2xl w-full flex justify-between">
+        <div class="max-w-2xl h-8 w-full flex justify-between">
             {{ with .Logo }}
             {{ with .Link }}
-            <a href={{ . }}>
+            <a href={{ . }} class="h-full">
                 {{ end }}
-                <img src={{ .Src }} alt="{{.Alt}}" style="width: {{.Width}}; height: {{.Height}}" />
+                <img src={{ .Src }} alt="{{.Alt}}" style="width: {{.Width}}; height: {{.Height}}"
+                    class="max-h-full max-w-full object-contain" />
                 {{ with .Link }}
             </a>
             {{ end }}
