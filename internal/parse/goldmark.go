@@ -88,6 +88,11 @@ func (g *gmark) parseArticle(a source.Article) (ParsedArticle, error) {
 	}
 
 	data := frontmatter.Get(ctx)
+	if data == nil {
+		return ParsedArticle{
+			Content: &buf,
+		}, nil
+	}
 	var meta Meta
 	err = data.Decode(&meta)
 	if err != nil {
