@@ -1,0 +1,15 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: 
+      - "internal/store/changelog.sql"
+      - "internal/store/source.sql"
+      - "internal/store/workspace.sql"
+      - "internal/store/tokens.sql"
+    schema:
+      - "internal/store/migrations"
+    gen:
+      go:
+        package: "store"
+        out: "internal/store"
+        sql_package: "pgx/v5"

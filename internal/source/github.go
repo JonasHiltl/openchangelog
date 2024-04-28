@@ -11,6 +11,7 @@ import (
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
 	"github.com/google/go-github/v61/github"
+	"github.com/jonashiltl/openchangelog/internal/utils"
 )
 
 type GithubSourceOptions struct {
@@ -85,7 +86,7 @@ func (s *githubSource) Load(ctx context.Context, params LoadParams) (LoadResult,
 }
 
 func (s *githubSource) loadFiles(ctx context.Context, files []*github.RepositoryContent, params LoadParams) (LoadResult, error) {
-	files = filter(files, func(f *github.RepositoryContent) bool {
+	files = utils.Filter(files, func(f *github.RepositoryContent) bool {
 		return filepath.Ext(f.GetName()) == ".md"
 	})
 

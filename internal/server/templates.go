@@ -16,7 +16,10 @@ func (t *Templates) Render(w io.Writer, name string, data any, c echo.Context) e
 }
 
 func newTemplate() *Templates {
+	t := template.Must(template.ParseGlob("web/views/*.html"))
+	template.Must(t.ParseGlob("web/views/**/*.html"))
+
 	return &Templates{
-		templates: template.Must(template.ParseGlob("web/views/**/*.html")),
+		templates: t,
 	}
 }

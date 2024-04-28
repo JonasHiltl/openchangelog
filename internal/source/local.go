@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"sort"
 	"sync"
+
+	"github.com/jonashiltl/openchangelog/internal/utils"
 )
 
 type localFileSource struct {
@@ -50,7 +52,7 @@ func loadFromDir(path string, params LoadParams) (LoadResult, error) {
 		}, nil
 	}
 
-	files = filter(files, func(f fs.DirEntry) bool {
+	files = utils.Filter(files, func(f fs.DirEntry) bool {
 		return filepath.Ext(f.Name()) == ".md"
 	})
 

@@ -1,0 +1,1 @@
+DELETE TABLE workspaces;

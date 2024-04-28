@@ -1,0 +1,9 @@
+{{ block "error" . }}
+{{ template "layout/header" . }}
+<main class="max-w-2xl mx-auto my-8 text-center">
+    <h1>{{ .Status }}</h1>
+    <p class="mb-4">{{ .Message }}</p>
+    <button hx-get="{{ .Path }}" hx-target="_top">Try Again</button>
+</main>
+{{ template "layout/footer" . }}
+{{ end }}

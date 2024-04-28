@@ -36,10 +36,11 @@ type PageConfig struct {
 }
 
 type Config struct {
-	Port   int           `mapstructure:"port"`
-	Github *GithubConfig `mapstructure:"github"`
-	Local  *LocalConfig  `mapstructure:"local"`
-	Page   *PageConfig   `mapstructure:"page"`
+	Port        int           `mapstructure:"port"`
+	DatabaseURL string        `mapstructure:"databaseUrl"`
+	Github      *GithubConfig `mapstructure:"github"`
+	Local       *LocalConfig  `mapstructure:"local"`
+	Page        *PageConfig   `mapstructure:"page"`
 }
 
 func Load() (Config, error) {
