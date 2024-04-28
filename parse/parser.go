@@ -5,7 +5,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/jonashiltl/openchangelog/internal/source"
+	"github.com/jonashiltl/openchangelog/source"
 )
 
 type Meta struct {

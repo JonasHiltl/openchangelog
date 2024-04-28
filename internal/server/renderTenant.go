@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jonashiltl/openchangelog/internal/source"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/source"
 	"github.com/labstack/echo/v4"
 )
 

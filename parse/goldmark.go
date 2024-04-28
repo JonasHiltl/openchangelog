@@ -6,7 +6,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/jonashiltl/openchangelog/internal/source"
+	"github.com/jonashiltl/openchangelog/source"
 	enclave "github.com/quail-ink/goldmark-enclave"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"

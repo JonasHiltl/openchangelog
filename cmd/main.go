@@ -10,9 +10,9 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jonashiltl/openchangelog/internal/config"
-	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/server"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/parse"
 )
 
 func main() {

@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/jonashiltl/openchangelog/internal/source"
+	"github.com/jonashiltl/openchangelog/source"
 	"github.com/labstack/echo/v4"
 )
 

@@ -6,10 +6,10 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jonashiltl/openchangelog/internal/config"
-	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/server/api"
 	"github.com/jonashiltl/openchangelog/internal/source"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/parse"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

@@ -6,6 +6,7 @@ import (
 
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/source"
 )
 
 type SourceFactory struct {
@@ -18,7 +19,7 @@ func NewSourceFactory(cfg config.Config) *SourceFactory {
 	}
 }
 
-func (l *SourceFactory) FromDB(changelog store.Changelog, source store.ChangelogSource) (Source, error) {
+func (l *SourceFactory) FromDB(changelog store.Changelog, src store.ChangelogSource) (source.Source, error) {
 	if !changelog.SourceType.Valid {
 		return nil, errors.New("changelog has no stored source")
 	}
@@ -26,14 +27,14 @@ func (l *SourceFactory) FromDB(changelog store.Changelog, source store.Changelog
 	switch changelog.SourceType.SourceType {
 	case store.SourceTypeGitHub:
 		{
-			if !source.ID.Valid {
+			if !src.ID.Valid {
 				return nil, errors.New("referenced github source has invalid id")
 			}
-			return Github(GithubSourceOptions{
-				Owner:             source.Owner.String,
-				Repository:        source.Repo.String,
-				Path:              source.Path.String,
-				AppInstallationId: source.InstallationID.Int64,
+			return source.Github(source.GithubSourceOptions{
+				Owner:             src.Owner.String,
+				Repository:        src.Repo.String,
+				Path:              src.Path.String,
+				AppInstallationId: src.InstallationID.Int64,
 				AppPrivateKey:     l.cfg.Github.Auth.AppPrivateKey,
 				AccessToken:       l.cfg.Github.Auth.AccessToken,
 			})
@@ -43,12 +44,12 @@ func (l *SourceFactory) FromDB(changelog store.Changelog, source store.Changelog
 	}
 }
 
-func (l *SourceFactory) FromConfig() (Source, error) {
+func (l *SourceFactory) FromConfig() (source.Source, error) {
 	if l.cfg.Local != nil {
-		return LocalFile(l.cfg.Local.FilesPath), nil
+		return source.LocalFile(l.cfg.Local.FilesPath), nil
 	}
 	if l.cfg.Github != nil && l.cfg.Github.Auth != nil {
-		return Github(GithubSourceOptions{
+		return source.Github(source.GithubSourceOptions{
 			Owner:             l.cfg.Github.Owner,
 			Repository:        l.cfg.Github.Repo,
 			Path:              l.cfg.Github.Path,
