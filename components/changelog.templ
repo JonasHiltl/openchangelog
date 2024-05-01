@@ -1,0 +1,21 @@
+package components
+
+type ChangelogArgs struct {
+	Title    string
+	Subtitle string
+	ArticleListArgs
+}
+
+templ Changelog(c ChangelogArgs) {
+	<main class="max-w-2xl mx-auto">
+		<div class="max-w-lg ml-auto mr-0 py-5">
+			if c.Title != "" {
+				<h1>{ c.Title }</h1>
+			}
+			if c.Subtitle != "" {
+				<p>{ c.Subtitle }</p>
+			}
+		</div>
+		@ArticleList(c.ArticleListArgs)
+	</main>
+}

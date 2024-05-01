@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/jonashiltl/openchangelog/web/views"
 	"github.com/labstack/echo/v4"
 )
 
@@ -29,12 +30,12 @@ func customHTTPErrorHandler(err error, c echo.Context) {
 			Message: msg,
 		})
 	} else {
-		vars := map[string]interface{}{
-			"Status":  code,
-			"Message": msg,
-			"Path":    path,
+		args := views.ErrorArgs{
+			Status:  code,
+			Message: msg,
+			Path:    path,
 		}
-		if err := c.Render(code, "error", vars); err != nil {
+		if err := views.Error(args).Render(c.Request().Context(), c.Response().Writer); err != nil {
 			c.Logger().Error(err)
 		}
 	}

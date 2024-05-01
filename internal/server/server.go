@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"html/template"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jonashiltl/openchangelog/internal/config"
@@ -35,7 +34,6 @@ type ServerArgs struct {
 
 func New(args ServerArgs) Server {
 	e := echo.New()
-	e.Renderer = newTemplate()
 	e.Validator = newValidator()
 	e.HTTPErrorHandler = customHTTPErrorHandler
 	e.Use(middleware.Logger())
@@ -74,56 +72,6 @@ func New(args ServerArgs) Server {
 	e.DELETE("/api/sources/gh/:source-id", api.DeleteGHSource)
 
 	return &srv
-}
-
-type changelogVars struct {
-	PageSize int
-	NextPage int
-	HasMore  bool
-	Title    string
-	Subtitle string
-	Logo     logo
-	Articles []articleVars
-}
-
-func (v changelogVars) toMap() map[string]any {
-	m := make(map[string]any)
-	if v.PageSize != 0 {
-		m["PageSize"] = v.PageSize
-	}
-	if v.NextPage != 0 {
-		m["NextPage"] = v.NextPage
-	}
-	if v.Title != "" {
-		m["Title"] = v.Title
-	}
-	if v.Subtitle != "" {
-		m["Subtitle"] = v.Subtitle
-	}
-	if v.Logo.Src != "" {
-		m["Logo"] = v.Logo
-	}
-	if len(v.Articles) > 0 {
-		m["Articles"] = v.Articles
-	}
-	m["HasMore"] = v.HasMore
-	return m
-}
-
-type articleVars struct {
-	Id          string
-	Title       string
-	Description string
-	PublishedAt string
-	Content     template.HTML
-}
-
-type logo struct {
-	Src    string
-	Width  string
-	Height string
-	Alt    string
-	Link   string
 }
 
 func (s *server) Start() {

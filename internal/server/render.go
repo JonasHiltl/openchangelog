@@ -2,10 +2,11 @@ package server
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 
+	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/source"
+	"github.com/jonashiltl/openchangelog/web/views"
 	"github.com/labstack/echo/v4"
 )
 
@@ -38,45 +39,48 @@ func (s *server) renderChangeLog(c echo.Context) error {
 		return err
 	}
 
-	articles := make([]articleVars, 0, len(res.Articles))
+	articles := make([]components.ArticleArgs, 0, len(res.Articles))
 	for _, a := range res.Articles {
-		articles = append(articles, articleVars{
-			Id:          fmt.Sprint(a.Meta.PublishedAt.Unix()),
+		articles = append(articles, components.ArticleArgs{
+			ID:          fmt.Sprint(a.Meta.PublishedAt.Unix()),
 			Title:       a.Meta.Title,
 			Description: a.Meta.Description,
 			PublishedAt: a.Meta.PublishedAt.Format("02 Jan 2006"),
-			Content:     template.HTML(a.Content.String()),
+			Content:     a.Content.String(),
 		})
 	}
 
-	vars := changelogVars{
+	articleListArgs := components.ArticleListArgs{
 		Articles: articles,
 		PageSize: req.PageSize,
 		NextPage: req.Page + 1,
 		HasMore:  res.HasMore,
 	}
 
-	if s.cfg.Page != nil {
-		vars.Title = s.cfg.Page.Title
-		vars.Subtitle = s.cfg.Page.Subtitle
-	}
-
-	if s.cfg.Page != nil && s.cfg.Page.Logo != nil {
-		vars.Logo = logo{
-			Src:  s.cfg.Page.Logo.Src,
-			Link: s.cfg.Page.Logo.Link,
-			Alt:  s.cfg.Page.Logo.Alt,
-		}
-	}
-
-	// this is used by htmx to allow infinite scrolling
 	if htmxHeader := c.Request().Header.Get("HX-Request"); len(htmxHeader) > 0 {
 		if len(articles) > 0 {
-			return c.Render(200, "changelog/article_list", vars.toMap())
+			return components.ArticleList(articleListArgs).Render(c.Request().Context(), c.Response().Writer)
+		} else {
+			return c.NoContent(204)
 		}
-	} else {
-		return c.Render(200, "changelog/index", vars.toMap())
 	}
 
-	return c.NoContent(200)
+	indexArgs := views.IndexArgs{
+		ChangelogArgs: components.ChangelogArgs{
+			Title:           s.cfg.Page.Title,
+			Subtitle:        s.cfg.Page.Subtitle,
+			ArticleListArgs: articleListArgs,
+		},
+		NavbarArgs: components.NavbarArgs{
+			Logo: components.Logo{
+				Src:    s.cfg.Page.Logo.Src,
+				Width:  s.cfg.Page.Logo.Width,
+				Height: s.cfg.Page.Logo.Height,
+				Alt:    s.cfg.Page.Logo.Alt,
+				Link:   s.cfg.Page.Logo.Link,
+			},
+		},
+	}
+
+	return views.Index(indexArgs).Render(c.Request().Context(), c.Response().Writer)
 }

@@ -2,12 +2,13 @@ package server
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"github.com/jonashiltl/openchangelog/source"
+	"github.com/jonashiltl/openchangelog/web/views"
 	"github.com/labstack/echo/v4"
 )
 
@@ -43,7 +44,8 @@ func (s *server) renderTenantChangeLog(c echo.Context) error {
 		return err
 	}
 
-	vars := changelogVars{
+	articleListArgs := components.ArticleListArgs{
+		Articles: []components.ArticleArgs{},
 		PageSize: req.PageSize,
 		NextPage: req.Page + 1,
 		HasMore:  false,
@@ -56,45 +58,44 @@ func (s *server) renderTenantChangeLog(c echo.Context) error {
 			return echo.NewHTTPError(echo.ErrInternalServerError.Code, "failed to parse markdown fiels: %s", err)
 		}
 
-		articles := make([]articleVars, 0, len(res.Articles))
+		articles := make([]components.ArticleArgs, 0, len(res.Articles))
 		for _, a := range res.Articles {
-			articles = append(articles, articleVars{
-				Id:          fmt.Sprint(a.Meta.PublishedAt.Unix()),
+			articles = append(articles, components.ArticleArgs{
+				ID:          fmt.Sprint(a.Meta.PublishedAt.Unix()),
 				Title:       a.Meta.Title,
 				Description: a.Meta.Description,
 				PublishedAt: a.Meta.PublishedAt.Format("02 Jan 2006"),
-				Content:     template.HTML(a.Content.String()),
+				Content:     a.Content.String(),
 			})
 		}
-		vars.Articles = articles
-		vars.HasMore = res.HasMore
+		articleListArgs.Articles = articles
+		articleListArgs.HasMore = res.HasMore
 	}
 
-	if row.Changelog.Title.Valid {
-		vars.Title = row.Changelog.Title.String
-	}
-	if row.Changelog.Subtitle.Valid {
-		vars.Subtitle = row.Changelog.Subtitle.String
-	}
-
-	if row.Changelog.LogoSrc.Valid {
-		vars.Logo = logo{
-			Src:    row.Changelog.LogoSrc.String,
-			Width:  row.Changelog.LogoWidth.String,
-			Height: row.Changelog.LogoHeight.String,
-			Link:   row.Changelog.LogoLink.String,
-			Alt:    row.Changelog.LogoAlt.String,
-		}
-	}
-
-	// this is used by htmx to allow infinite scrolling
 	if htmxHeader := c.Request().Header.Get("HX-Request"); len(htmxHeader) > 0 {
-		if len(vars.Articles) > 0 {
-			return c.Render(200, "changelog/article_list", vars.toMap())
+		if len(articleListArgs.Articles) > 0 {
+			return components.ArticleList(articleListArgs).Render(c.Request().Context(), c.Response().Writer)
+		} else {
+			return c.NoContent(204)
 		}
-	} else {
-		return c.Render(200, "changelog/index", vars.toMap())
 	}
 
-	return c.NoContent(200)
+	indexArgs := views.IndexArgs{
+		ChangelogArgs: components.ChangelogArgs{
+			Title:           row.Changelog.Title.String,
+			Subtitle:        row.Changelog.Subtitle.String,
+			ArticleListArgs: articleListArgs,
+		},
+		NavbarArgs: components.NavbarArgs{
+			Logo: components.Logo{
+				Src:    row.Changelog.LogoSrc.String,
+				Width:  row.Changelog.LogoWidth.String,
+				Height: row.Changelog.LogoHeight.String,
+				Alt:    row.Changelog.LogoLink.String,
+				Link:   row.Changelog.LogoAlt.String,
+			},
+		},
+	}
+
+	return views.Index(indexArgs).Render(c.Request().Context(), c.Response().Writer)
 }

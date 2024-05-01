@@ -1,0 +1,32 @@
+package components
+
+type Logo struct {
+	Src    string
+	Width  string
+	Height string
+	Alt    string
+	Link   string
+}
+
+type NavbarArgs struct {
+	Logo Logo
+}
+
+css imgSize(width string, height string) {
+	width: { width };
+	height: { height };
+}
+
+templ Navbar(arg NavbarArgs) {
+	<nav class="sticky top-0 flex justify-center p-2 backdrop-blur-md border-solid border-b">
+		<div class="max-w-2xl h-8 w-full flex justify-between">
+			<a href={ templ.URL(arg.Logo.Link) } class=" h-full">
+				<img
+					src={ arg.Logo.Src }
+					alt={ arg.Logo.Alt }
+					class={ "max-h-full max-w-full object-contain", imgSize(arg.Logo.Width, arg.Logo.Height) }
+				/>
+			</a>
+		</div>
+	</nav>
+}
