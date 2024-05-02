@@ -753,10 +753,6 @@ button:disabled {
   margin-top: 0.25rem;
 }
 
-.block {
-  display: block;
-}
-
 .flex {
   display: flex;
 }
@@ -852,6 +848,11 @@ button:disabled {
 .bg-gray-100 {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity));
+}
+
+.bg-pink-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(236 72 153 / var(--tw-bg-opacity));
 }
 
 .object-contain {
