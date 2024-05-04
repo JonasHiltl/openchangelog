@@ -47,7 +47,7 @@ func Github(opts GithubSourceOptions) (Source, error) {
 
 	client := github.NewClient(&http.Client{Transport: tr})
 	if opts.AccessToken != "" {
-		client.WithAuthToken(opts.AccessToken)
+		client = client.WithAuthToken(opts.AccessToken)
 	}
 
 	return &githubSource{
