@@ -2,14 +2,34 @@ version: "2"
 sql:
   - engine: "postgresql"
     queries: 
-      - "internal/store/changelog.sql"
-      - "internal/store/source.sql"
-      - "internal/store/workspace.sql"
-      - "internal/store/tokens.sql"
+      - "internal/domain/workspace/db/query.sql"
     schema:
-      - "internal/store/migrations"
+      - "internal/migrations/001_workspace.up.sql"
+      - "internal/migrations/002_tokens.up.sql"
     gen:
       go:
-        package: "store"
-        out: "internal/store"
+        package: "db"
+        out: "internal/domain/workspace/db"
+        sql_package: "pgx/v5"
+  - engine: "postgresql"
+    queries: 
+      - "internal/domain/changelog/db/query.sql"
+    schema:
+      - "internal/migrations/003_changelog.up.sql"
+      - "internal/migrations/004_gh_source.up.sql"
+      - "internal/migrations/005_changelog_sources.up.sql"
+    gen:
+      go:
+        package: "db"
+        out: "internal/domain/changelog/db"
+        sql_package: "pgx/v5"
+  - engine: "postgresql"
+    queries: 
+      - "internal/domain/source/db/query.sql"
+    schema:
+      - "internal/migrations/004_gh_source.up.sql"
+    gen:
+      go:
+        package: "db"
+        out: "internal/domain/source/db"
         sql_package: "pgx/v5"

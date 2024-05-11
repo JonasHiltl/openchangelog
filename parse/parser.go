@@ -1,11 +1,11 @@
 package parse
 
 import (
-	"bytes"
 	"context"
+	"io"
 	"time"
 
-	"github.com/jonashiltl/openchangelog/source"
+	"github.com/jonashiltl/openchangelog/loader"
 )
 
 type Meta struct {
@@ -16,7 +16,7 @@ type Meta struct {
 
 type ParsedArticle struct {
 	Meta    Meta
-	Content *bytes.Buffer
+	Content io.Reader
 }
 
 type ParseResult struct {
@@ -25,5 +25,5 @@ type ParseResult struct {
 }
 
 type Parser interface {
-	Parse(ctx context.Context, s source.Source, params source.LoadParams) (ParseResult, error)
+	Parse(ctx context.Context, l loader.Loader, page loader.Pagination) (ParseResult, error)
 }

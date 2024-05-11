@@ -3,10 +3,11 @@ package parse
 import (
 	"bytes"
 	"context"
+	"io"
 	"sort"
 	"sync"
 
-	"github.com/jonashiltl/openchangelog/source"
+	"github.com/jonashiltl/openchangelog/loader"
 	enclave "github.com/quail-ink/goldmark-enclave"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
@@ -44,8 +45,8 @@ func NewParser() Parser {
 	}
 }
 
-func (g *gmark) Parse(ctx context.Context, s source.Source, params source.LoadParams) (ParseResult, error) {
-	res, err := s.Load(ctx, params)
+func (g *gmark) Parse(ctx context.Context, l loader.Loader, page loader.Pagination) (ParseResult, error) {
+	res, err := l.Load(ctx, page)
 	if err != nil {
 		return ParseResult{}, err
 	}
@@ -56,7 +57,7 @@ func (g *gmark) Parse(ctx context.Context, s source.Source, params source.LoadPa
 
 	for _, a := range res.Articles {
 		wg.Add(1)
-		go func(a source.Article) {
+		go func(a loader.RawArticle) {
 			defer wg.Done()
 			parsed, err := g.parseArticle(a)
 			if err != nil {
@@ -79,10 +80,17 @@ func (g *gmark) Parse(ctx context.Context, s source.Source, params source.LoadPa
 	}, nil
 }
 
-func (g *gmark) parseArticle(a source.Article) (ParsedArticle, error) {
+func (g *gmark) parseArticle(raw loader.RawArticle) (ParsedArticle, error) {
 	ctx := parser.NewContext()
-	var buf bytes.Buffer
-	err := g.gm.Convert(a.Bytes, &buf, parser.WithContext(ctx))
+
+	defer raw.Content.Close()
+	source, err := io.ReadAll(raw.Content)
+	if err != nil {
+		return ParsedArticle{}, err
+	}
+
+	var target bytes.Buffer
+	err = g.gm.Convert(source, &target, parser.WithContext(ctx))
 	if err != nil {
 		return ParsedArticle{}, err
 	}
@@ -90,7 +98,7 @@ func (g *gmark) parseArticle(a source.Article) (ParsedArticle, error) {
 	data := frontmatter.Get(ctx)
 	if data == nil {
 		return ParsedArticle{
-			Content: &buf,
+			Content: &target,
 		}, nil
 	}
 	var meta Meta
@@ -100,6 +108,6 @@ func (g *gmark) parseArticle(a source.Article) (ParsedArticle, error) {
 	}
 	return ParsedArticle{
 		Meta:    meta,
-		Content: &buf,
+		Content: &target,
 	}, nil
 }
