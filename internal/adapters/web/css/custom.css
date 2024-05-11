@@ -51,11 +51,47 @@ pre:has(code) {
 }
 
 article {
-    @apply mb-10
+    @apply mb-10 flex justify-between
 }
 
 button {
     @apply h-10 px-4 py-2 bg-black text-white inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50
+}
+
+.navbar-container {
+    @apply sticky top-0 flex justify-center p-2 backdrop-blur-md border-solid border-b
+}
+
+.navbar-content {
+    @apply max-w-2xl h-8 w-full flex justify-between
+}
+
+.content-container {
+    @apply max-w-2xl mx-auto
+}
+
+.header {
+    @apply max-w-lg ml-auto mr-0 py-5
+}
+
+.article-content {
+    @apply max-w-lg w-full
+}
+
+.article-title {
+    @apply align-middle
+}
+
+.article-publish-date {
+    @apply text-nowrap mr-2 opacity-50 mt-1
+}
+
+.article-title-anchor {
+    @apply hover:no-underline opacity-0 group-hover:opacity-100 transition-opacity text-lg
+}
+
+.article-description {
+    @apply opacity-50
 }
 
 .quail-image-wrapper {

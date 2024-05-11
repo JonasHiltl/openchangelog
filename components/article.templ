@@ -43,19 +43,19 @@ type ArticleArgs struct {
 }
 
 templ Article(a ArticleArgs) {
-	<article class="flex justify-between">
-		<p class="text-nowrap mr-2 opacity-50 mt-1">{ a.PublishedAt }</p>
-		<div class="max-w-lg w-full">
-			<h2 id={ a.ID } class="group align-middle">
+	<article>
+		<p class="article-publish-date">{ a.PublishedAt }</p>
+		<div class="article-content">
+			<h2 id={ a.ID } class="group article-title">
 				{ a.Title }
 				<a
-					class="hover:no-underline opacity-0 group-hover:opacity-100 transition-opacity text-lg"
+					class="article-title-anchor"
 					href={ templ.URL(fmt.Sprintf("#%s", a.ID)) }
 				>
 					#
 				</a>
 			</h2>
-			<p class="opacity-50">{ a.Description }</p>
+			<p class="article-description">{ a.Description }</p>
 			@templ.Raw(a.Content)
 		</div>
 	</article>

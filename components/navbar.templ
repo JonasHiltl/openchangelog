@@ -18,8 +18,8 @@ css imgSize(width string, height string) {
 }
 
 templ Navbar(arg NavbarArgs) {
-	<nav class="sticky top-0 flex justify-center p-2 backdrop-blur-md border-solid border-b">
-		<div class="max-w-2xl h-8 w-full flex justify-between">
+	<nav class="navbar-container">
+		<div class="navbar-content">
 			<a href={ templ.URL(arg.Logo.Link) } class=" h-full">
 				<img
 					src={ arg.Logo.Src }
