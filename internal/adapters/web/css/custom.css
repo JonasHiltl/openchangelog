@@ -1,0 +1,71 @@
+h1 {
+    @apply scroll-m-20 xl:text-[36px] text-3xl tracking-tight font-semibold;
+}
+
+h2 {
+    @apply scroll-m-20 text-2xl font-semibold;
+}
+
+h3 {
+    @apply scroll-m-20 text-xl font-semibold;
+}
+
+h4 {
+    @apply scroll-m-20 text-lg font-semibold;
+}
+
+h5 {
+    @apply scroll-m-20 text-sm font-semibold;
+}
+
+ul {
+    @apply my-2 ml-6 list-disc [&>li]:mt-1;
+}
+
+ol {
+    @apply my-2 ml-6 list-decimal [&>li]:mt-1;
+}
+
+* a {
+    @apply hover:underline underline-offset-4 text-blue-500 hover:text-blue-600 cursor-pointer
+}
+
+strong {
+    @apply font-semibold
+}
+
+p,
+li,
+code {
+    @apply text-sm mb-2
+}
+
+/* Code word style */
+code {
+    @apply px-1 py-0.5 bg-gray-50 rounded-md
+}
+
+/* Code Block */
+pre:has(code) {
+    @apply rounded-md p-2 bg-gray-50 w-full
+}
+
+article {
+    @apply mb-10
+}
+
+button {
+    @apply h-10 px-4 py-2 bg-black text-white inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50
+}
+
+.quail-image-wrapper {
+    @apply max-w-full
+}
+
+.article-skeleton:not(.htmx-request) {
+    @apply opacity-0 h-0 overflow-hidden
+}
+
+.htmx-request.article-skeleton {
+    @apply opacity-100
+}

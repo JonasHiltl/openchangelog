@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "npx tailwindcss -i ./css/input.css -o ./public/output.css --watch"
+    "watch": "concurrently \"npm:watch:base\" \"npm:watch:custom\"",
+    "watch:base": "npx tailwindcss -i ./css/base.css -o ./public/base.css --watch",
+    "watch:custom": "npx tailwindcss -i ./css/custom.css -o ./public/custom.css --watch"
   },
   "keywords": [],
   "author": "",
