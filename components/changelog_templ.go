@@ -11,8 +11,9 @@ import "io"
 import "bytes"
 
 type ChangelogArgs struct {
-	Title    string
-	Subtitle string
+	Title       string
+	Subtitle    string
+	RawArticles string
 	ArticleListArgs
 }
 
@@ -41,7 +42,7 @@ func Changelog(c ChangelogArgs) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(c.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/changelog.templ`, Line: 13, Col: 17}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/changelog.templ`, Line: 14, Col: 17}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -60,7 +61,7 @@ func Changelog(c ChangelogArgs) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(c.Subtitle)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/changelog.templ`, Line: 16, Col: 19}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/changelog.templ`, Line: 17, Col: 19}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -78,6 +79,12 @@ func Changelog(c ChangelogArgs) templ.Component {
 		templ_7745c5c3_Err = ArticleList(c.ArticleListArgs).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
+		}
+		if c.RawArticles != "" {
+			templ_7745c5c3_Err = templ.Raw(c.RawArticles).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main>")
 		if templ_7745c5c3_Err != nil {
