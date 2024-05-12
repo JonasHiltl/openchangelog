@@ -85,9 +85,8 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 
 	indexArgs := views.IndexArgs{
 		ChangelogArgs: components.ChangelogArgs{
-			Title:           cl.Title,
-			Subtitle:        cl.Subtitle,
-			ArticleListArgs: articleListArgs,
+			Title:    cl.Title,
+			Subtitle: cl.Subtitle,
 		},
 		NavbarArgs: components.NavbarArgs{
 			Logo: components.Logo{
@@ -98,6 +97,7 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 				Link:   cl.Logo.Link,
 			},
 		},
+		ArticleListArgs: articleListArgs,
 	}
 
 	return views.Index(indexArgs).Render(r.Context(), w)

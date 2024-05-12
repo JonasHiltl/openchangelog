@@ -6,11 +6,14 @@ import "github.com/jonashiltl/openchangelog/components"
 type IndexArgs struct {
 	components.NavbarArgs
 	components.ChangelogArgs
+	components.ArticleListArgs
 }
 
 templ Index(arg IndexArgs) {
 	@layout.Header() {
 		@components.Navbar(arg.NavbarArgs)
-		@components.Changelog(arg.ChangelogArgs)
+		@components.Changelog(arg.ChangelogArgs) {
+			@components.ArticleList(arg.ArticleListArgs)
+		}
 	}
 }

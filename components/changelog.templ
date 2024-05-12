@@ -1,10 +1,8 @@
 package components
 
 type ChangelogArgs struct {
-	Title       string
-	Subtitle    string
-	RawArticles string
-	ArticleListArgs
+	Title    string
+	Subtitle string
 }
 
 templ Changelog(c ChangelogArgs) {
@@ -17,9 +15,6 @@ templ Changelog(c ChangelogArgs) {
 				<p>{ c.Subtitle }</p>
 			}
 		</div>
-		@ArticleList(c.ArticleListArgs)
-		if c.RawArticles != "" {
-			@templ.Raw(c.RawArticles)
-		}
+		{ children... }
 	</main>
 }
