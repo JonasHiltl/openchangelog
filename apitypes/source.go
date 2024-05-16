@@ -27,11 +27,13 @@ func (g GHSource) Type() SourceType {
 }
 
 func (g GHSource) MarshalJSON() (b []byte, e error) {
+	// needed to bypass recursive marshaling of GHSource
+	type Alias GHSource
 	return json.Marshal(struct {
 		Type SourceType `json:"type"`
-		GHSource
+		Alias
 	}{
-		Type:     g.Type(),
-		GHSource: g,
+		Type:  g.Type(),
+		Alias: Alias(g),
 	})
 }

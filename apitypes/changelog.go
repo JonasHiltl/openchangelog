@@ -5,9 +5,10 @@ import (
 	"time"
 )
 
-// Used to marshal/unmarshal a domain Changelog to json
+// Represents the Changelog returned by the API via json encoding.
+// Implements json un-/marshaling.
 type Changelog struct {
-	Id          int64     `json:"id"`
+	ID          int64     `json:"id"`
 	WorkspaceID string    `json:"workspaceId"`
 	Title       string    `json:"title,omitempty"`
 	Subtitle    string    `json:"subtitle,omitempty"`
@@ -24,17 +25,13 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	// Unmarshal all fields except for 'source' into the Changelog struct
-	if err := json.Unmarshal(b, &c); err != nil {
-		return err
-	}
-
 	if sourceRaw, ok := objMap["source"]; ok {
-		var sourceMap map[string]*json.RawMessage
-		err := json.Unmarshal(b, &objMap)
+		var sourceMap map[string]json.RawMessage
+		err = json.Unmarshal(*sourceRaw, &sourceMap)
 		if err != nil {
 			return err
 		}
+
 		typeRaw, ok := sourceMap["type"]
 		if !ok {
 			// No source type specified, so no source is set.
@@ -42,7 +39,7 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 		}
 
 		var Type string
-		err = json.Unmarshal(*typeRaw, &Type)
+		err = json.Unmarshal(typeRaw, &Type)
 		if err != nil {
 			return err
 		}
