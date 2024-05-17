@@ -66,6 +66,14 @@ button {
     @apply max-w-2xl h-8 w-full flex justify-between
 }
 
+.logo-link {
+    @apply h-full
+}
+
+.logo-img {
+    @apply max-h-full max-w-full object-contain
+}
+
 .content-container {
     @apply max-w-2xl mx-auto
 }
