@@ -8,6 +8,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.17.1
 	github.com/google/go-github/v61 v61.0.0
 	github.com/jackc/pgx/v5 v5.5.5
+	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240516194625-c2b2111de5a2
 	github.com/quail-ink/goldmark-enclave v0.0.8
 	github.com/rs/xid v1.5.0
 	github.com/spf13/viper v1.18.2
@@ -41,12 +42,12 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/crypto v0.22.0 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

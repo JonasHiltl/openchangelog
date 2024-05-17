@@ -5,23 +5,24 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/domain/source"
 )
 
-func ghToMap(gh source.GHSource) map[string]any {
-	return map[string]any{
-		"id":          gh.ID,
-		"workspaceID": gh.WorkspaceID,
-		"owner":       gh.Owner,
-		"repo":        gh.Repo,
-		"path":        gh.Path,
+func ghToApiType(gh source.GHSource) apitypes.GHSource {
+	return apitypes.GHSource{
+		ID:          gh.ID.ToInt(),
+		WorkspaceID: gh.WorkspaceID,
+		Owner:       gh.Owner,
+		Repo:        gh.Repo,
+		Path:        gh.Path,
 	}
 }
 
 func encodeGHSource(w http.ResponseWriter, gh source.GHSource) error {
-	res := ghToMap(gh)
+	g := ghToApiType(gh)
 	w.Header().Set("Content-Type", "application/json")
-	return json.NewEncoder(w).Encode(res)
+	return json.NewEncoder(w).Encode(g)
 }
 
 func createGHSource(e *env, w http.ResponseWriter, r *http.Request) error {
@@ -83,9 +84,10 @@ func listGHSources(e *env, w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return RestErrorFromDomain(err)
 	}
-	res := make([]map[string]any, len(sources))
+	res := make([]apitypes.GHSource, len(sources))
 	for i, gh := range sources {
-		res[i] = ghToMap(gh)
+		g := ghToApiType(gh)
+		res[i] = g
 	}
 	w.Header().Set("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(res)

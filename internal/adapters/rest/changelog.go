@@ -5,48 +5,33 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/domain/changelog"
 	"github.com/jonashiltl/openchangelog/internal/domain/source"
 )
 
-type Logo struct {
-	Src    string `json:"src"`
-	Link   string `json:"link"`
-	Alt    string `json:"alt"`
-	Height string `json:"height"`
-	Width  string `json:"width"`
-}
-
-func changelogToMap(cl changelog.Changelog) map[string]any {
-	m := map[string]any{
-		"id":          cl.ID,
-		"workspaceID": cl.WorkspaceID,
-		"createdAt":   cl.CreatedAt,
-	}
-	if cl.Title != "" {
-		m["title"] = cl.Title
-	}
-	if cl.Subtitle != "" {
-		m["subtitle"] = cl.Subtitle
+func changelogToApiType(cl changelog.Changelog) apitypes.Changelog {
+	c := apitypes.Changelog{
+		ID:          cl.ID.ToInt(),
+		WorkspaceID: cl.WorkspaceID,
+		Title:       cl.Title,
+		Subtitle:    cl.Subtitle,
+		Logo:        apitypes.Logo(cl.Logo),
+		CreatedAt:   cl.CreatedAt,
 	}
 
 	if cl.Source != nil {
 		switch cl.Source.Type() {
 		case source.GitHub:
-			g := cl.Source.(source.GHSource)
-			m["source"] = ghToMap(g)
+			domain := cl.Source.(source.GHSource)
+			c.Source = ghToApiType(domain)
 		}
 	}
-
-	if cl.Logo.Src != "" {
-		m["logo"] = Logo(cl.Logo)
-	}
-
-	return m
+	return c
 }
 
 func encodeChangelog(w http.ResponseWriter, cl changelog.Changelog) error {
-	res := changelogToMap(cl)
+	res := changelogToApiType(cl)
 	w.Header().Set("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(res)
 }
@@ -57,9 +42,9 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	var req struct {
-		Title    string `json:"title"`
-		Subtitle string `json:"subtitle"`
-		Logo     Logo   `json:"logo"`
+		Title    string        `json:"title"`
+		Subtitle string        `json:"subtitle"`
+		Logo     apitypes.Logo `json:"logo"`
 	}
 
 	err = json.NewDecoder(r.Body).Decode(&req)
@@ -91,9 +76,9 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	var req struct {
-		Title    string `json:"title"`
-		Subtitle string `json:"subtitle"`
-		Logo     Logo   `json:"logo"`
+		Title    string        `json:"title"`
+		Subtitle string        `json:"subtitle"`
+		Logo     apitypes.Logo `json:"logo"`
 	}
 
 	err = json.NewDecoder(r.Body).Decode(&req)
@@ -187,9 +172,9 @@ func listChangelogs(e *env, w http.ResponseWriter, r *http.Request) error {
 		return RestErrorFromDomain(err)
 	}
 
-	res := make([]map[string]any, len(cls))
+	res := make([]apitypes.Changelog, len(cls))
 	for i, cl := range cls {
-		res[i] = changelogToMap(cl)
+		res[i] = changelogToApiType(cl)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(res)

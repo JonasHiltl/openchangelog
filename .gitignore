@@ -4,3 +4,5 @@ node_modules
 *.pem
 .env
 config.yaml
+
+go.work*
