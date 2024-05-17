@@ -25,6 +25,48 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
+	if idRaw, ok := objMap["id"]; ok {
+		err = json.Unmarshal(*idRaw, &c.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	if workspaceIdRaw, ok := objMap["workspaceId"]; ok {
+		err = json.Unmarshal(*workspaceIdRaw, &c.WorkspaceID)
+		if err != nil {
+			return err
+		}
+	}
+
+	if titleRaw, ok := objMap["title"]; ok {
+		err = json.Unmarshal(*titleRaw, &c.Title)
+		if err != nil {
+			return err
+		}
+	}
+
+	if subtitleRaw, ok := objMap["subtitle"]; ok {
+		err = json.Unmarshal(*subtitleRaw, &c.Subtitle)
+		if err != nil {
+			return err
+		}
+	}
+
+	if logoRaw, ok := objMap["logo"]; ok {
+		err = json.Unmarshal(*logoRaw, &c.Logo)
+		if err != nil {
+			return err
+		}
+	}
+
+	if createdAtRaw, ok := objMap["createdAt"]; ok {
+		err = json.Unmarshal(*createdAtRaw, &c.CreatedAt)
+		if err != nil {
+			return err
+		}
+	}
+
 	if sourceRaw, ok := objMap["source"]; ok {
 		var sourceMap map[string]json.RawMessage
 		err = json.Unmarshal(*sourceRaw, &sourceMap)

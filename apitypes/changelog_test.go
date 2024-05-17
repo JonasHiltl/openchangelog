@@ -71,3 +71,40 @@ func TestChangelogMarshaling(t *testing.T) {
 		}
 	}
 }
+
+func TestChangelogUnmarshaling(t *testing.T) {
+	tables := []Changelog{
+		{
+			ID:          1,
+			WorkspaceID: "ws_xxxx",
+			Title:       "Test Title",
+			Subtitle:    "Test Subtitle",
+			Source: GHSource{
+				ID:          1,
+				WorkspaceID: "ws_xxxx",
+				Owner:       "jonashiltl",
+				Repo:        "openchangelog",
+				Path:        ".testdata",
+			},
+			CreatedAt: time.Unix(1715958564, 0),
+		},
+	}
+
+	for _, table := range tables {
+		b, err := json.Marshal(table)
+		if err != nil {
+			t.Error(err)
+		}
+
+		var c Changelog
+		err = json.Unmarshal(b, &c)
+		if err != nil {
+			t.Error(err)
+		}
+
+		eq := reflect.DeepEqual(table, c)
+		if !eq {
+			t.Errorf("Expected %+v to equal %+v", c, table)
+		}
+	}
+}
