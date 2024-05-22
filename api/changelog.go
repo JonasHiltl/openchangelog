@@ -26,3 +26,20 @@ func (c *Client) GetChangelog(ctx context.Context, changelogID int64) (Changelog
 	err = resp.DecodeJSON(&cl)
 	return cl, err
 }
+
+func (c *Client) ListChangelogs(ctx context.Context) ([]Changelog, error) {
+	req, err := c.NewRequest(ctx, http.MethodGet, "/changelogs")
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.rawRequestWithContext(req)
+	if err != nil {
+		return nil, fmt.Errorf("error while listing changelogs: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var cls []Changelog
+	err = resp.DecodeJSON(cls)
+	return cls, err
+}
