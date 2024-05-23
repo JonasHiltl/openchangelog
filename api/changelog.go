@@ -40,6 +40,6 @@ func (c *Client) ListChangelogs(ctx context.Context) ([]Changelog, error) {
 	defer resp.Body.Close()
 
 	var cls []Changelog
-	err = resp.DecodeJSON(cls)
+	err = resp.DecodeJSON(&cls)
 	return cls, err
 }
