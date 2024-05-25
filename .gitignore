@@ -6,3 +6,4 @@ node_modules
 config.yaml
 
 go.work*
+*.txt

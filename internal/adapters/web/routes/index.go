@@ -84,7 +84,7 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	indexArgs := views.IndexArgs{
-		ChangelogArgs: components.ChangelogArgs{
+		HeaderArgs: components.HeaderArgs{
 			Title:    cl.Title,
 			Subtitle: cl.Subtitle,
 		},

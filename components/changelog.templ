@@ -1,13 +1,7 @@
 package components
 
-type ChangelogArgs struct {
-	Title    string
-	Subtitle string
-}
-
-templ Changelog(c ChangelogArgs) {
+templ ChangelogContainer() {
 	<main class="content-container">
-		@Header(HeaderArgs(c))
 		{ children... }
 	</main>
 }
