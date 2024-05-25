@@ -7,14 +7,7 @@ type ChangelogArgs struct {
 
 templ Changelog(c ChangelogArgs) {
 	<main class="content-container">
-		<div class="header">
-			if c.Title != "" {
-				<h1>{ c.Title }</h1>
-			}
-			if c.Subtitle != "" {
-				<p>{ c.Subtitle }</p>
-			}
-		</div>
+		@Header(HeaderArgs(c))
 		{ children... }
 	</main>
 }
