@@ -1,17 +1,21 @@
 package components
 
+templ HeaderContainer() {
+	<div class="header">
+		{ children... }
+	</div>
+}
+
 type HeaderArgs struct {
 	Title    string
 	Subtitle string
 }
 
-templ Header(args HeaderArgs) {
-	<div class="header">
-		if args.Title != "" {
-			<h1>{ args.Title }</h1>
-		}
-		if args.Subtitle != "" {
-			<p>{ args.Subtitle }</p>
-		}
-	</div>
+templ HeaderContent(args HeaderArgs) {
+	if args.Title != "" {
+		<h1>{ args.Title }</h1>
+	}
+	if args.Subtitle != "" {
+		<p>{ args.Subtitle }</p>
+	}
 }

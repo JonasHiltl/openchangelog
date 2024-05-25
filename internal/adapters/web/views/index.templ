@@ -13,7 +13,9 @@ templ Index(arg IndexArgs) {
 	@layout.Header() {
 		@components.Navbar(arg.NavbarArgs)
 		@components.ChangelogContainer() {
-			@components.Header(arg.HeaderArgs)
+			@components.HeaderContainer() {
+				@components.HeaderContent(arg.HeaderArgs)
+			}
 			@components.ArticleList(arg.ArticleListArgs)
 		}
 	}
