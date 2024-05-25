@@ -88,6 +88,13 @@ func TestChangelogUnmarshaling(t *testing.T) {
 			},
 			CreatedAt: time.Unix(1715958564, 0),
 		},
+		{
+			ID:          1,
+			WorkspaceID: "ws_xxxx",
+			Title:       "Test Title",
+			Subtitle:    "Test Subtitle",
+			CreatedAt:   time.Unix(1715958564, 0),
+		},
 	}
 
 	for _, table := range tables {

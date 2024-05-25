@@ -13,7 +13,7 @@ type Changelog struct {
 	Title       string    `json:"title,omitempty"`
 	Subtitle    string    `json:"subtitle,omitempty"`
 	Logo        Logo      `json:"logo"`
-	Source      Source    `json:"source"`
+	Source      Source    `json:"source,omitempty"`
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
@@ -67,7 +67,7 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 		}
 	}
 
-	if sourceRaw, ok := objMap["source"]; ok {
+	if sourceRaw, ok := objMap["source"]; ok && sourceRaw != nil {
 		var sourceMap map[string]json.RawMessage
 		err = json.Unmarshal(*sourceRaw, &sourceMap)
 		if err != nil {
