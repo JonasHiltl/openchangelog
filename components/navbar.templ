@@ -8,25 +8,33 @@ type Logo struct {
 	Link   string
 }
 
-type NavbarArgs struct {
-	Logo Logo
-}
-
 css imgSize(width string, height string) {
 	width: { width };
 	height: { height };
 }
 
-templ Navbar(arg NavbarArgs) {
+templ Navbar() {
 	<nav class="navbar-container">
 		<div class="navbar-content">
-			<a href={ templ.URL(arg.Logo.Link) } class="logo-link">
-				<img
-					src={ arg.Logo.Src }
-					alt={ arg.Logo.Alt }
-					class={ "logo-img", imgSize(arg.Logo.Width, arg.Logo.Height) }
-				/>
-			</a>
+			{ children... }
 		</div>
 	</nav>
+}
+
+templ LogoImg(args Logo) {
+	if args.Link != "" {
+		<a href={ templ.URL(args.Link) } class="logo-link">
+			@img(args)
+		</a>
+	} else {
+		@img(args)
+	}
+}
+
+templ img(args Logo) {
+	<img
+		src={ args.Src }
+		alt={ args.Alt }
+		class={ "logo-img", imgSize(args.Width, args.Height) }
+	/>
 }

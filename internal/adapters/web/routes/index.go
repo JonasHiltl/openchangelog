@@ -88,14 +88,12 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 			Title:    cl.Title,
 			Subtitle: cl.Subtitle,
 		},
-		NavbarArgs: components.NavbarArgs{
-			Logo: components.Logo{
-				Src:    cl.Logo.Src,
-				Width:  cl.Logo.Width,
-				Height: cl.Logo.Height,
-				Alt:    cl.Logo.Alt,
-				Link:   cl.Logo.Link,
-			},
+		Logo: components.Logo{
+			Src:    cl.Logo.Src,
+			Width:  cl.Logo.Width,
+			Height: cl.Logo.Height,
+			Alt:    cl.Logo.Alt,
+			Link:   cl.Logo.Link,
 		},
 		ArticleListArgs: articleListArgs,
 	}
