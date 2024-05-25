@@ -1,21 +1,27 @@
 .openchangelog {
-    h1 {
+
+    h1,
+    .h1-input {
         @apply scroll-m-20 xl:text-[36px] text-3xl tracking-tight font-semibold;
     }
 
-    h2 {
+    h2,
+    .h2-input {
         @apply scroll-m-20 text-2xl font-semibold;
     }
 
-    h3 {
+    h3,
+    .h3-input {
         @apply scroll-m-20 text-xl font-semibold;
     }
 
-    h4 {
+    h4,
+    .h4-input {
         @apply scroll-m-20 text-lg font-semibold;
     }
 
-    h5 {
+    h5,
+    .h5-input {
         @apply scroll-m-20 text-sm font-semibold;
     }
 
@@ -37,7 +43,8 @@
 
     p,
     li,
-    code {
+    code,
+    .p-input {
         @apply text-sm mb-2
     }
 

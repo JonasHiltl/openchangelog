@@ -1,60 +1,77 @@
 .openchangelog {
-  h1 {
+  h1,
+    .h1-input {
     scroll-margin: 5rem
   }
-  h1 {
+  h1,
+    .h1-input {
     font-size: 1.875rem;
     line-height: 2.25rem
   }
-  h1 {
+  h1,
+    .h1-input {
     font-weight: 600
   }
-  h1 {
+  h1,
+    .h1-input {
     letter-spacing: -0.025em
   }
   @media (min-width: 1280px) {
-    h1 {
+    h1,
+    .h1-input {
       font-size: 36px
     }
   }
-  h2 {
+  h2,
+    .h2-input {
     scroll-margin: 5rem
   }
-  h2 {
+  h2,
+    .h2-input {
     font-size: 1.5rem;
     line-height: 2rem
   }
-  h2 {
+  h2,
+    .h2-input {
     font-weight: 600
   }
-  h3 {
+  h3,
+    .h3-input {
     scroll-margin: 5rem
   }
-  h3 {
+  h3,
+    .h3-input {
     font-size: 1.25rem;
     line-height: 1.75rem
   }
-  h3 {
+  h3,
+    .h3-input {
     font-weight: 600
   }
-  h4 {
+  h4,
+    .h4-input {
     scroll-margin: 5rem
   }
-  h4 {
+  h4,
+    .h4-input {
     font-size: 1.125rem;
     line-height: 1.75rem
   }
-  h4 {
+  h4,
+    .h4-input {
     font-weight: 600
   }
-  h5 {
+  h5,
+    .h5-input {
     scroll-margin: 5rem
   }
-  h5 {
+  h5,
+    .h5-input {
     font-size: 0.875rem;
     line-height: 1.25rem
   }
-  h5 {
+  h5,
+    .h5-input {
     font-weight: 600
   }
   ul {
@@ -105,12 +122,14 @@
   }
   p,
     li,
-    code {
+    code,
+    .p-input {
     margin-bottom: 0.5rem
   }
   p,
     li,
-    code {
+    code,
+    .p-input {
     font-size: 0.875rem;
     line-height: 1.25rem
   }
