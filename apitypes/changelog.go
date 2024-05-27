@@ -107,3 +107,11 @@ type Logo struct {
 	Height string `json:"height"`
 	Width  string `json:"width"`
 }
+
+type CreateChangelogBody struct {
+	Title    string `json:"title"`
+	Subtitle string `json:"subtitle"`
+	Logo     Logo   `json:"logo"`
+}
+
+type UpdateChangelogBody CreateChangelogBody

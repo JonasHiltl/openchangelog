@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"path"
@@ -80,7 +81,7 @@ func NewClient(c *Config) (*Client, error) {
 	return client, err
 }
 
-func (c *Client) NewRequest(ctx context.Context, method, requestPath string) (*http.Request, error) {
+func (c *Client) NewRequest(ctx context.Context, method, requestPath string, body io.Reader) (*http.Request, error) {
 	url := &url.URL{
 		User:   c.addr.User,
 		Scheme: c.addr.Scheme,
@@ -88,7 +89,7 @@ func (c *Client) NewRequest(ctx context.Context, method, requestPath string) (*h
 		Path:   path.Join(c.addr.Path, "api", requestPath),
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, url.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, method, url.String(), body)
 	if err != nil {
 		return nil, err
 	}

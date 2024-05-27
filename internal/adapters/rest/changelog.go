@@ -41,12 +41,8 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	var req struct {
-		Title    string        `json:"title"`
-		Subtitle string        `json:"subtitle"`
-		Logo     apitypes.Logo `json:"logo"`
-	}
 
+	var req apitypes.CreateChangelogBody
 	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		return err
@@ -75,12 +71,8 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	var req struct {
-		Title    string        `json:"title"`
-		Subtitle string        `json:"subtitle"`
-		Logo     apitypes.Logo `json:"logo"`
-	}
 
+	var req apitypes.UpdateChangelogBody
 	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		return err
