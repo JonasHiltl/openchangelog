@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/guregu/null/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -29,11 +30,11 @@ func (r *postgresRepo) CreateChangelog(ctx context.Context, c Changelog) (Change
 		WorkspaceID: c.WorkspaceID,
 		Title:       pgtype.Text{Valid: c.Title != "", String: c.Title},
 		Subtitle:    pgtype.Text{Valid: c.Subtitle != "", String: c.Subtitle},
-		LogoSrc:     pgtype.Text{Valid: c.Logo.Src != "", String: c.Logo.Src},
-		LogoLink:    pgtype.Text{Valid: c.Logo.Link != "", String: c.Logo.Link},
-		LogoAlt:     pgtype.Text{Valid: c.Logo.Alt != "", String: c.Logo.Alt},
-		LogoHeight:  pgtype.Text{Valid: c.Logo.Height != "", String: c.Logo.Height},
-		LogoWidth:   pgtype.Text{Valid: c.Logo.Width != "", String: c.Logo.Width},
+		LogoSrc:     pgtype.Text(c.Logo.Src.NullString),
+		LogoLink:    pgtype.Text(c.Logo.Link.NullString),
+		LogoAlt:     pgtype.Text(c.Logo.Alt.NullString),
+		LogoHeight:  pgtype.Text(c.Logo.Height.NullString),
+		LogoWidth:   pgtype.Text(c.Logo.Width.NullString),
 	})
 	if err != nil {
 		return Changelog{}, err
@@ -76,11 +77,11 @@ func (r *postgresRepo) UpdateChangelog(ctx context.Context, c Changelog) (Change
 		WorkspaceID: c.WorkspaceID,
 		Title:       pgtype.Text{Valid: c.Title != "", String: c.Title},
 		Subtitle:    pgtype.Text{Valid: c.Subtitle != "", String: c.Subtitle},
-		LogoSrc:     pgtype.Text{Valid: c.Logo.Src != "", String: c.Logo.Src},
-		LogoLink:    pgtype.Text{Valid: c.Logo.Link != "", String: c.Logo.Link},
-		LogoAlt:     pgtype.Text{Valid: c.Logo.Alt != "", String: c.Logo.Alt},
-		LogoHeight:  pgtype.Text{Valid: c.Logo.Height != "", String: c.Logo.Height},
-		LogoWidth:   pgtype.Text{Valid: c.Logo.Width != "", String: c.Logo.Width},
+		LogoSrc:     pgtype.Text(c.Logo.Src.NullString),
+		LogoLink:    pgtype.Text(c.Logo.Link.NullString),
+		LogoAlt:     pgtype.Text(c.Logo.Alt.NullString),
+		LogoHeight:  pgtype.Text(c.Logo.Height.NullString),
+		LogoWidth:   pgtype.Text(c.Logo.Width.NullString),
 	})
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -161,17 +162,17 @@ func pgRowToChangelog(cl db.Changelog, src db.ChangelogSource) Changelog {
 		Title:       cl.Title.String,
 		Subtitle:    cl.Subtitle.String,
 		Logo: struct {
-			Src    string
-			Link   string
-			Alt    string
-			Height string
-			Width  string
+			Src    null.String
+			Link   null.String
+			Alt    null.String
+			Height null.String
+			Width  null.String
 		}{
-			Src:    cl.LogoSrc.String,
-			Link:   cl.LogoLink.String,
-			Alt:    cl.LogoAlt.String,
-			Height: cl.LogoHeight.String,
-			Width:  cl.LogoWidth.String,
+			Src:    null.NewString(cl.LogoSrc.String, cl.LogoSrc.Valid),
+			Link:   null.NewString(cl.LogoLink.String, cl.LogoLink.Valid),
+			Alt:    null.NewString(cl.LogoAlt.String, cl.LogoAlt.Valid),
+			Height: null.NewString(cl.LogoHeight.String, cl.LogoHeight.Valid),
+			Width:  null.NewString(cl.LogoWidth.String, cl.LogoWidth.Valid),
 		},
 		CreatedAt: cl.CreatedAt.Time,
 	}

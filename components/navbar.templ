@@ -1,11 +1,13 @@
 package components
 
+import "github.com/guregu/null/v5"
+
 type Logo struct {
-	Src    string
-	Width  string
-	Height string
-	Alt    string
-	Link   string
+	Src    null.String
+	Width  null.String
+	Height null.String
+	Alt    null.String
+	Link   null.String
 }
 
 css imgSize(width string, height string) {
@@ -22,19 +24,19 @@ templ Navbar() {
 }
 
 templ LogoImg(args Logo) {
-	if args.Link != "" {
-		<a href={ templ.URL(args.Link) } class="logo-link">
+	if args.Link.IsZero() {
+		@img(args)
+	} else {
+		<a href={ templ.URL(args.Link.ValueOrZero()) } class="logo-link">
 			@img(args)
 		</a>
-	} else {
-		@img(args)
 	}
 }
 
 templ img(args Logo) {
 	<img
-		src={ args.Src }
-		alt={ args.Alt }
-		class={ "logo-img", imgSize(args.Width, args.Height) }
+		src={ args.Src.ValueOrZero() }
+		alt={ args.Alt.ValueOrZero() }
+		class={ "logo-img", imgSize(args.Width.ValueOrZero(), args.Height.ValueOrZero()) }
 	/>
 }

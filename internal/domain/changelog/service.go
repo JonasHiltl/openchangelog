@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/guregu/null/v5"
 	"github.com/jonashiltl/openchangelog/internal/domain"
 	"github.com/jonashiltl/openchangelog/internal/domain/source"
 )
@@ -14,11 +15,11 @@ type CreateChangelogArgs struct {
 	Title       string
 	Subtitle    string
 	Logo        struct {
-		Src    string
-		Link   string
-		Alt    string
-		Height string
-		Width  string
+		Src    null.String
+		Link   null.String
+		Alt    null.String
+		Height null.String
+		Width  null.String
 	}
 }
 
@@ -26,11 +27,11 @@ type UpdateChangelogArgs struct {
 	Title    string
 	Subtitle string
 	Logo     struct {
-		Src    string
-		Link   string
-		Alt    string
-		Height string
-		Width  string
+		Src    null.String
+		Link   null.String
+		Alt    null.String
+		Height null.String
+		Width  null.String
 	}
 	Source source.Source
 }

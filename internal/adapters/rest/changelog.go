@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/guregu/null/v5"
 	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/domain/changelog"
 	"github.com/jonashiltl/openchangelog/internal/domain/source"
@@ -53,11 +54,11 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		Title:       req.Title,
 		Subtitle:    req.Subtitle,
 		Logo: struct {
-			Src    string
-			Link   string
-			Alt    string
-			Height string
-			Width  string
+			Src    null.String
+			Link   null.String
+			Alt    null.String
+			Height null.String
+			Width  null.String
 		}(req.Logo),
 	})
 	if err != nil {
@@ -91,13 +92,12 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 			Title:    req.Title,
 			Subtitle: req.Subtitle,
 			Logo: struct {
-				Src    string
-				Link   string
-				Alt    string
-				Height string
-				Width  string
-			}(req.Logo),
-		},
+				Src    null.String
+				Link   null.String
+				Alt    null.String
+				Height null.String
+				Width  null.String
+			}(req.Logo)},
 	)
 	if err != nil {
 		return RestErrorFromDomain(err)

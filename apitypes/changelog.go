@@ -3,6 +3,8 @@ package apitypes
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/guregu/null/v5"
 )
 
 // Represents the Changelog returned by the API via json encoding.
@@ -101,11 +103,11 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 }
 
 type Logo struct {
-	Src    string `json:"src"`
-	Link   string `json:"link"`
-	Alt    string `json:"alt"`
-	Height string `json:"height"`
-	Width  string `json:"width"`
+	Src    null.String `json:"src"`
+	Link   null.String `json:"link"`
+	Alt    null.String `json:"alt"`
+	Height null.String `json:"height"`
+	Width  null.String `json:"width"`
 }
 
 type CreateChangelogBody struct {

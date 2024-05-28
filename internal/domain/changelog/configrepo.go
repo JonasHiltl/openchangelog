@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/guregu/null/v5"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/domain"
 	"github.com/jonashiltl/openchangelog/internal/domain/source"
@@ -35,18 +36,19 @@ func (r configRepo) GetChangelog(ctx context.Context, workspaceID string, id ID)
 	}
 
 	if r.cfg.Page.Logo != nil {
+		l := r.cfg.Page.Logo
 		c.Logo = struct {
-			Src    string
-			Link   string
-			Alt    string
-			Height string
-			Width  string
+			Src    null.String
+			Link   null.String
+			Alt    null.String
+			Height null.String
+			Width  null.String
 		}{
-			Src:    r.cfg.Page.Logo.Src,
-			Link:   r.cfg.Page.Logo.Link,
-			Alt:    r.cfg.Page.Logo.Alt,
-			Height: r.cfg.Page.Logo.Height,
-			Width:  r.cfg.Page.Logo.Width,
+			Src:    null.NewString(l.Src, l.Src != ""),
+			Link:   null.NewString(l.Link, l.Link != ""),
+			Alt:    null.NewString(l.Alt, l.Alt != ""),
+			Height: null.NewString(l.Height, l.Height != ""),
+			Width:  null.NewString(l.Width, l.Width != ""),
 		}
 	}
 

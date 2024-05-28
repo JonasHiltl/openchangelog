@@ -3,6 +3,7 @@ package changelog
 import (
 	"time"
 
+	"github.com/guregu/null/v5"
 	"github.com/jonashiltl/openchangelog/internal/domain/source"
 )
 
@@ -13,11 +14,11 @@ type Changelog struct {
 	Title       string
 	Subtitle    string
 	Logo        struct {
-		Src    string
-		Link   string
-		Alt    string
-		Height string
-		Width  string
+		Src    null.String
+		Link   null.String
+		Alt    null.String
+		Height null.String
+		Width  null.String
 	}
 	Source    source.Source
 	CreatedAt time.Time

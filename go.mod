@@ -7,6 +7,7 @@ require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.10.0
 	github.com/golang-migrate/migrate/v4 v4.17.1
 	github.com/google/go-github/v61 v61.0.0
+	github.com/guregu/null/v5 v5.0.0
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240516194625-c2b2111de5a2
 	github.com/quail-ink/goldmark-enclave v0.0.8
