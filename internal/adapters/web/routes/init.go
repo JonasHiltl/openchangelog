@@ -54,6 +54,7 @@ func serveHTTP(env *env, h handler) func(http.ResponseWriter, *http.Request) {
 				}
 			}
 
+			w.WriteHeader(args.Status)
 			err := views.Error(args).Render(r.Context(), w)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
