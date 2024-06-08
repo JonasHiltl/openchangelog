@@ -5,24 +5,22 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/domain/workspace"
 )
 
 func encodeWorkspace(w http.ResponseWriter, ws workspace.Workspace) error {
-	res := map[string]any{
-		"id":    ws.ID,
-		"name":  ws.Name,
-		"token": ws.Token.String(),
+	res := apitypes.Workspace{
+		ID:    ws.ID.String(),
+		Name:  ws.Name,
+		Token: ws.Token.String(),
 	}
 	w.Header().Set("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(res)
 }
 
 func createWorkspace(e *env, w http.ResponseWriter, r *http.Request) error {
-	var req struct {
-		Name string `json:"name"`
-	}
-
+	var req apitypes.CreateWorkspaceBody
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		return err
