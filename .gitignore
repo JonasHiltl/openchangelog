@@ -7,3 +7,6 @@ config.yaml
 
 go.work*
 *.txt
+
+test.db
+.cache

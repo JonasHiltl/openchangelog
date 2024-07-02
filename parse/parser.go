@@ -5,7 +5,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/jonashiltl/openchangelog/loader"
+	"github.com/jonashiltl/openchangelog/internal"
 )
 
 type Meta struct {
@@ -21,9 +21,8 @@ type ParsedArticle struct {
 
 type ParseResult struct {
 	Articles []ParsedArticle
-	HasMore  bool
 }
 
 type Parser interface {
-	Parse(ctx context.Context, l loader.Loader, page loader.Pagination) (ParseResult, error)
+	Parse(ctx context.Context, raw []internal.RawArticle) (ParseResult, error)
 }

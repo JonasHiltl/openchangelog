@@ -7,7 +7,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/jonashiltl/openchangelog/loader"
+	"github.com/jonashiltl/openchangelog/internal"
 	enclave "github.com/quail-ink/goldmark-enclave"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
@@ -45,19 +45,14 @@ func NewParser() Parser {
 	}
 }
 
-func (g *gmark) Parse(ctx context.Context, l loader.Loader, page loader.Pagination) (ParseResult, error) {
-	res, err := l.Load(ctx, page)
-	if err != nil {
-		return ParseResult{}, err
-	}
-
+func (g *gmark) Parse(ctx context.Context, raw []internal.RawArticle) (ParseResult, error) {
 	var wg sync.WaitGroup
-	result := make([]ParsedArticle, 0, len(res.Articles))
+	result := make([]ParsedArticle, 0, len(raw))
 	mutex := &sync.Mutex{}
 
-	for _, a := range res.Articles {
+	for _, a := range raw {
 		wg.Add(1)
-		go func(a loader.RawArticle) {
+		go func(a internal.RawArticle) {
 			defer wg.Done()
 			parsed, err := g.parseArticle(a)
 			if err != nil {
@@ -76,11 +71,10 @@ func (g *gmark) Parse(ctx context.Context, l loader.Loader, page loader.Paginati
 
 	return ParseResult{
 		Articles: result,
-		HasMore:  res.HasMore,
 	}, nil
 }
 
-func (g *gmark) parseArticle(raw loader.RawArticle) (ParsedArticle, error) {
+func (g *gmark) parseArticle(raw internal.RawArticle) (ParsedArticle, error) {
 	ctx := parser.NewContext()
 
 	defer raw.Content.Close()

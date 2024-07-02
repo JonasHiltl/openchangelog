@@ -10,13 +10,33 @@ import (
 // Represents the Changelog returned by the API via json encoding.
 // Implements json un-/marshaling.
 type Changelog struct {
-	ID          int64     `json:"id"`
-	WorkspaceID string    `json:"workspaceId"`
-	Title       string    `json:"title,omitempty"`
-	Subtitle    string    `json:"subtitle,omitempty"`
-	Logo        Logo      `json:"logo"`
-	Source      Source    `json:"source,omitempty"`
-	CreatedAt   time.Time `json:"createdAt"`
+	ID          string
+	WorkspaceID string
+	Title       null.String
+	Subtitle    null.String
+	Logo        Logo
+	Source      Source
+	CreatedAt   time.Time
+}
+
+func (l Changelog) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		ID          string    `json:"id"`
+		WorkspaceID string    `json:"workspaceId"`
+		Title       string    `json:"title,omitempty"`
+		Subtitle    string    `json:"subtitle,omitempty"`
+		Logo        Logo      `json:"logo"`
+		Source      Source    `json:"source,omitempty"`
+		CreatedAt   time.Time `json:"createdAt"`
+	}{
+		ID:          l.ID,
+		WorkspaceID: l.WorkspaceID,
+		Title:       l.Title.ValueOrZero(),
+		Subtitle:    l.Subtitle.ValueOrZero(),
+		Logo:        l.Logo,
+		Source:      l.Source,
+		CreatedAt:   l.CreatedAt,
+	})
 }
 
 func (c *Changelog) UnmarshalJSON(b []byte) error {
@@ -127,9 +147,14 @@ func (l Logo) MarshalJSON() ([]byte, error) {
 }
 
 type CreateChangelogBody struct {
-	Title    string `json:"title"`
-	Subtitle string `json:"subtitle"`
-	Logo     Logo   `json:"logo"`
+	Title    null.String `json:"title"`
+	Subtitle null.String `json:"subtitle"`
+	Logo     Logo        `json:"logo"`
 }
 
 type UpdateChangelogBody CreateChangelogBody
+
+type SetChangelogSourceBody struct {
+	SourceType SourceType `json:"type"`
+	SourceID   string     `json:"id"`
+}

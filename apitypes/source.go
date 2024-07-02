@@ -15,7 +15,7 @@ type Source interface {
 }
 
 type GHSource struct {
-	ID          int64  `json:"id"`
+	ID          string `json:"id"`
 	WorkspaceID string `json:"workspaceId"`
 	Owner       string `json:"owner"`
 	Repo        string `json:"repo"`

@@ -1,1 +1,0 @@
-DROP VIEW changelog_sources;

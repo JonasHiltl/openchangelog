@@ -1,5 +1,7 @@
 package components
 
+import "github.com/guregu/null/v5"
+
 templ HeaderContainer() {
 	<div class="header">
 		{ children... }
@@ -7,15 +9,15 @@ templ HeaderContainer() {
 }
 
 type HeaderArgs struct {
-	Title    string
-	Subtitle string
+	Title    null.String
+	Subtitle null.String
 }
 
 templ HeaderContent(args HeaderArgs) {
-	if args.Title != "" {
-		<h1>{ args.Title }</h1>
+	if !args.Title.IsZero() {
+		<h1>{ args.Title.String }</h1>
 	}
-	if args.Subtitle != "" {
-		<p>{ args.Subtitle }</p>
+	if !args.Subtitle.IsZero() {
+		<p>{ args.Subtitle.String }</p>
 	}
 }

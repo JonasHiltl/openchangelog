@@ -38,7 +38,7 @@ local:
 ```
 ### Github Data Source
 You can specify your repository and path to a directory inside the repo containing your Changelog Markdown files.
-You can **authenticate** via a `Github App` or `Personal Access Token`.
+You can **authenticate** via a `Github App` or `Personal Access Token`.  
 ```yaml
 # config.yaml
 github:
@@ -50,6 +50,21 @@ github:
     # or
     appPrivateKey:
     appInstallationId:
+```
+
+### Cache
+You can configure a cache to improve latency and avoid hitting rate limits from e.g. Github.  
+Internally [httpcache](https://github.com/gregjones/httpcache) is used to cache the request to Github.
+You can choose between a `memory`, `disk` and `s3`.
+```yaml
+# config.yaml
+cache: 
+  type: # disk, memory, s3
+  disk: # used when type is disk
+    location: # the file system location of the disk cache
+    maxSize: # in bytes
+  s3: # used when type is s3
+    bucket: # the bucket url, env AWS_ACCESS_KEY_ID and AWS_SECRET_KEY are used as credentials
 ```
 
 ## Writing Changelogs

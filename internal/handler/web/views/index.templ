@@ -1,0 +1,24 @@
+package views
+
+import "github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
+import "github.com/jonashiltl/openchangelog/components"
+
+type IndexArgs struct {
+	components.Logo
+	components.HeaderArgs
+	components.ArticleListArgs
+}
+
+templ Index(arg IndexArgs) {
+	@layout.Header() {
+		@components.Navbar() {
+			@components.LogoImg(arg.Logo)
+		}
+		@components.ChangelogContainer() {
+			@components.HeaderContainer() {
+				@components.HeaderContent(arg.HeaderArgs)
+			}
+			@components.ArticleList(arg.ArticleListArgs)
+		}
+	}
+}

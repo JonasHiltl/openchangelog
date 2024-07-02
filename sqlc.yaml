@@ -1,35 +1,20 @@
 version: "2"
 sql:
-  - engine: "postgresql"
+  - engine: "sqlite"
     queries: 
-      - "internal/domain/workspace/db/query.sql"
+      - "internal/store/query.sql"
     schema:
-      - "internal/migrations/001_workspace.up.sql"
-      - "internal/migrations/002_tokens.up.sql"
+      - "internal/store/migrations/"
     gen:
       go:
-        package: "db"
-        out: "internal/domain/workspace/db"
-        sql_package: "pgx/v5"
-  - engine: "postgresql"
-    queries: 
-      - "internal/domain/changelog/db/query.sql"
-    schema:
-      - "internal/migrations/003_changelog.up.sql"
-      - "internal/migrations/004_gh_source.up.sql"
-      - "internal/migrations/005_changelog_sources.up.sql"
-    gen:
-      go:
-        package: "db"
-        out: "internal/domain/changelog/db"
-        sql_package: "pgx/v5"
-  - engine: "postgresql"
-    queries: 
-      - "internal/domain/source/db/query.sql"
-    schema:
-      - "internal/migrations/004_gh_source.up.sql"
-    gen:
-      go:
-        package: "db"
-        out: "internal/domain/source/db"
-        sql_package: "pgx/v5"
+        package: "store"
+        out: "internal/store/"
+        overrides:
+          - db_type: "INTEGER"
+            go_type: "int64"
+        rename:
+          workspace: "workspace"
+          token: "token"
+          changelog: "changelog"
+          gh_source: "ghSource"
+          changelog_source: "changelogSource"

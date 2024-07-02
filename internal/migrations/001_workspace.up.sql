@@ -1,5 +1,0 @@
-CREATE TABLE IF NOT EXISTS workspaces (
-    id VARCHAR(23) NOT NULL,
-    name TEXT NOT NULL,
-    PRIMARY KEY (id)
-)

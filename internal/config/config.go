@@ -4,6 +4,14 @@ import (
 	"github.com/spf13/viper"
 )
 
+type CacheTyp string
+
+const (
+	Memory CacheTyp = "memory"
+	S3     CacheTyp = "s3"
+	Disk   CacheTyp = "disk"
+)
+
 type GithubConfig struct {
 	Owner string      `mapstructure:"owner"`
 	Repo  string      `mapstructure:"repo"`
@@ -11,7 +19,24 @@ type GithubConfig struct {
 	Auth  *GithubAuth `mapstructure:"auth"`
 }
 
+type CacheConfig struct {
+	Type CacheTyp         `mapstructure:"type"`
+	Disk *DiskCacheConfig `mapstructure:"disk"`
+	S3   *S3CacheConfig   `mapstructure:"s3"`
+}
+
+type DiskCacheConfig struct {
+	Location string `mapstructure:"location"`
+	MaxSize  uint64 `mapstructure:"maxSize"`
+}
+
+type S3CacheConfig struct {
+	Bucket string `mapstructure:"bucket"`
+}
+
 type GithubAuth struct {
+	AppID             int64  `mapstructure:"appId"`
+	AppSecret         string `mapstructure:"appSecret"`
 	AppPrivateKey     string `mapstructure:"appPrivateKey"`
 	AppInstallationId int64  `mapstructure:"appInstallationId"`
 	AccessToken       string `mapstructure:"accessToken"`
@@ -36,11 +61,16 @@ type PageConfig struct {
 }
 
 type Config struct {
-	Port        int           `mapstructure:"port"`
-	DatabaseURL string        `mapstructure:"databaseUrl"`
-	Github      *GithubConfig `mapstructure:"github"`
-	Local       *LocalConfig  `mapstructure:"local"`
-	Page        *PageConfig   `mapstructure:"page"`
+	Port      int           `mapstructure:"port"`
+	SqliteURL string        `mapstructure:"sqliteUrl"`
+	Github    *GithubConfig `mapstructure:"github"`
+	Local     *LocalConfig  `mapstructure:"local"`
+	Page      *PageConfig   `mapstructure:"page"`
+	Cache     *CacheConfig  `mapstructure:"cache"`
+}
+
+func (c Config) HasGithubAuth() bool {
+	return c.Github != nil && c.Github.Auth != nil
 }
 
 func Load() (Config, error) {

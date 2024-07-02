@@ -7,6 +7,10 @@ port: 80
 #    accessToken:
 local:
   filesPath: .testdata
+#cache: 
+#  type: disk
+#  disk:
+#    location: ...
 page:
   title: Changelog
   subtitle: The latest product updates from Openchangelog

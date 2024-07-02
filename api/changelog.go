@@ -12,15 +12,15 @@ import (
 
 type Changelog = apitypes.Changelog
 
-func (c *Client) GetChangelog(ctx context.Context, changelogID int64) (Changelog, error) {
-	req, err := c.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/changelogs/%d", changelogID), nil)
+func (c *Client) GetChangelog(ctx context.Context, changelogID string) (Changelog, error) {
+	req, err := c.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/changelogs/%s", changelogID), nil)
 	if err != nil {
 		return Changelog{}, err
 	}
 
 	resp, err := c.rawRequestWithContext(req)
 	if err != nil {
-		return Changelog{}, fmt.Errorf("error while getting changelog %d: %w", changelogID, err)
+		return Changelog{}, fmt.Errorf("error while getting changelog %s: %w", changelogID, err)
 	}
 	defer resp.Body.Close()
 
@@ -68,7 +68,7 @@ func (c *Client) CreateChangelog(ctx context.Context, args apitypes.CreateChange
 	return cl, err
 }
 
-func (c *Client) UpdateChangelog(ctx context.Context, changelogID int64, args apitypes.UpdateChangelogBody) (Changelog, error) {
+func (c *Client) UpdateChangelog(ctx context.Context, changelogID string, args apitypes.UpdateChangelogBody) (Changelog, error) {
 	body, err := json.Marshal(args)
 	if err != nil {
 		return Changelog{}, err
@@ -77,7 +77,7 @@ func (c *Client) UpdateChangelog(ctx context.Context, changelogID int64, args ap
 	req, err := c.NewRequest(
 		ctx,
 		http.MethodPatch,
-		fmt.Sprintf("/changelogs/%d", changelogID),
+		fmt.Sprintf("/changelogs/%s", changelogID),
 		bytes.NewReader(body),
 	)
 	if err != nil {
@@ -86,7 +86,7 @@ func (c *Client) UpdateChangelog(ctx context.Context, changelogID int64, args ap
 
 	resp, err := c.rawRequestWithContext(req)
 	if err != nil {
-		return Changelog{}, fmt.Errorf("error while updating changelog %d: %w", changelogID, err)
+		return Changelog{}, fmt.Errorf("error while updating changelog %s: %w", changelogID, err)
 	}
 	defer resp.Body.Close()
 

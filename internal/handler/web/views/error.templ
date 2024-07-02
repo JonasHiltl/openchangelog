@@ -1,0 +1,20 @@
+package views
+
+import "fmt"
+import "github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
+
+type ErrorArgs struct {
+	Status  int
+	Message string
+	Path    string
+}
+
+templ Error(args ErrorArgs) {
+	@layout.Header() {
+		<main class="max-w-2xl mx-auto my-8 text-center">
+			<h1>{ fmt.Sprintf("%d", args.Status) }</h1>
+			<p class="mb-4">{ args.Message }</p>
+			<button hx-get={ args.Path } hx-target="_top">Try Again</button>
+		</main>
+	}
+}

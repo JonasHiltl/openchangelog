@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/guregu/null/v5"
 )
 
 func TestChangelogMarshaling(t *testing.T) {
@@ -18,12 +20,19 @@ func TestChangelogMarshaling(t *testing.T) {
 	}{
 		{
 			input: Changelog{
-				ID:          1,
+				ID:          "cl_xxxx",
 				WorkspaceID: "ws_xxxx",
-				Title:       "Test Title",
-				Subtitle:    "Test Subtitle",
+				Title:       null.NewString("Test Title", true),
+				Subtitle:    null.NewString("Test Subtitle", true),
+				Logo: Logo{
+					Src:    null.NewString("logo src", true),
+					Link:   null.NewString("logo link", true),
+					Alt:    null.NewString("logo description", true),
+					Height: null.NewString("30px", true),
+					Width:  null.NewString("40px", true),
+				},
 				Source: GHSource{
-					ID:          1,
+					ID:          "gh_xxxx",
 					WorkspaceID: "ws_xxxx",
 					Owner:       "jonashiltl",
 					Repo:        "openchangelog",
@@ -32,20 +41,20 @@ func TestChangelogMarshaling(t *testing.T) {
 				CreatedAt: now,
 			},
 			expect: fmt.Sprintf(`{
-				"id": 1,
+				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
 				"title": "Test Title",
 				"subtitle": "Test Subtitle",
 				"logo": {
-					"src": "",
-					"link": "",
-					"alt": "",
-					"height": "",
-					"width": ""
+					"src": "logo src",
+					"link": "logo link",	
+					"alt": "logo description",
+					"height": "30px",
+					"width": "40px"
 				},
 				"source": {
 					"type": "github",
-					"id": 1,
+					"id": "gh_xxxx",
 					"workspaceId": "ws_xxxx",
 					"owner": "jonashiltl",
 					"repo": "openchangelog",
@@ -75,12 +84,12 @@ func TestChangelogMarshaling(t *testing.T) {
 func TestChangelogUnmarshaling(t *testing.T) {
 	tables := []Changelog{
 		{
-			ID:          1,
+			ID:          "cl_xxxx",
 			WorkspaceID: "ws_xxxx",
-			Title:       "Test Title",
-			Subtitle:    "Test Subtitle",
+			Title:       null.NewString("Test Title", true),
+			Subtitle:    null.NewString("Test Subtitle", true),
 			Source: GHSource{
-				ID:          1,
+				ID:          "gh_xxxx",
 				WorkspaceID: "ws_xxxx",
 				Owner:       "jonashiltl",
 				Repo:        "openchangelog",
@@ -89,10 +98,10 @@ func TestChangelogUnmarshaling(t *testing.T) {
 			CreatedAt: time.Unix(1715958564, 0),
 		},
 		{
-			ID:          1,
+			ID:          "cl_xxxx",
 			WorkspaceID: "ws_xxxx",
-			Title:       "Test Title",
-			Subtitle:    "Test Subtitle",
+			Title:       null.NewString("Test Title", true),
+			Subtitle:    null.NewString("Test Subtitle", true),
 			CreatedAt:   time.Unix(1715958564, 0),
 		},
 	}
