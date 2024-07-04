@@ -12,6 +12,7 @@ import (
 func RegisterRestHandler(mux *http.ServeMux, e *env) {
 	// Workspace
 	mux.HandleFunc("POST /api/workspaces", serveHTTP(e, createWorkspace))
+	mux.HandleFunc("GET /api/workspaces/my", serveHTTP(e, getMyWorkspace))
 	mux.HandleFunc("GET /api/workspaces/{wid}", serveHTTP(e, getWorkspace))
 	mux.HandleFunc("PATCH /api/workspaces/{wid}", serveHTTP(e, updateWorkspace))
 	mux.HandleFunc("DELETE /api/workspaces/{wid}", serveHTTP(e, deleteWorkspace))

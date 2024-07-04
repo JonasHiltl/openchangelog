@@ -92,6 +92,20 @@ func getWorkspace(e *env, w http.ResponseWriter, r *http.Request) error {
 	return encodeWorkspace(w, ws)
 }
 
+func getMyWorkspace(e *env, w http.ResponseWriter, r *http.Request) error {
+	t, err := bearerAuth(e, r)
+	if err != nil {
+		return err
+	}
+
+	ws, err := e.store.GetWorkspace(r.Context(), t.WorkspaceID)
+	if err != nil {
+		return err
+	}
+
+	return encodeWorkspace(w, ws)
+}
+
 func deleteWorkspace(e *env, w http.ResponseWriter, r *http.Request) error {
 	t, err := bearerAuth(e, r)
 	if err != nil {
