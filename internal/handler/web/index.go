@@ -80,6 +80,20 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 		parseResult = parsed
 	}
 
+	if htmxHeader := r.Header.Get("HX-Request"); len(htmxHeader) > 0 {
+		if len(parseResult.Articles) > 0 {
+			return e.render.RenderArticleList(r.Context(), w, render.RenderArticleListArgs{
+				Articles: parseResult.Articles,
+				HasMore:  loadResult.HasMore,
+				NextPage: page + 1,
+				PageSize: pageSize,
+			})
+		} else {
+			w.WriteHeader(http.StatusNoContent)
+			return nil
+		}
+	}
+
 	return e.render.RenderIndex(r.Context(), w, render.RenderIndexArgs{
 		CL:       cl,
 		Articles: parseResult.Articles,
