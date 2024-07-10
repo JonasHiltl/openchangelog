@@ -130,22 +130,6 @@ type Logo struct {
 	Width  null.String `json:"width"`
 }
 
-func (l Logo) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&struct {
-		Src    string `json:"src,omitempty"`
-		Link   string `json:"link,omitempty"`
-		Alt    string `json:"alt,omitempty"`
-		Height string `json:"height,omitempty"`
-		Width  string `json:"width,omitempty"`
-	}{
-		Src:    l.Src.ValueOrZero(),
-		Link:   l.Link.ValueOrZero(),
-		Alt:    l.Alt.ValueOrZero(),
-		Height: l.Height.ValueOrZero(),
-		Width:  l.Width.ValueOrZero(),
-	})
-}
-
 type CreateChangelogBody struct {
 	Title    null.String `json:"title"`
 	Subtitle null.String `json:"subtitle"`
