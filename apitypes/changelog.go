@@ -90,35 +90,40 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 	}
 
 	if sourceRaw, ok := objMap["source"]; ok && sourceRaw != nil {
-		var sourceMap map[string]json.RawMessage
-		err = json.Unmarshal(*sourceRaw, &sourceMap)
-		if err != nil {
-			return err
-		}
-
-		typeRaw, ok := sourceMap["type"]
-		if !ok {
-			// No source type specified, so no source is set.
-			return nil
-		}
-
-		var Type string
-		err = json.Unmarshal(typeRaw, &Type)
-		if err != nil {
-			return err
-		}
-
-		switch Type {
-		case string(GitHub):
-			var ghSource GHSource
-			err = json.Unmarshal(*sourceRaw, &ghSource)
-			if err != nil {
-				return err
-			}
-			c.Source = ghSource
-		}
+		c.Source = DecodeSource(*sourceRaw)
 	}
 
+	return nil
+}
+
+func DecodeSource(in json.RawMessage) Source {
+	var sourceMap map[string]json.RawMessage
+	err := json.Unmarshal(in, &sourceMap)
+	if err != nil {
+		return nil
+	}
+
+	typeRaw, ok := sourceMap["type"]
+	if !ok {
+		// No source type specified, so no source is set.
+		return nil
+	}
+
+	var Type string
+	err = json.Unmarshal(typeRaw, &Type)
+	if err != nil {
+		return nil
+	}
+
+	switch Type {
+	case string(GitHub):
+		var ghSource GHSource
+		err = json.Unmarshal(in, &ghSource)
+		if err != nil {
+			return nil
+		}
+		return ghSource
+	}
 	return nil
 }
 

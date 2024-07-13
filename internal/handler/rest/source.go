@@ -28,6 +28,27 @@ func encodeGHSource(w http.ResponseWriter, gh store.GHSource) error {
 	return json.NewEncoder(w).Encode(g)
 }
 
+func listSources(e *env, w http.ResponseWriter, r *http.Request) error {
+	t, err := bearerAuth(e, r)
+	if err != nil {
+		return err
+	}
+
+	// TODO: in future fetch other source types
+	gh, err := e.store.ListGHSources(r.Context(), t.WorkspaceID)
+	if err != nil {
+		return err
+	}
+
+	res := make([]apitypes.GHSource, len(gh))
+	for i, gh := range gh {
+		g := ghToApiType(gh)
+		res[i] = g
+	}
+	w.Header().Set("Content-Type", "application/json")
+	return json.NewEncoder(w).Encode(res)
+}
+
 func createGHSource(e *env, w http.ResponseWriter, r *http.Request) error {
 	t, err := bearerAuth(e, r)
 	if err != nil {

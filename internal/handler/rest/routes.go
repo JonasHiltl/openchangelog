@@ -17,6 +17,9 @@ func RegisterRestHandler(mux *http.ServeMux, e *env) {
 	mux.HandleFunc("PATCH /api/workspaces/{wid}", serveHTTP(e, updateWorkspace))
 	mux.HandleFunc("DELETE /api/workspaces/{wid}", serveHTTP(e, deleteWorkspace))
 
+	// Sources
+	mux.HandleFunc("GET /api/sources", serveHTTP(e, listSources))
+
 	// GH sources
 	mux.HandleFunc("POST /api/sources/gh", serveHTTP(e, createGHSource))
 	mux.HandleFunc("GET /api/sources/gh", serveHTTP(e, listGHSources))
