@@ -94,3 +94,39 @@ func (c *Client) UpdateChangelog(ctx context.Context, changelogID string, args a
 	err = resp.DecodeJSON(&cl)
 	return cl, err
 }
+
+func (c *Client) DeleteChangelogSource(ctx context.Context, changelogID string) error {
+	req, err := c.NewRequest(
+		ctx,
+		http.MethodDelete,
+		fmt.Sprintf("/changelogs/%s/source", changelogID),
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.rawRequestWithContext(req)
+	if err != nil {
+		return fmt.Errorf("error while deleting changelog %s source: %w", changelogID, err)
+	}
+	return nil
+}
+
+func (c *Client) SetChangelogSource(ctx context.Context, changelogID string, sourceID string) error {
+	req, err := c.NewRequest(
+		ctx,
+		http.MethodPut,
+		fmt.Sprintf("/changelogs/%s/source/%s", changelogID, sourceID),
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.rawRequestWithContext(req)
+	if err != nil {
+		return fmt.Errorf("error while setting changelog %s source %s: %w", changelogID, sourceID, err)
+	}
+	return nil
+}

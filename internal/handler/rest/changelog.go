@@ -2,6 +2,7 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -114,15 +115,13 @@ func setChangelogSource(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var req apitypes.SetChangelogSourceBody
-	err = json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		return err
+	sId := r.PathValue("sid")
+	if sId == "" {
+		return errs.NewError(errs.ErrBadRequest, errors.New("missing sid path param"))
 	}
 
-	switch req.SourceType {
-	case apitypes.GitHub:
-		ghID, err := store.ParseGHID(req.SourceID)
+	if store.IsGHID(sId) {
+		ghID, err := store.ParseGHID(sId)
 		if err != nil {
 			return err
 		}
@@ -130,11 +129,25 @@ func setChangelogSource(e *env, w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-	default:
-		return errs.NewError(errs.ErrBadRequest, fmt.Errorf("invalid source type: %s", req.SourceType))
+	} else {
+		return errs.NewError(errs.ErrBadRequest, fmt.Errorf("invalid source id: %s", sId))
 	}
 
 	return nil
+}
+
+func deleteChangelogSource(e *env, _ http.ResponseWriter, r *http.Request) error {
+	t, err := bearerAuth(e, r)
+	if err != nil {
+		return err
+	}
+
+	cId, err := store.ParseCID(r.PathValue(changelog_id_param))
+	if err != nil {
+		return err
+	}
+
+	return e.store.DeleteChangelogSource(r.Context(), t.WorkspaceID, cId)
 }
 
 func getChangelog(e *env, w http.ResponseWriter, r *http.Request) error {

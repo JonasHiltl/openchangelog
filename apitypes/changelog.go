@@ -142,8 +142,3 @@ type CreateChangelogBody struct {
 }
 
 type UpdateChangelogBody CreateChangelogBody
-
-type SetChangelogSourceBody struct {
-	SourceType SourceType `json:"type"`
-	SourceID   string     `json:"id"`
-}

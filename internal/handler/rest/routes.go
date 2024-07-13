@@ -32,7 +32,8 @@ func RegisterRestHandler(mux *http.ServeMux, e *env) {
 	mux.HandleFunc("GET /api/changelogs/{cid}", serveHTTP(e, getChangelog))
 	mux.HandleFunc("PATCH /api/changelogs/{cid}", serveHTTP(e, updateChangelog))
 	mux.HandleFunc("DELETE /api/changelogs/{cid}", serveHTTP(e, deleteChangelog))
-	mux.HandleFunc("PUT /api/changelogs/{cid}/source", serveHTTP(e, setChangelogSource))
+	mux.HandleFunc("PUT /api/changelogs/{cid}/source/{sid}", serveHTTP(e, setChangelogSource))
+	mux.HandleFunc("DELETE /api/changelogs/{cid}/source", serveHTTP(e, deleteChangelogSource))
 }
 
 func NewEnv(store store.Store) *env {

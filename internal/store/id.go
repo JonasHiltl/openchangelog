@@ -101,6 +101,11 @@ func ParseGHID(id string) (GHSourceID, error) {
 	}
 	return GHSourceID(id), nil
 }
+
+func IsGHID(id string) bool {
+	return strings.HasPrefix(id, ghid_prefix+id_separator)
+}
+
 func (i GHSourceID) String() string {
 	return string(i)
 }
