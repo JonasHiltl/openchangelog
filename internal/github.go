@@ -13,9 +13,9 @@ import (
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
 	"github.com/google/go-github/v62/github"
-	"github.com/gregjones/httpcache"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/naveensrinivasan/httpcache"
 )
 
 type GHSourceArgs struct {

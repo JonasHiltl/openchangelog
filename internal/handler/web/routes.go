@@ -4,13 +4,13 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/gregjones/httpcache"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"github.com/jonashiltl/openchangelog/parse"
 	"github.com/jonashiltl/openchangelog/render"
+	"github.com/naveensrinivasan/httpcache"
 )
 
 func RegisterWebHandler(mux *http.ServeMux, e *env) {

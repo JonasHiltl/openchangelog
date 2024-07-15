@@ -7,10 +7,10 @@ require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.10.0
 	github.com/golang-migrate/migrate/v4 v4.17.1
 	github.com/google/go-github/v62 v62.0.0
-	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/guregu/null/v5 v5.0.0
 	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240516194625-c2b2111de5a2
 	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/naveensrinivasan/httpcache v1.2.1
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/quail-ink/goldmark-enclave v0.0.8
 	github.com/rs/xid v1.5.0

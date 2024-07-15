@@ -9,14 +9,14 @@ import (
 
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/gregjones/httpcache"
-	"github.com/gregjones/httpcache/diskcache"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/handler/rest"
 	"github.com/jonashiltl/openchangelog/internal/handler/web"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"github.com/jonashiltl/openchangelog/parse"
 	"github.com/jonashiltl/openchangelog/render"
+	"github.com/naveensrinivasan/httpcache"
+	"github.com/naveensrinivasan/httpcache/diskcache"
 	"github.com/peterbourgon/diskv"
 	"github.com/sourcegraph/s3cache"
 )
