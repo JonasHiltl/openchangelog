@@ -6,4 +6,5 @@ FROM changelogs cl
 LEFT JOIN gh_sources gh 
     ON cl.workspace_id = gh.workspace_id
     AND cl.source_id LIKE 'gh_%'
-    AND cl.source_id = gh.id;
+    AND cl.source_id = gh.id
+GROUP BY source_id, gh.workspace_id;
