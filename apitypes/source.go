@@ -39,7 +39,6 @@ func (g GHSource) MarshalJSON() (b []byte, e error) {
 }
 
 type CreateGHSourceBody struct {
-	Name           string `json:"name"`
 	Owner          string `json:"owner"`
 	Repo           string `json:"repo"`
 	Path           string `json:"path"`
