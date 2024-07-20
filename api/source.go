@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -14,7 +15,17 @@ type GHSource = apitypes.CreateGHSourceBody
 type CreateGHSourceBody = apitypes.CreateGHSourceBody
 
 func (c *Client) CreateGHSource(ctx context.Context, args CreateGHSourceBody) (GHSource, error) {
-	req, err := c.NewRequest(ctx, http.MethodPost, "/sources/gh", nil)
+	body, err := json.Marshal(args)
+	if err != nil {
+		return GHSource{}, err
+	}
+
+	req, err := c.NewRequest(
+		ctx,
+		http.MethodPost,
+		"/sources/gh",
+		bytes.NewReader(body),
+	)
 	if err != nil {
 		return GHSource{}, err
 	}
