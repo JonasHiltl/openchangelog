@@ -45,7 +45,7 @@ func (c *Client) DeleteGHSource(ctx context.Context, sourceID string) error {
 	req, err := c.NewRequest(
 		ctx,
 		http.MethodDelete,
-		fmt.Sprintf("/api/sources/gh/%s", sourceID),
+		fmt.Sprintf("/sources/gh/%s", sourceID),
 		nil,
 	)
 	if err != nil {
