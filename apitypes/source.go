@@ -37,3 +37,11 @@ func (g GHSource) MarshalJSON() (b []byte, e error) {
 		Alias: Alias(g),
 	})
 }
+
+type CreateGHSourceBody struct {
+	Name           string `json:"name"`
+	Owner          string `json:"owner"`
+	Repo           string `json:"repo"`
+	Path           string `json:"path"`
+	InstallationID int64  `json:"installationID"`
+}

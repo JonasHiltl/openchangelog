@@ -54,13 +54,7 @@ func createGHSource(e *env, w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	var req struct {
-		Name           string `json:"name"`
-		Owner          string `json:"owner"`
-		Repo           string `json:"repo"`
-		Path           string `json:"path"`
-		InstallationID int64  `json:"installationID"`
-	}
+	var req apitypes.CreateGHSourceBody
 	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		return err
