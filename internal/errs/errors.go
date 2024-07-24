@@ -4,9 +4,10 @@ import "errors"
 
 // Generic errors that can be wrapped in the domain
 var (
-	ErrBadRequest   = errors.New("bad request")
-	ErrNotFound     = errors.New("not found")
-	ErrUnauthorized = errors.New("unauthorized")
+	ErrBadRequest         = errors.New("bad request")
+	ErrNotFound           = errors.New("not found")
+	ErrUnauthorized       = errors.New("unauthorized")
+	ErrServiceUnavailable = errors.New("service unavailable")
 )
 
 type Error struct {

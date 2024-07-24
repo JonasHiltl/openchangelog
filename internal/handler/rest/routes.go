@@ -66,6 +66,8 @@ func serveHTTP(env *env, h handler) func(w http.ResponseWriter, r *http.Request)
 					status = http.StatusNotFound
 				case errs.ErrUnauthorized:
 					status = http.StatusUnauthorized
+				case errs.ErrServiceUnavailable:
+					status = http.StatusServiceUnavailable
 				}
 			}
 

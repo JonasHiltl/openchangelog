@@ -18,25 +18,40 @@ const (
 )
 
 func index(e *env, w http.ResponseWriter, r *http.Request) error {
-	wID := r.URL.Query().Get("workspace-id")
-	if wID == "" {
-		return errs.NewError(errs.ErrBadRequest, errors.New("missing workspace-id param"))
-	}
-	cID := r.URL.Query().Get("changelog-id")
-	if cID == "" {
-		return errs.NewError(errs.ErrBadRequest, errors.New("missing changelog-id param"))
+	if e.cfg.IsDBMode() {
+		return errs.NewError(errs.ErrServiceUnavailable, errors.New("openchangelog is backed by sqlite, use the /:workspace-id/:changelog-id route"))
 	}
 
+	return renderIndex(e, w, r, store.CL_DEFAULT_ID, store.WS_DEFAULT_ID)
+}
+
+func tenantIndex(e *env, w http.ResponseWriter, r *http.Request) error {
+	if !e.cfg.IsDBMode() {
+		return errs.NewError(errs.ErrServiceUnavailable, errors.New("openchangelog is in config mode, use the / route"))
+	}
+	wID := r.PathValue("workspace")
 	parsedWID, err := store.ParseWID(wID)
 	if err != nil {
 		return err
 	}
+
+	cID := r.PathValue("changelog")
 	parsedCID, err := store.ParseCID(cID)
 	if err != nil {
 		return err
 	}
 
-	cl, err := e.store.GetChangelog(r.Context(), parsedWID, parsedCID)
+	return renderIndex(e, w, r, parsedCID, parsedWID)
+}
+
+func renderIndex(
+	e *env,
+	w http.ResponseWriter,
+	r *http.Request,
+	cID store.ChangelogID,
+	wID store.WorkspaceID,
+) error {
+	cl, err := e.store.GetChangelog(r.Context(), wID, cID)
 	if err != nil {
 		return err
 	}

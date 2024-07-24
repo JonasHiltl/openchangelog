@@ -15,8 +15,9 @@ import (
 
 func RegisterWebHandler(mux *http.ServeMux, e *env) {
 	fs := http.FileServer(http.Dir("./internal/handler/web/public/"))
-	mux.Handle("GET /static/", http.StripPrefix("/static/", fs))
+	mux.Handle("GET /static/*", http.StripPrefix("/static/", fs))
 	mux.HandleFunc("GET /", serveHTTP(e, index))
+	mux.HandleFunc("GET /{workspace}/{changelog}", serveHTTP(e, tenantIndex))
 }
 
 func NewEnv(
@@ -70,6 +71,8 @@ func serveHTTP(env *env, h handler) func(http.ResponseWriter, *http.Request) {
 					args.Status = http.StatusNotFound
 				case errs.ErrUnauthorized:
 					args.Status = http.StatusUnauthorized
+				case errs.ErrServiceUnavailable:
+					args.Status = http.StatusServiceUnavailable
 				}
 			}
 

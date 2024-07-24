@@ -24,8 +24,8 @@ func NewWID() WorkspaceID {
 var errWSFormat = errs.NewError(errs.ErrBadRequest, errors.New("wrong workspace id format"))
 
 func ParseWID(id string) (WorkspaceID, error) {
-	if id == ws_default_id.String() {
-		return ws_default_id, nil
+	if id == WS_DEFAULT_ID.String() {
+		return WS_DEFAULT_ID, nil
 	}
 
 	parts := strings.Split(id, id_separator)
@@ -55,8 +55,8 @@ func NewCID() ChangelogID {
 var errCLFormat = errs.NewError(errs.ErrBadRequest, errors.New("wrong changelog id format"))
 
 func ParseCID(id string) (ChangelogID, error) {
-	if id == cl_default_id.String() {
-		return cl_default_id, nil
+	if id == CL_DEFAULT_ID.String() {
+		return CL_DEFAULT_ID, nil
 	}
 	parts := strings.Split(id, id_separator)
 	if len(parts) != 2 {
@@ -85,8 +85,8 @@ func NewGHID() GHSourceID {
 var errGHFormat = errs.NewError(errs.ErrBadRequest, errors.New("wrong github source id format"))
 
 func ParseGHID(id string) (GHSourceID, error) {
-	if id == gh_default_id.String() {
-		return gh_default_id, nil
+	if id == GH_DEFAULT_ID.String() {
+		return GH_DEFAULT_ID, nil
 	}
 	parts := strings.Split(id, id_separator)
 	if len(parts) != 2 {

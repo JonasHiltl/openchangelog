@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	cl_default_id = ChangelogID("cl_config")
-	gh_default_id = GHSourceID("gh_config")
-	ws_default_id = WorkspaceID("ws_config")
+	CL_DEFAULT_ID = ChangelogID("cl_config")
+	GH_DEFAULT_ID = GHSourceID("gh_config")
+	WS_DEFAULT_ID = WorkspaceID("ws_config")
 )
 
 // Create a new store implementation, backed by the config file
@@ -36,7 +36,7 @@ func (s *configStore) UpdateChangelog(context.Context, WorkspaceID, ChangelogID,
 
 func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID ChangelogID) (Changelog, error) {
 	cl := Changelog{
-		ID: cl_default_id,
+		ID: CL_DEFAULT_ID,
 	}
 
 	if s.cfg.Page != nil {
@@ -61,7 +61,7 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 	}
 
 	// parse github source from config
-	g, err := s.GetGHSource(ctx, wID, gh_default_id)
+	g, err := s.GetGHSource(ctx, wID, GH_DEFAULT_ID)
 	if err == nil {
 		cl.GHSource = null.NewValue(g, true)
 	}
@@ -70,7 +70,7 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 }
 
 func (s *configStore) ListChangelogs(ctx context.Context, wID WorkspaceID) ([]Changelog, error) {
-	cl, err := s.GetChangelog(ctx, wID, cl_default_id)
+	cl, err := s.GetChangelog(ctx, wID, CL_DEFAULT_ID)
 	if err != nil {
 		return []Changelog{}, err
 	}
@@ -98,7 +98,7 @@ func (s *configStore) DeleteGHSource(context.Context, WorkspaceID, GHSourceID) e
 }
 
 func (s *configStore) ListGHSources(ctx context.Context, wID WorkspaceID) ([]GHSource, error) {
-	g, err := s.GetGHSource(ctx, wID, gh_default_id)
+	g, err := s.GetGHSource(ctx, wID, GH_DEFAULT_ID)
 	if err != nil {
 		return []GHSource{}, err
 	}
@@ -110,11 +110,11 @@ func (s *configStore) GetGHSource(context.Context, WorkspaceID, GHSourceID) (GHS
 		return GHSource{}, errs.NewError(errs.ErrNotFound, errors.New("github source not found"))
 	}
 	g := GHSource{
-		ID:          gh_default_id,
+		ID:          GH_DEFAULT_ID,
 		Owner:       s.cfg.Github.Owner,
 		Repo:        s.cfg.Github.Repo,
 		Path:        s.cfg.Github.Path,
-		WorkspaceID: ws_default_id,
+		WorkspaceID: WS_DEFAULT_ID,
 	}
 	if s.cfg.Github.Auth != nil {
 		g.InstallationID = s.cfg.Github.Auth.AppInstallationId
@@ -135,5 +135,5 @@ func (s *configStore) GetWorkspace(context.Context, WorkspaceID) (Workspace, err
 }
 
 func (s *configStore) GetWorkspaceIDByToken(ctx context.Context, token string) (WorkspaceID, error) {
-	return ws_default_id, nil
+	return WS_DEFAULT_ID, nil
 }

@@ -73,6 +73,11 @@ func (c Config) HasGithubAuth() bool {
 	return c.Github != nil && c.Github.Auth != nil
 }
 
+// Returns wether openchangelog should by started in database mode or in config mode
+func (c Config) IsDBMode() bool {
+	return c.SqliteURL != ""
+}
+
 func Load() (Config, error) {
 	viper.SetConfigFile("config.yaml")
 	viper.AddConfigPath(".")

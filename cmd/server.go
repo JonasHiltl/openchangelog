@@ -29,15 +29,15 @@ func main() {
 	}
 
 	var st store.Store
-	if cfg.SqliteURL == "" {
-		log.Println("Starting Openchangelog in config mode")
-		st = store.NewConfigStore(cfg)
-	} else {
+	if cfg.IsDBMode() {
 		log.Println("Starting Openchangelog backed by sqlite")
 		st, err = store.NewSQLiteStore(cfg.SqliteURL)
 		if err != nil {
 			panic(err)
 		}
+	} else {
+		log.Println("Starting Openchangelog in config mode")
+		st = store.NewConfigStore(cfg)
 	}
 
 	mux := http.NewServeMux()
