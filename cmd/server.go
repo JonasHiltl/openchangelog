@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -22,28 +23,22 @@ import (
 )
 
 func main() {
-	cfg, err := config.Load()
+	cfg, err := parseConfig()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to read config: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Failed to read config: %s\n", err)
 		os.Exit(1)
 	}
-
-	var st store.Store
-	if cfg.IsDBMode() {
-		log.Println("Starting Openchangelog backed by sqlite")
-		st, err = store.NewSQLiteStore(cfg.SqliteURL)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		log.Println("Starting Openchangelog in config mode")
-		st = store.NewConfigStore(cfg)
-	}
-
 	mux := http.NewServeMux()
 	cache, err := createCache(cfg)
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Failed to create cache: %s\n", err)
+		os.Exit(1)
+	}
+
+	st, err := createStore(cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to create store: %s\n", err)
+		os.Exit(1)
 	}
 
 	rest.RegisterRestHandler(mux, rest.NewEnv(st))
@@ -54,6 +49,22 @@ func main() {
 	log.Fatal(http.ListenAndServe(addr, mux))
 }
 
+func parseConfig() (config.Config, error) {
+	configPath := flag.String("config", "", "config file path")
+	flag.Parse()
+	return config.Load(*configPath)
+}
+
+func createStore(cfg config.Config) (store.Store, error) {
+	if cfg.IsDBMode() {
+		log.Println("Starting Openchangelog backed by sqlite")
+		return store.NewSQLiteStore(cfg.SqliteURL)
+	} else {
+		log.Println("Starting Openchangelog in config mode")
+		return store.NewConfigStore(cfg), nil
+	}
+}
+
 func createCache(cfg config.Config) (httpcache.Cache, error) {
 	if cfg.Cache != nil {
 		switch cfg.Cache.Type {
@@ -62,7 +73,7 @@ func createCache(cfg config.Config) (httpcache.Cache, error) {
 			return httpcache.NewMemoryCache(), nil
 		case config.Disk:
 			if cfg.Cache.Disk == nil {
-				return nil, errors.New("missing 'cache.file' config")
+				return nil, errors.New("missing 'cache.file' config section")
 			}
 			log.Println("using disk cache")
 			return diskcache.NewWithDiskv(diskv.New(diskv.Options{
@@ -71,7 +82,7 @@ func createCache(cfg config.Config) (httpcache.Cache, error) {
 			})), nil
 		case config.S3:
 			if cfg.Cache.S3 == nil {
-				return nil, errors.New("missing 'cache.s3' config")
+				return nil, errors.New("missing 'cache.s3' config section")
 			}
 			log.Println("using s3 cache")
 			return s3cache.New(cfg.Cache.S3.Bucket), nil

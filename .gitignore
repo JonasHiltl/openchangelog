@@ -3,7 +3,7 @@ node_modules
 
 *.pem
 .env
-config.yaml
+openchangelog.yml
 
 go.work*
 *.txt

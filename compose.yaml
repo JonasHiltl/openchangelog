@@ -1,0 +1,9 @@
+services:
+  openchangelog:
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - type: bind
+        source: openchangelog.yml
+        target: /etc/openchangelog.yml

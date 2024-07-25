@@ -78,9 +78,20 @@ func (c Config) IsDBMode() bool {
 	return c.SqliteURL != ""
 }
 
-func Load() (Config, error) {
-	viper.SetConfigFile("config.yaml")
-	viper.AddConfigPath(".")
+// Loads the config file from configPath if specified.
+//
+// Otherwise searches the standard list of search paths. Returns an error if
+// no configuration files could be found.
+func Load(configFile string) (Config, error) {
+	viper.SetConfigType("yaml")
+	viper.SetConfigName("openchangelog") // extension needs to be in the name, otherwise openchangelog binary might be read
+
+	if configFile != "" {
+		viper.SetConfigFile(configFile)
+	} else {
+		viper.AddConfigPath("/etc/")
+		viper.AddConfigPath(".")
+	}
 	err := viper.ReadInConfig()
 	if err != nil {
 		return Config{}, err

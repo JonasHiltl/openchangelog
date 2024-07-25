@@ -3,24 +3,25 @@ Openchangelog is an open source, self hostable Changelog Rendering Website.
 Changelogs are written in Markdown and can be integrated from different sources, e.g `local` or `GitHub`.
 
 ## Configuration
-You can configure your Changelog by adapting the `config.yaml` file.
+You can configure your Changelog by adapting the `openchangelog.yml` file.
+It is typically in `/etc/openchangelog.yml`.
 
 ### Look & Feel
 **title**: The title is displayed above all Changelog articles.
 ```yaml
-# config.yaml
+# openchangelog.yml
 page:
   title:
 ```
 **subtitle**: The subtitle is displayed below the title.
 ```yaml
-# config.yaml
+# openchangelog.yml
 page:
   subtitle:
 ```
 **Logo**: Your logo is displayed in the header.
 ```yaml
-# config.yaml
+# openchangelog.yml
 page:
   logo:
     src: # url to image
@@ -32,7 +33,7 @@ page:
 ### Local Data Source
 You can specify a local file path to a directory containing your Changelog Markdown files.
 ```yaml
-# config.yaml
+# openchangelog.yml
 local:
   filesPath: .testdata
 ```
@@ -40,7 +41,7 @@ local:
 You can specify your repository and path to a directory inside the repo containing your Changelog Markdown files.
 You can **authenticate** via a `Github App` or `Personal Access Token`.  
 ```yaml
-# config.yaml
+# openchangelog.yml
 github:
   owner: # gh username
   repo:
@@ -57,7 +58,7 @@ You can configure a cache to improve latency and avoid hitting rate limits from 
 Internally [httpcache](https://github.com/gregjones/httpcache) is used to cache the request to Github.
 You can choose between a `memory`, `disk` and `s3`.
 ```yaml
-# config.yaml
+# openchangelog.yml
 cache: 
   type: # disk, memory, s3
   disk: # used when type is disk

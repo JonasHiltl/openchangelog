@@ -1,0 +1,18 @@
+# copy of .gitignore
+tmp
+node_modules
+
+*.pem
+.env
+openchangelog.yml
+
+go.work*
+*.txt
+
+test.db
+.cache
+
+# extras
+.testdata
+.air.toml
+openchangelog.example.yml
