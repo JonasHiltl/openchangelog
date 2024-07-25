@@ -4,6 +4,7 @@ services:
     ports:
       - "80:80"
     volumes:
+      - ./test.db:/data/test.db
       - type: bind
         source: openchangelog.yml
         target: /etc/openchangelog.yml
