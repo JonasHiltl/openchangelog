@@ -12,6 +12,8 @@ RUN go build -buildvcs=false -ldflags "-s -w -extldflags '-static'" -o ./opencha
 
 FROM alpine
 
+RUN apk add sqlite
+
 WORKDIR /app
 COPY --from=builder /build/openchangelog ./openchangelog
 
