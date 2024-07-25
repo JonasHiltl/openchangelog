@@ -7,9 +7,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	_ "github.com/mattn/go-sqlite3"
 
@@ -62,23 +59,6 @@ func NewSQLiteStore(conn string) (Store, error) {
 	}
 
 	q := New(db)
-
-	driver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
-	if err != nil {
-		return nil, err
-	}
-
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://internal/store/migrations",
-		"sqlite3", driver,
-	)
-	if err != nil {
-		return nil, err
-	}
-	err = m.Up()
-	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return nil, err
-	}
 
 	return &sqlite{
 		q:  q,

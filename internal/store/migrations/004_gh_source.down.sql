@@ -1,1 +1,0 @@
-DELETE TABLE gh_sources;

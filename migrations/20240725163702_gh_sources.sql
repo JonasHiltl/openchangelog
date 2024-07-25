@@ -1,3 +1,5 @@
+-- +goose Up
+-- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS gh_sources (
     id TEXT NOT NULL,
     workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
@@ -7,3 +9,9 @@ CREATE TABLE IF NOT EXISTS gh_sources (
     installation_id INTEGER NOT NULL,
     PRIMARY KEY (workspace_id, id)
 );
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE gh_sources;
+-- +goose StatementEnd

@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"os"
 
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/handler/rest"
 	"github.com/jonashiltl/openchangelog/internal/handler/web"

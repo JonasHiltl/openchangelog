@@ -1,3 +1,5 @@
+-- +goose Up
+-- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS changelogs (
     id TEXT NOT NULL,
     workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
@@ -12,3 +14,9 @@ CREATE TABLE IF NOT EXISTS changelogs (
     created_at INTEGER NOT NULL DEFAULT (unixepoch('now')),
     PRIMARY KEY (workspace_id, id)
 ) STRICT;
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE changelogs;
+-- +goose StatementEnd
