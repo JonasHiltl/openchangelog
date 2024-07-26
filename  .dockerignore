@@ -1,18 +1,14 @@
-# copy of .gitignore
 tmp
+.air.toml
 node_modules
 
 *.pem
 .env
-openchangelog.yml
-
-go.work*
-*.txt
-
-test.db
-.cache
-
-# extras
-.testdata
-.air.toml
 openchangelog.example.yml
+go.work*
+
+.cache
+test.db
+.testdata
+Dockerfile*
+compose.yaml

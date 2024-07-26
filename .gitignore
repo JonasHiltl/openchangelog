@@ -10,3 +10,5 @@ go.work*
 
 test.db
 .cache
+
+fly.toml
