@@ -7,10 +7,10 @@ addr: 0.0.0.0:6001
 #    accessToken:
 local:
   filesPath: .testdata
-#cache: 
-#  type: disk
-#  disk:
-#    location: ...
+cache: 
+  type: disk
+  disk:
+    location: /data/cache/
 page:
   title: Changelog
   subtitle: The latest product updates from Openchangelog
