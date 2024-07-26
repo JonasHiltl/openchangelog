@@ -17,6 +17,7 @@ func RegisterWebHandler(mux *http.ServeMux, e *env) {
 	fs := http.FileServer(http.Dir("./internal/handler/web/public/"))
 	mux.Handle("GET /static/*", http.StripPrefix("/static/", fs))
 	mux.HandleFunc("GET /", serveHTTP(e, index))
+	mux.HandleFunc("GET /{subdomain}", serveHTTP(e, subdomainIndex))
 	mux.HandleFunc("GET /{workspace}/{changelog}", serveHTTP(e, tenantIndex))
 }
 

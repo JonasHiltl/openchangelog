@@ -36,8 +36,8 @@ LIMIT 1;
 
 -- name: createChangelog :one
 INSERT INTO changelogs (
-    workspace_id, id, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    workspace_id, id, subdomain, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 RETURNING *;
 
 -- name: deleteChangelog :exec
@@ -49,6 +49,12 @@ SELECT sqlc.embed(c), sqlc.embed(cs)
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
 WHERE c.workspace_id = ? AND c.id = ?;
+
+-- name: getChangelogBySubdomain :one
+SELECT sqlc.embed(c), sqlc.embed(cs)
+FROM changelogs c
+LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
+WHERE c.subdomain = ?;
 
 -- name: listChangelogs :many
 SELECT sqlc.embed(c), sqlc.embed(cs)

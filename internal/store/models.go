@@ -11,6 +11,7 @@ import (
 type changelog struct {
 	ID          string
 	WorkspaceID string
+	Subdomain   string
 	Title       sql.NullString
 	Subtitle    sql.NullString
 	SourceID    sql.NullString

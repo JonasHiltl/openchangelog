@@ -12,6 +12,7 @@ import (
 type Changelog struct {
 	WorkspaceID WorkspaceID
 	ID          ChangelogID
+	Subdomain   string
 	Title       null.String
 	Subtitle    null.String
 	LogoSrc     null.String
@@ -45,6 +46,7 @@ type LocalSource struct {
 
 type UpdateChangelogArgs struct {
 	Title      null.String
+	Subdomain  null.String
 	Subtitle   null.String
 	LogoSrc    null.String
 	LogoLink   null.String
@@ -55,6 +57,7 @@ type UpdateChangelogArgs struct {
 
 type Store interface {
 	GetChangelog(context.Context, WorkspaceID, ChangelogID) (Changelog, error)
+	GetChangelogBySubdomain(context.Context, string) (Changelog, error)
 	ListChangelogs(context.Context, WorkspaceID) ([]Changelog, error)
 	CreateChangelog(context.Context, Changelog) (Changelog, error)
 	UpdateChangelog(context.Context, WorkspaceID, ChangelogID, UpdateChangelogArgs) (Changelog, error)

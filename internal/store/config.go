@@ -69,6 +69,10 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 	return cl, nil
 }
 
+func (s *configStore) GetChangelogBySubdomain(ctx context.Context, subdomain string) (Changelog, error) {
+	return s.GetChangelog(ctx, WS_DEFAULT_ID, CL_DEFAULT_ID)
+}
+
 func (s *configStore) ListChangelogs(ctx context.Context, wID WorkspaceID) ([]Changelog, error) {
 	cl, err := s.GetChangelog(ctx, wID, CL_DEFAULT_ID)
 	if err != nil {

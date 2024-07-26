@@ -12,14 +12,15 @@ import (
 
 const createChangelog = `-- name: createChangelog :one
 INSERT INTO changelogs (
-    workspace_id, id, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-RETURNING id, workspace_id, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at
+    workspace_id, id, subdomain, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at
 `
 
 type createChangelogParams struct {
 	WorkspaceID string
 	ID          string
+	Subdomain   string
 	Title       sql.NullString
 	Subtitle    sql.NullString
 	LogoSrc     sql.NullString
@@ -33,6 +34,7 @@ func (q *Queries) createChangelog(ctx context.Context, arg createChangelogParams
 	row := q.db.QueryRowContext(ctx, createChangelog,
 		arg.WorkspaceID,
 		arg.ID,
+		arg.Subdomain,
 		arg.Title,
 		arg.Subtitle,
 		arg.LogoSrc,
@@ -45,6 +47,7 @@ func (q *Queries) createChangelog(ctx context.Context, arg createChangelogParams
 	err := row.Scan(
 		&i.ID,
 		&i.WorkspaceID,
+		&i.Subdomain,
 		&i.Title,
 		&i.Subtitle,
 		&i.SourceID,
@@ -170,7 +173,7 @@ func (q *Queries) deleteWorkspace(ctx context.Context, id string) error {
 }
 
 const getChangelog = `-- name: getChangelog :one
-SELECT c.id, c.workspace_id, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
+SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
 WHERE c.workspace_id = ? AND c.id = ?
@@ -192,6 +195,45 @@ func (q *Queries) getChangelog(ctx context.Context, arg getChangelogParams) (get
 	err := row.Scan(
 		&i.changelog.ID,
 		&i.changelog.WorkspaceID,
+		&i.changelog.Subdomain,
+		&i.changelog.Title,
+		&i.changelog.Subtitle,
+		&i.changelog.SourceID,
+		&i.changelog.LogoSrc,
+		&i.changelog.LogoLink,
+		&i.changelog.LogoAlt,
+		&i.changelog.LogoHeight,
+		&i.changelog.LogoWidth,
+		&i.changelog.CreatedAt,
+		&i.ChangelogSource.ID,
+		&i.ChangelogSource.WorkspaceID,
+		&i.ChangelogSource.Owner,
+		&i.ChangelogSource.Repo,
+		&i.ChangelogSource.Path,
+		&i.ChangelogSource.InstallationID,
+	)
+	return i, err
+}
+
+const getChangelogBySubdomain = `-- name: getChangelogBySubdomain :one
+SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
+FROM changelogs c
+LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
+WHERE c.subdomain = ?
+`
+
+type getChangelogBySubdomainRow struct {
+	changelog       changelog
+	ChangelogSource changelogSource
+}
+
+func (q *Queries) getChangelogBySubdomain(ctx context.Context, subdomain string) (getChangelogBySubdomainRow, error) {
+	row := q.db.QueryRowContext(ctx, getChangelogBySubdomain, subdomain)
+	var i getChangelogBySubdomainRow
+	err := row.Scan(
+		&i.changelog.ID,
+		&i.changelog.WorkspaceID,
+		&i.changelog.Subdomain,
 		&i.changelog.Title,
 		&i.changelog.Subtitle,
 		&i.changelog.SourceID,
@@ -287,7 +329,7 @@ func (q *Queries) getWorkspace(ctx context.Context, id string) (getWorkspaceRow,
 }
 
 const listChangelogs = `-- name: listChangelogs :many
-SELECT c.id, c.workspace_id, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
+SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
 WHERE c.workspace_id = ?
@@ -310,6 +352,7 @@ func (q *Queries) listChangelogs(ctx context.Context, workspaceID string) ([]lis
 		if err := rows.Scan(
 			&i.changelog.ID,
 			&i.changelog.WorkspaceID,
+			&i.changelog.Subdomain,
 			&i.changelog.Title,
 			&i.changelog.Subtitle,
 			&i.changelog.SourceID,
@@ -423,7 +466,7 @@ SET
    logo_height = coalesce(?6, logo_height),
    logo_width = coalesce(?7, logo_width)
 WHERE workspace_id = ?8 AND id = ?9
-RETURNING id, workspace_id, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at
+RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at
 `
 
 type updateChangelogParams struct {
@@ -454,6 +497,7 @@ func (q *Queries) updateChangelog(ctx context.Context, arg updateChangelogParams
 	err := row.Scan(
 		&i.ID,
 		&i.WorkspaceID,
+		&i.Subdomain,
 		&i.Title,
 		&i.Subtitle,
 		&i.SourceID,

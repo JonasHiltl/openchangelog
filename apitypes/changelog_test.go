@@ -22,6 +22,7 @@ func TestChangelogMarshaling(t *testing.T) {
 			input: Changelog{
 				ID:          "cl_xxxx",
 				WorkspaceID: "ws_xxxx",
+				Subdomain:   "workspace_fjhla",
 				Title:       null.NewString("Test Title", true),
 				Subtitle:    null.NewString("Test Subtitle", true),
 				Logo: Logo{
@@ -43,6 +44,7 @@ func TestChangelogMarshaling(t *testing.T) {
 			expect: fmt.Sprintf(`{
 				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
+				"subdomain": "workspace_fjhla",
 				"title": "Test Title",
 				"subtitle": "Test Subtitle",
 				"logo": {
@@ -86,6 +88,7 @@ func TestChangelogUnmarshaling(t *testing.T) {
 		{
 			ID:          "cl_xxxx",
 			WorkspaceID: "ws_xxxx",
+			Subdomain:   "workspace_fjhla",
 			Title:       null.NewString("Test Title", true),
 			Subtitle:    null.NewString("Test Subtitle", true),
 			Source: GHSource{
@@ -100,6 +103,7 @@ func TestChangelogUnmarshaling(t *testing.T) {
 		{
 			ID:          "cl_xxxx",
 			WorkspaceID: "ws_xxxx",
+			Subdomain:   "workspace_fjhla",
 			Title:       null.NewString("Test Title", true),
 			Subtitle:    null.NewString("Test Subtitle", true),
 			CreatedAt:   time.Unix(1715958564, 0),

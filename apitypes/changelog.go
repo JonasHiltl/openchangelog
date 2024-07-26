@@ -12,6 +12,7 @@ import (
 type Changelog struct {
 	ID          string
 	WorkspaceID string
+	Subdomain   string
 	Title       null.String
 	Subtitle    null.String
 	Logo        Logo
@@ -23,6 +24,7 @@ func (l Changelog) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
 		ID          string    `json:"id"`
 		WorkspaceID string    `json:"workspaceId"`
+		Subdomain   string    `json:"subdomain"`
 		Title       string    `json:"title,omitempty"`
 		Subtitle    string    `json:"subtitle,omitempty"`
 		Logo        Logo      `json:"logo"`
@@ -31,6 +33,7 @@ func (l Changelog) MarshalJSON() ([]byte, error) {
 	}{
 		ID:          l.ID,
 		WorkspaceID: l.WorkspaceID,
+		Subdomain:   l.Subdomain,
 		Title:       l.Title.ValueOrZero(),
 		Subtitle:    l.Subtitle.ValueOrZero(),
 		Logo:        l.Logo,
@@ -56,6 +59,13 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 
 	if workspaceIdRaw, ok := objMap["workspaceId"]; ok {
 		err = json.Unmarshal(*workspaceIdRaw, &c.WorkspaceID)
+		if err != nil {
+			return err
+		}
+	}
+
+	if subdomainRaw, ok := objMap["subdomain"]; ok {
+		err = json.Unmarshal(*subdomainRaw, &c.Subdomain)
 		if err != nil {
 			return err
 		}

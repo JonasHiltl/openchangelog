@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/jonashiltl/openchangelog/internal/errs"
@@ -17,6 +16,7 @@ func (cl changelog) ToExported(source changelogSource) Changelog {
 	c := Changelog{
 		WorkspaceID: WorkspaceID(cl.WorkspaceID),
 		ID:          ChangelogID(cl.ID),
+		Subdomain:   cl.Subdomain,
 		Title:       null.NewString(cl.Title.String, cl.Title.Valid),
 		Subtitle:    null.NewString(cl.Subtitle.String, cl.Subtitle.Valid),
 		LogoSrc:     null.NewString(cl.LogoSrc.String, cl.LogoSrc.Valid),
@@ -75,6 +75,7 @@ func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, 
 	c, err := s.q.createChangelog(ctx, createChangelogParams{
 		ID:          cl.ID.String(),
 		WorkspaceID: cl.WorkspaceID.String(),
+		Subdomain:   cl.Subdomain,
 		Title:       cl.Title.NullString,
 		Subtitle:    cl.Subtitle.NullString,
 		LogoSrc:     cl.LogoSrc.NullString,
@@ -91,12 +92,29 @@ func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, 
 	return c.ToExported(changelogSource{}), nil
 }
 
+var errNoChangelog = errs.NewError(errs.ErrNotFound, errors.New("changelog not found"))
+
 func (s *sqlite) GetChangelog(ctx context.Context, wID WorkspaceID, cID ChangelogID) (Changelog, error) {
 	cl, err := s.q.getChangelog(ctx, getChangelogParams{
 		WorkspaceID: wID.String(),
 		ID:          cID.String(),
 	})
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return Changelog{}, errNoChangelog
+		}
+		return Changelog{}, err
+	}
+
+	return cl.changelog.ToExported(cl.ChangelogSource), nil
+}
+
+func (s *sqlite) GetChangelogBySubdomain(ctx context.Context, subdomain string) (Changelog, error) {
+	cl, err := s.q.getChangelogBySubdomain(ctx, subdomain)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return Changelog{}, errNoChangelog
+		}
 		return Changelog{}, err
 	}
 
@@ -133,7 +151,7 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return Changelog{}, errs.NewError(errs.ErrNotFound, errors.New("changelog not found"))
+			return Changelog{}, errNoChangelog
 		}
 		return Changelog{}, err
 	}
@@ -218,7 +236,6 @@ func (s *sqlite) GetWorkspaceIDByToken(ctx context.Context, token string) (Works
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", errs.NewError(errs.ErrUnauthorized, errors.New("invalid bearer token"))
 		}
-		log.Println("failed to get token")
 		return "", err
 	}
 	return WorkspaceID(row.WorkspaceID), nil

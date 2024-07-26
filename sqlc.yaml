@@ -4,7 +4,7 @@ sql:
     queries: 
       - "internal/store/query.sql"
     schema:
-      - "internal/store/migrations/"
+      - "migrations/"
     gen:
       go:
         package: "store"

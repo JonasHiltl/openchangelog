@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
 	"net/http"
+	"strings"
 
 	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/mattn/go-sqlite3"
 )
 
 const (
@@ -18,6 +21,7 @@ const (
 func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 	c := apitypes.Changelog{
 		ID:          cl.ID.String(),
+		Subdomain:   cl.Subdomain,
 		WorkspaceID: cl.WorkspaceID.String(),
 		Title:       cl.Title,
 		Subtitle:    cl.Subtitle,
@@ -55,9 +59,18 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	ws, err := e.store.GetWorkspace(r.Context(), t.WorkspaceID)
+	if err != nil {
+		return err
+	}
+
+	wsName := strings.ReplaceAll(strings.ToLower(ws.Name), " ", "_")
+	rnd := generateLetters(4)
+
 	c, err := e.store.CreateChangelog(r.Context(), store.Changelog{
 		WorkspaceID: t.WorkspaceID,
 		ID:          store.NewCID(),
+		Subdomain:   fmt.Sprintf("%s_%s", wsName, rnd),
 		Title:       req.Title,
 		Subtitle:    req.Subtitle,
 		LogoSrc:     req.Logo.Src,
@@ -67,9 +80,25 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		LogoWidth:   req.Logo.Width,
 	})
 	if err != nil {
+		var sqliteErr sqlite3.Error
+		if errors.As(err, &sqliteErr) {
+			if sqliteErr.Code == sqlite3.ErrConstraint && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+				return errs.NewError(errs.ErrBadRequest, errors.New("subdomain already taken, please try again with a different one"))
+			}
+		}
 		return err
 	}
 	return encodeChangelog(w, c)
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
+
+func generateLetters(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }
 
 func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {

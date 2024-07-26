@@ -22,7 +22,21 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 		return errs.NewError(errs.ErrServiceUnavailable, errors.New("openchangelog is backed by sqlite, use the /:workspace-id/:changelog-id route"))
 	}
 
-	return renderIndex(e, w, r, store.CL_DEFAULT_ID, store.WS_DEFAULT_ID)
+	cl, err := e.store.GetChangelog(r.Context(), store.WS_DEFAULT_ID, store.CL_DEFAULT_ID)
+	if err != nil {
+		return err
+	}
+
+	return renderIndex(e, w, r, cl)
+}
+
+func subdomainIndex(e *env, w http.ResponseWriter, r *http.Request) error {
+	subdomain := r.PathValue("subdomain")
+	cl, err := e.store.GetChangelogBySubdomain(r.Context(), subdomain)
+	if err != nil {
+		return err
+	}
+	return renderIndex(e, w, r, cl)
 }
 
 func tenantIndex(e *env, w http.ResponseWriter, r *http.Request) error {
@@ -41,20 +55,19 @@ func tenantIndex(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return renderIndex(e, w, r, parsedCID, parsedWID)
+	cl, err := e.store.GetChangelog(r.Context(), parsedWID, parsedCID)
+	if err != nil {
+		return err
+	}
+	return renderIndex(e, w, r, cl)
 }
 
 func renderIndex(
 	e *env,
 	w http.ResponseWriter,
 	r *http.Request,
-	cID store.ChangelogID,
-	wID store.WorkspaceID,
+	cl store.Changelog,
 ) error {
-	cl, err := e.store.GetChangelog(r.Context(), wID, cID)
-	if err != nil {
-		return err
-	}
 
 	pageStr := r.URL.Query().Get("page")
 	pageSizeStr := r.URL.Query().Get("page-size")
