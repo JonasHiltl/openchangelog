@@ -61,7 +61,7 @@ type PageConfig struct {
 }
 
 type Config struct {
-	Port      int           `mapstructure:"port"`
+	Addr      string        `mapstructure:"addr"`
 	SqliteURL string        `mapstructure:"sqliteUrl"`
 	Github    *GithubConfig `mapstructure:"github"`
 	Local     *LocalConfig  `mapstructure:"local"`
@@ -96,6 +96,8 @@ func Load(configFile string) (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+
+	viper.SetDefault("addr", "localhost:6001")
 
 	cfg := Config{}
 	err = viper.Unmarshal(&cfg)

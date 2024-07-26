@@ -2,7 +2,7 @@ services:
   openchangelog:
     build: .
     ports:
-      - "80:80"
+      - "6001:6001"
     volumes:
       - ./test.db:/data/test.db
       - type: bind

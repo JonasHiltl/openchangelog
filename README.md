@@ -4,7 +4,7 @@ Changelogs are written in Markdown and can be integrated from different sources,
 
 ## Configuration
 You can configure your Changelog by adapting the `openchangelog.yml` file.
-It is typically in `/etc/openchangelog.yml`.
+It is typically in `/etc/openchangelog.yml`, but can be configured with the `-config` flag when running `openchangelog.`
 
 ### Look & Feel
 **title**: The title is displayed above all Changelog articles.

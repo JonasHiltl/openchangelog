@@ -1,4 +1,4 @@
-port: 80
+addr: 0.0.0.0:6001
 #github:
 #  owner:
 #  repo:
