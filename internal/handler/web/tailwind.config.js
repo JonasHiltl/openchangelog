@@ -8,9 +8,16 @@ module.exports = {
       fontFamily: {
         sans: ['Inter var', ...defaultTheme.fontFamily.sans],
       },
+      colors: (theme) => ({
+        "primary": theme.colors.blue[500],
+        "primary-highlight": theme.colors.blue[600],
+        "caption": theme.colors.gray[400]
+      })
     },
   },
   safelist: ["quail-image-wrapper"],
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }
 

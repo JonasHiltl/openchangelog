@@ -45,7 +45,7 @@ func Navbar() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"navbar-container\"><div class=\"navbar-content\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"sticky z-[1] top-0 flex justify-center p-2 backdrop-blur-md border-solid border-b mb-20\"><div class=\"max-w-2xl h-10 w-full flex justify-between\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -125,7 +125,7 @@ func img(args Logo) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var5 = []any{"logo-img", imgSize(args.Width.ValueOrZero(), args.Height.ValueOrZero())}
+		var templ_7745c5c3_Var5 = []any{"max-h-full max-w-full object-contain", imgSize(args.Width.ValueOrZero(), args.Height.ValueOrZero())}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

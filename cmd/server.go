@@ -40,7 +40,7 @@ func main() {
 	}
 
 	rest.RegisterRestHandler(mux, rest.NewEnv(st))
-	web.RegisterWebHandler(mux, web.NewEnv(cfg, st, render.New(), parse.NewParser(), cache))
+	web.RegisterWebHandler(mux, web.NewEnv(cfg, st, render.New(cfg), parse.NewParser(), cache))
 
 	fmt.Printf("Starting server at http://%s\n", cfg.Addr)
 	log.Fatal(http.ListenAndServe(cfg.Addr, mux))

@@ -10,7 +10,8 @@ import "context"
 import "io"
 import "bytes"
 
-func ChangelogContainer() templ.Component {
+// A wrapper to apply tailwind typography styles to the underlying texts
+func DefaultStyle() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -23,7 +24,7 @@ func ChangelogContainer() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mx-auto w-full flex-1 flex flex-col justify-between prose prose-sm sm:prose-base prose-p:my-2 prose-p:leading-6 prose-h1:mb-3 prose-h2:mb-2 prose-h3:mb-2 prose-a:no-underline hover:prose-a:underline prose-a:underline-offset-4 prose-a:text-primary hover:prose-a:text-primary-highlight\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -31,7 +32,7 @@ func ChangelogContainer() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -4,31 +4,26 @@ import "fmt"
 
 type ArticleListArgs struct {
 	Articles []ArticleArgs
-	HasMore  bool
-	NextPage int
-	PageSize int
+	NextPageURL string
 }
 
 templ ArticleList(a ArticleListArgs) {
 	for _, item := range a.Articles {
 		@Article(item)
 	}
-	if a.HasMore {
+	if a.NextPageURL != "" {
 		<div
 			hx-trigger="revealed"
 			hx-target="this"
-			hx-get="/?page={ a.NextPage }&page-size={ a.NextPage }"
+			hx-get={a.NextPageURL}
 			hx-swap="afterend"
 			hx-indicator="#skeleton"
 		></div>
-		<div id="skeleton" class="article-skeleton">
-			<div class="flex justify-between animate-pulse mb-20">
-				<div class="w-24 h-4 rounded bg-gray-100"></div>
-				<div class="w-full max-w-lg space-y-2">
-					<div class="w-3/4 max-w-lg h-8 rounded bg-gray-100"></div>
-					<div class="w-full max-w-lg h-5 rounded bg-gray-100"></div>
-					<div class="w-full max-w-lg h-24 rounded bg-gray-100"></div>
-				</div>
+		<div id="skeleton" class="[&:not(.htmx-request)]:opacity-0 [&:not(.htmx-request)]:h-0 [&:not(.htmx-request)]:overflow-hidden">
+			<div class="animate-pulse w-full space-y-2 mt-12">
+				<div class="w-3/4 h-8 rounded bg-gray-100"></div>
+				<div class="w-full h-5 rounded bg-gray-100"></div>
+				<div class="w-full h-24 rounded bg-gray-100"></div>
 			</div>
 		</div>
 	}
@@ -43,20 +38,18 @@ type ArticleArgs struct {
 }
 
 templ Article(a ArticleArgs) {
-	<article>
-		<p class="article-publish-date">{ a.PublishedAt }</p>
-		<div class="article-content">
-			<h2 id={ a.ID } class="group article-title">
-				{ a.Title }
-				<a
-					class="article-title-anchor"
-					href={ templ.URL(fmt.Sprintf("#%s", a.ID)) }
-				>
-					#
-				</a>
-			</h2>
-			<p class="article-description">{ a.Description }</p>
-			@templ.Raw(a.Content)
-		</div>
+	<article class="relative">
+		<h2 id={ a.ID } class="group">
+			{ a.Title }
+			<a
+				class="opacity-0 group-hover:opacity-100 transition-opacity"
+				href={ templ.URL(fmt.Sprintf("#%s", a.ID)) }
+			>
+				#
+			</a>
+		</h2>
+		<p class="text-caption">{ a.Description }</p>
+		<p class="text-caption lg:absolute lg:-left-40 lg:top-0 lg:!mt-1">{ a.PublishedAt }</p>
+		@templ.Raw(a.Content)
 	</article>
 }

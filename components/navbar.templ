@@ -16,8 +16,8 @@ css imgSize(width string, height string) {
 }
 
 templ Navbar() {
-	<nav class="navbar-container">
-		<div class="navbar-content">
+	<nav class="sticky z-[1] top-0 flex justify-center p-2 backdrop-blur-md border-solid border-b mb-20">
+		<div class="max-w-2xl h-10 w-full flex justify-between">
 			{ children... }
 		</div>
 	</nav>
@@ -37,6 +37,6 @@ templ img(args Logo) {
 	<img
 		src={ args.Src.ValueOrZero() }
 		alt={ args.Alt.ValueOrZero() }
-		class={ "logo-img", imgSize(args.Width.ValueOrZero(), args.Height.ValueOrZero()) }
+		class={ "max-h-full max-w-full object-contain", imgSize(args.Width.ValueOrZero(), args.Height.ValueOrZero()) }
 	/>
 }

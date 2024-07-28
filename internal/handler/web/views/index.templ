@@ -14,11 +14,14 @@ templ Index(arg IndexArgs) {
 		@components.Navbar() {
 			@components.LogoImg(arg.Logo)
 		}
-		@components.ChangelogContainer() {
-			@components.HeaderContainer() {
-				@components.HeaderContent(arg.HeaderArgs)
+		@components.DefaultStyle() {
+			@components.ChangelogContainer() {
+				@components.HeaderContainer() {
+					@components.HeaderContent(arg.HeaderArgs)
+				}
+				@components.ArticleList(arg.ArticleListArgs)
 			}
-			@components.ArticleList(arg.ArticleListArgs)
+			@components.Footer()
 		}
 	}
 }

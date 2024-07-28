@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "concurrently \"npm:watch:base\" \"npm:watch:custom\"",
-    "watch:base": "npx tailwindcss -i ./css/base.css -o ./public/base.css --watch",
-    "watch:custom": "npx tailwindcss -i ./css/custom.css -o ./public/custom.css --watch"
+    "watch": "npx tailwindcss -i ./css/base.css -o ./public/base.css --watch --minify"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.13",
+    "concurrently": "^8.2.2",
     "tailwindcss": "^3.4.3"
   }
 }

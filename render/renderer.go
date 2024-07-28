@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/jonashiltl/openchangelog/components"
+	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"github.com/jonashiltl/openchangelog/parse"
@@ -26,30 +27,52 @@ type RenderIndexArgs struct {
 }
 
 type RenderArticleListArgs struct {
+	CID      store.ChangelogID
+	WID      store.WorkspaceID
 	Articles []parse.ParsedArticle
 	HasMore  bool
 	NextPage int
 	PageSize int
 }
 
-func New() Renderer {
-	return &renderer{}
+func New(cfg config.Config) Renderer {
+	return &renderer{
+		cfg: cfg,
+	}
 }
 
-type renderer struct{}
+type renderer struct {
+	cfg config.Config
+}
 
 func (r *renderer) RenderArticleList(ctx context.Context, w io.Writer, args RenderArticleListArgs) error {
 	articles := parsedArticlesToComponentArticles(args.Articles)
 
+	nextPageURL := ""
+	if args.HasMore {
+		if r.cfg.IsDBMode() {
+			nextPageURL = fmt.Sprintf("/%s/%s?page=%d&page-size=%d", args.WID.String(), args.CID.String(), args.NextPage, args.PageSize)
+		} else {
+			nextPageURL = fmt.Sprintf("/?page=%d&page-size=%d", args.NextPage, args.PageSize)
+		}
+	}
+
 	return components.ArticleList(components.ArticleListArgs{
-		Articles: articles,
-		HasMore:  args.HasMore,
-		NextPage: args.NextPage,
-		PageSize: args.PageSize,
+		Articles:    articles,
+		NextPageURL: nextPageURL,
 	}).Render(ctx, w)
 }
 
 func (r *renderer) RenderIndex(ctx context.Context, w io.Writer, args RenderIndexArgs) error {
+	var nextPageURL string
+	if args.HasMore {
+		if r.cfg.IsDBMode() {
+			nextPageURL = fmt.Sprintf("/%s/%s?page=%d&page-size=%d", args.CL.WorkspaceID.String(), args.CL.ID.String(), args.NextPage, args.PageSize)
+		} else {
+			nextPageURL = fmt.Sprintf("/?page=%d&page-size=%d", args.NextPage, args.PageSize)
+		}
+	}
+
 	articles := parsedArticlesToComponentArticles(args.Articles)
 	return views.Index(views.IndexArgs{
 		HeaderArgs: components.HeaderArgs{
@@ -64,10 +87,8 @@ func (r *renderer) RenderIndex(ctx context.Context, w io.Writer, args RenderInde
 			Link:   args.CL.LogoLink,
 		},
 		ArticleListArgs: components.ArticleListArgs{
-			Articles: articles,
-			HasMore:  args.HasMore,
-			NextPage: args.NextPage,
-			PageSize: args.PageSize,
+			Articles:    articles,
+			NextPageURL: nextPageURL,
 		},
 	}).Render(ctx, w)
 }
