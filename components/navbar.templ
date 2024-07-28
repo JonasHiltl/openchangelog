@@ -17,17 +17,17 @@ css imgSize(width string, height string) {
 
 templ Navbar() {
 	<nav class="sticky z-[1] top-0 flex justify-center p-2 backdrop-blur-md border-solid border-b mb-20">
-		<div class="max-w-2xl h-10 w-full flex justify-between">
+		<div class="max-w-prose h-10 w-full flex justify-between">
 			{ children... }
 		</div>
 	</nav>
 }
 
 templ LogoImg(args Logo) {
-	if args.Link.IsZero() {
+	if args.Link.ValueOrZero() == "" {
 		@img(args)
 	} else {
-		<a href={ templ.URL(args.Link.ValueOrZero()) } class="logo-link">
+		<a href={ templ.URL(args.Link.ValueOrZero()) } class="h-full">
 			@img(args)
 		</a>
 	}
