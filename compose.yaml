@@ -4,8 +4,6 @@ services:
     ports:
       - "6001:6001"
     volumes:
-      - ./test.db:/data/test.db
-      - ./.cache/:/data/cache/
       - type: bind
-        source: openchangelog.yml
+        source: openchangelog.example.yml
         target: /etc/openchangelog.yml

@@ -1,10 +1,12 @@
 tmp
 .air.toml
 node_modules
+.DS_Store
 
 *.pem
 .env
 openchangelog.example.yml
+openchangelog.yml
 go.work*
 
 .cache

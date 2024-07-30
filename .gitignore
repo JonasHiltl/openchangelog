@@ -1,9 +1,11 @@
 tmp
 node_modules
+.DS_Store
 
 *.pem
 .env
 openchangelog.yml
+openchangelog.cloud.yml
 
 go.work*
 *.txt
