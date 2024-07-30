@@ -10,6 +10,16 @@ RUN go mod download
 COPY . .
 RUN go build -buildvcs=false -ldflags "-s -w -extldflags '-static'" -o ./openchangelog cmd/server.go
 
+# Build goose binary
+FROM golang:1.22 AS goose_builder
+
+WORKDIR /build
+
+RUN git clone https://github.com/pressly/goose && \
+    cd goose && \
+    go mod tidy && \
+    CGO_ENABLED=0 go build -buildvcs=false -ldflags "-s -w -extldflags '-static'" -tags='no_postgres no_redshift no_tidb no_vertica no_ydb no_clickhouse no_mssql no_mysql no_libsql' -o goose ./cmd/goose
+
 FROM alpine
 
 ARG config=i-should-never-exists.jla
@@ -22,6 +32,8 @@ RUN apk add ca-certificates fuse3 sqlite
 
 COPY --from=builder /build/openchangelog /app/openchangelog
 COPY --from=builder /build/internal/handler/web/public ./internal/handler/web/public
+COPY --from=builder /build/migrations ./migrations
+COPY --from=goose_builder /build/goose/goose /usr/bin/goose
 COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
 
 # Run LiteFS as the entrypoint. After it has connected and sync'd with the
