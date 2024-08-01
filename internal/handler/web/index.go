@@ -2,8 +2,10 @@ package web
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/errs"
@@ -18,24 +20,22 @@ const (
 )
 
 func index(e *env, w http.ResponseWriter, r *http.Request) error {
-	if e.cfg.IsDBMode() {
-		return errs.NewError(errs.ErrServiceUnavailable, errors.New("openchangelog is backed by sqlite, use the /:workspace-id/:changelog-id route"))
+	subdomain := parseSubdomain(r.Host)
+	if subdomain == "" && e.cfg.IsDBMode() {
+		return errs.NewError(errs.ErrServiceUnavailable, errors.New("openchangelog is backed by sqlite (multi tenant mode), use the /:subdomain or /:workspace-id/:changelog-id route"))
 	}
 
-	cl, err := e.store.GetChangelog(r.Context(), store.WS_DEFAULT_ID, store.CL_DEFAULT_ID)
+	var cl store.Changelog
+	var err error
+	if subdomain != "" {
+		cl, err = e.store.GetChangelogBySubdomain(r.Context(), subdomain)
+	} else {
+		cl, err = e.store.GetChangelog(r.Context(), store.WS_DEFAULT_ID, store.CL_DEFAULT_ID)
+	}
 	if err != nil {
 		return err
 	}
 
-	return renderIndex(e, w, r, cl)
-}
-
-func subdomainIndex(e *env, w http.ResponseWriter, r *http.Request) error {
-	subdomain := r.PathValue("subdomain")
-	cl, err := e.store.GetChangelogBySubdomain(r.Context(), subdomain)
-	if err != nil {
-		return err
-	}
 	return renderIndex(e, w, r, cl)
 }
 
@@ -60,6 +60,22 @@ func tenantIndex(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	return renderIndex(e, w, r, cl)
+}
+
+func parseSubdomain(host string) string {
+	// Remove port if present
+	host = strings.Split(host, ":")[0]
+	log.Println(host)
+	parts := strings.Split(host, ".")
+	if parts[0] == "www" {
+		parts = parts[1:]
+	}
+
+	// subdomain exists, e.g. tenant.openchangelog.com
+	if len(parts) > 2 {
+		return parts[0]
+	}
+	return ""
 }
 
 func renderIndex(
