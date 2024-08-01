@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/jonashiltl/openchangelog/apitypes"
@@ -64,13 +65,13 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	wsName := strings.ReplaceAll(strings.ToLower(ws.Name), " ", "_")
+	wsName := strings.ReplaceAll(strings.ToLower(ws.Name), " ", "-")
 	rnd := rand.Intn(10000)
 
 	c, err := e.store.CreateChangelog(r.Context(), store.Changelog{
 		WorkspaceID: t.WorkspaceID,
 		ID:          store.NewCID(),
-		Subdomain:   fmt.Sprintf("%s_%d", wsName, rnd),
+		Subdomain:   fmt.Sprintf("%s-%d", wsName, rnd),
 		Title:       req.Title,
 		Subtitle:    req.Subtitle,
 		LogoSrc:     req.Logo.Src,
@@ -91,6 +92,8 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	return encodeChangelog(w, c)
 }
 
+var subdomainRegex = regexp.MustCompile("^[a-z0-9-]*$")
+
 func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	t, err := bearerAuth(e, r)
 	if err != nil {
@@ -108,8 +111,16 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	if req.Subdomain.Valid && req.Subdomain.String != "" {
+		req.Subdomain.String = strings.ToLower(req.Subdomain.String)
+		if !subdomainRegex.MatchString(req.Subdomain.String) {
+			return errs.NewError(errs.ErrBadRequest, errors.New("subdomain not valid"))
+		}
+	}
+
 	c, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, store.UpdateChangelogArgs{
 		Title:      req.Title,
+		Subdomain:  req.Subdomain,
 		Subtitle:   req.Subtitle,
 		LogoSrc:    req.Logo.Src,
 		LogoLink:   req.Logo.Link,

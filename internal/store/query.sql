@@ -67,6 +67,7 @@ UPDATE changelogs
 SET
    title = coalesce(sqlc.narg(title), title),
    subtitle = coalesce(sqlc.narg(subtitle), subtitle),
+   subdomain = coalesce(sqlc.narg(subdomain), subdomain),
    logo_src = coalesce(sqlc.narg(logo_src), logo_src),
    logo_link = coalesce(sqlc.narg(logo_link), logo_link),
    logo_alt = coalesce(sqlc.narg(logo_alt), logo_alt),

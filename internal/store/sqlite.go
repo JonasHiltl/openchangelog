@@ -142,12 +142,17 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 		ID:          cID.String(),
 		WorkspaceID: wID.String(),
 		Title:       args.Title.NullString,
-		Subtitle:    args.Subtitle.NullString,
-		LogoSrc:     args.LogoSrc.NullString,
-		LogoLink:    args.LogoLink.NullString,
-		LogoAlt:     args.LogoAlt.NullString,
-		LogoHeight:  args.LogoHeight.NullString,
-		LogoWidth:   args.LogoWidth.NullString,
+		// subdomain is required, so null && "" are considered NULL in db
+		Subdomain: sql.NullString{
+			String: args.Subdomain.String,
+			Valid:  args.Subdomain.Valid && args.Subdomain.String != "",
+		},
+		Subtitle:   args.Subtitle.NullString,
+		LogoSrc:    args.LogoSrc.NullString,
+		LogoLink:   args.LogoLink.NullString,
+		LogoAlt:    args.LogoAlt.NullString,
+		LogoHeight: args.LogoHeight.NullString,
+		LogoWidth:  args.LogoWidth.NullString,
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

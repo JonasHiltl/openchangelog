@@ -460,18 +460,20 @@ UPDATE changelogs
 SET
    title = coalesce(?1, title),
    subtitle = coalesce(?2, subtitle),
-   logo_src = coalesce(?3, logo_src),
-   logo_link = coalesce(?4, logo_link),
-   logo_alt = coalesce(?5, logo_alt),
-   logo_height = coalesce(?6, logo_height),
-   logo_width = coalesce(?7, logo_width)
-WHERE workspace_id = ?8 AND id = ?9
+   subdomain = coalesce(?3, subdomain),
+   logo_src = coalesce(?4, logo_src),
+   logo_link = coalesce(?5, logo_link),
+   logo_alt = coalesce(?6, logo_alt),
+   logo_height = coalesce(?7, logo_height),
+   logo_width = coalesce(?8, logo_width)
+WHERE workspace_id = ?9 AND id = ?10
 RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at
 `
 
 type updateChangelogParams struct {
 	Title       sql.NullString
 	Subtitle    sql.NullString
+	Subdomain   sql.NullString
 	LogoSrc     sql.NullString
 	LogoLink    sql.NullString
 	LogoAlt     sql.NullString
@@ -485,6 +487,7 @@ func (q *Queries) updateChangelog(ctx context.Context, arg updateChangelogParams
 	row := q.db.QueryRowContext(ctx, updateChangelog,
 		arg.Title,
 		arg.Subtitle,
+		arg.Subdomain,
 		arg.LogoSrc,
 		arg.LogoLink,
 		arg.LogoAlt,

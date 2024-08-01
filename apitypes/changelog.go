@@ -151,4 +151,7 @@ type CreateChangelogBody struct {
 	Logo     Logo        `json:"logo"`
 }
 
-type UpdateChangelogBody CreateChangelogBody
+type UpdateChangelogBody struct {
+	CreateChangelogBody
+	Subdomain null.String `json:"subdomain"`
+}
