@@ -65,12 +65,12 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	wsName := strings.ReplaceAll(strings.ToLower(ws.Name), " ", "_")
-	rnd := generateLetters(4)
+	rnd := rand.Intn(10000)
 
 	c, err := e.store.CreateChangelog(r.Context(), store.Changelog{
 		WorkspaceID: t.WorkspaceID,
 		ID:          store.NewCID(),
-		Subdomain:   fmt.Sprintf("%s_%s", wsName, rnd),
+		Subdomain:   fmt.Sprintf("%s_%d", wsName, rnd),
 		Title:       req.Title,
 		Subtitle:    req.Subtitle,
 		LogoSrc:     req.Logo.Src,
@@ -89,16 +89,6 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	return encodeChangelog(w, c)
-}
-
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
-
-func generateLetters(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	return string(b)
 }
 
 func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
