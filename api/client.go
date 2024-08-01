@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	DefaultAddress = "https://127.0.0.1:8090"
+	DefaultAddress = "https://localhost:6001/api"
 	AuthHeader     = "Authorization"
 )
 
@@ -86,7 +86,7 @@ func (c *Client) NewRequest(ctx context.Context, method, requestPath string, bod
 		User:   c.addr.User,
 		Scheme: c.addr.Scheme,
 		Host:   c.addr.Host,
-		Path:   path.Join(c.addr.Path, "api", requestPath),
+		Path:   path.Join(c.addr.Path, requestPath),
 	}
 
 	req, err := http.NewRequestWithContext(ctx, method, url.String(), body)
