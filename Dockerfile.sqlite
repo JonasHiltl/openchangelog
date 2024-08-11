@@ -30,7 +30,6 @@ RUN apk add sqlite
 
 WORKDIR /app
 COPY --from=builder /build/openchangelog ./openchangelog
-COPY --from=builder /build/internal/handler/web/public ./internal/handler/web/public
 COPY --from=builder /build/migrations ./migrations
 COPY --from=goose_builder /build/goose/goose /usr/bin/goose
 

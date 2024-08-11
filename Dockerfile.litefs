@@ -30,7 +30,6 @@ COPY *$config /etc/openchangelog.yaml
 # so we can communicate with the Consul server over HTTPS.
 RUN apk add ca-certificates fuse3 sqlite
 COPY --from=builder /build/openchangelog /app/openchangelog
-COPY --from=builder /build/internal/handler/web/public /app/internal/handler/web/public
 COPY --from=builder /build/migrations /app/migrations
 
 COPY --from=goose_builder /build/goose/goose /usr/bin/goose

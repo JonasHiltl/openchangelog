@@ -84,7 +84,6 @@ func renderIndex(
 	r *http.Request,
 	cl store.Changelog,
 ) error {
-
 	pageStr := r.URL.Query().Get("page")
 	pageSizeStr := r.URL.Query().Get("page-size")
 	page, err := strconv.Atoi(pageStr)

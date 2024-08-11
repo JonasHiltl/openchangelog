@@ -1,6 +1,7 @@
 package web
 
 import (
+	"embed"
 	"errors"
 	"net/http"
 
@@ -13,9 +14,12 @@ import (
 	"github.com/naveensrinivasan/httpcache"
 )
 
+//go:embed static/*
+var staticAssets embed.FS
+
 func RegisterWebHandler(mux *http.ServeMux, e *env) {
-	fs := http.FileServer(http.Dir("./internal/handler/web/public/"))
-	mux.Handle("GET /static/*", http.StripPrefix("/static/", fs))
+	fs := http.FileServer(http.FS(staticAssets))
+	mux.Handle("GET /static/*", fs)
 	mux.HandleFunc("GET /", serveHTTP(e, index))
 	mux.HandleFunc("GET /{workspace}/{changelog}", serveHTTP(e, tenantIndex))
 }

@@ -18,6 +18,5 @@ COPY *$config /etc/openchangelog.yaml
 
 WORKDIR /app
 COPY --from=builder /build/openchangelog ./openchangelog
-COPY --from=builder /build/internal/handler/web/public ./internal/handler/web/public
 
 ENTRYPOINT ["/app/openchangelog"]

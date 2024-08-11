@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "npx tailwindcss -i ./css/base.css -o ./public/base.css --watch --minify"
+    "watch": "npx tailwindcss -i ./css/base.css -o ./static/base.css --watch --minify"
   },
   "keywords": [],
   "author": "",
