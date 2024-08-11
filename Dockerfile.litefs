@@ -38,4 +38,4 @@ COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
 
 # Run LiteFS as the entrypoint. After it has connected and sync'd with the
 # cluster, it will run the commands listed in the "exec" field of the config.
-ENTRYPOINT litefs mount
+ENTRYPOINT ["litefs mount"]
