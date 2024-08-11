@@ -29,13 +29,13 @@ COPY *$config /etc/openchangelog.yaml
 # Setup our environment to include FUSE & SQLite. We install ca-certificates
 # so we can communicate with the Consul server over HTTPS.
 RUN apk add ca-certificates fuse3 sqlite
-
 COPY --from=builder /build/openchangelog /app/openchangelog
-COPY --from=builder /build/internal/handler/web/public ./internal/handler/web/public
-COPY --from=builder /build/migrations ./migrations
+COPY --from=builder /build/internal/handler/web/public /app/internal/handler/web/public
+COPY --from=builder /build/migrations /app/migrations
+
 COPY --from=goose_builder /build/goose/goose /usr/bin/goose
 COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
 
 # Run LiteFS as the entrypoint. After it has connected and sync'd with the
 # cluster, it will run the commands listed in the "exec" field of the config.
-ENTRYPOINT ["litefs mount"]
+ENTRYPOINT ["litefs", "mount"]
