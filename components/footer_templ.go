@@ -23,7 +23,7 @@ func Footer() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<footer class=\"border-t mt-10 pt-10 pb-20 text-caption\">Powered by <a href=\"https://openchangelog.com\" target=\"_blank\">Openchangelog</a></footer>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<footer class=\"border-t mt-10 pt-10 pb-20\"><div class=\"text-caption px-4 sm:px-0\">Powered by <a href=\"https://openchangelog.com\" target=\"_blank\">Openchangelog</a></div></footer>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

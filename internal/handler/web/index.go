@@ -2,7 +2,6 @@ package web
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -65,7 +64,6 @@ func tenantIndex(e *env, w http.ResponseWriter, r *http.Request) error {
 func parseSubdomain(host string) string {
 	// Remove port if present
 	host = strings.Split(host, ":")[0]
-	log.Println(host)
 	parts := strings.Split(host, ".")
 	if parts[0] == "www" {
 		parts = parts[1:]
