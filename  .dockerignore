@@ -14,3 +14,4 @@ test.db
 .testdata
 Dockerfile*
 compose.yaml
+.github
