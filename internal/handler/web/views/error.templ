@@ -10,7 +10,9 @@ type ErrorArgs struct {
 }
 
 templ Error(args ErrorArgs) {
-	@layout.Header() {
+	@layout.Main(layout.MainArgs{
+		Title: "Changelog Error",
+	}) {
 		<main class="max-w-2xl mx-auto my-8 text-center">
 			<h1>{ fmt.Sprintf("%d", args.Status) }</h1>
 			<p class="mb-4">{ args.Message }</p>

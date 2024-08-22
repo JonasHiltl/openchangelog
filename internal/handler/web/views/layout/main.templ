@@ -1,11 +1,21 @@
 package layout
 
-templ Header() {
+type MainArgs struct {
+	Title string
+	Description string
+}
+
+templ Main(args MainArgs) {
 	<html>
 		<head>
 			<meta charset="utf-8"/>
 			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-			<title>Changelog</title>
+			if args.Title != "" {
+				<title>{ args.Title }</title>
+			}
+			if args.Description != "" {
+				<meta name="“description“" content={ args.Description }/>
+			}
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<link rel="stylesheet" type="text/css" media="screen" href="/static/base.css"/>
 			<link rel="stylesheet" href="https://rsms.me/inter/inter.css"/>

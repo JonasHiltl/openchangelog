@@ -4,13 +4,14 @@ import "github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
 import "github.com/jonashiltl/openchangelog/components"
 
 type IndexArgs struct {
+	layout.MainArgs
 	components.Logo
 	components.HeaderArgs
 	components.ArticleListArgs
 }
 
 templ Index(arg IndexArgs) {
-	@layout.Header() {
+	@layout.Main(arg.MainArgs) {
 		@components.Navbar() {
 			@components.LogoImg(arg.Logo)
 		}

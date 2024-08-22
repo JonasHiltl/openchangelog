@@ -14,6 +14,7 @@ import "github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
 import "github.com/jonashiltl/openchangelog/components"
 
 type IndexArgs struct {
+	layout.MainArgs
 	components.Logo
 	components.HeaderArgs
 	components.ArticleListArgs
@@ -131,7 +132,7 @@ func Index(arg IndexArgs) templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = layout.Header().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.Main(arg.MainArgs).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

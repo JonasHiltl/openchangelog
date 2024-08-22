@@ -9,6 +9,7 @@ import (
 	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
+	"github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"github.com/jonashiltl/openchangelog/parse"
 )
@@ -75,6 +76,10 @@ func (r *renderer) RenderIndex(ctx context.Context, w io.Writer, args RenderInde
 
 	articles := parsedArticlesToComponentArticles(args.Articles)
 	return views.Index(views.IndexArgs{
+		MainArgs: layout.MainArgs{
+			Title:       args.CL.Title.String,
+			Description: args.CL.Subtitle.String,
+		},
 		HeaderArgs: components.HeaderArgs{
 			Title:    args.CL.Title,
 			Subtitle: args.CL.Subtitle,
