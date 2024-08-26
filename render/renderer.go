@@ -68,7 +68,7 @@ func (r *renderer) RenderIndex(ctx context.Context, w io.Writer, args RenderInde
 	var nextPageURL string
 	if args.HasMore {
 		if r.cfg.IsDBMode() {
-			nextPageURL = fmt.Sprintf("/%s/%s?page=%d&page-size=%d", args.CL.WorkspaceID.String(), args.CL.ID.String(), args.NextPage, args.PageSize)
+			nextPageURL = fmt.Sprintf("/?wid=%s&cid=%s&page=%d&page-size=%d", args.CL.WorkspaceID.String(), args.CL.ID.String(), args.NextPage, args.PageSize)
 		} else {
 			nextPageURL = fmt.Sprintf("/?page=%d&page-size=%d", args.NextPage, args.PageSize)
 		}
