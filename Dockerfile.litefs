@@ -5,7 +5,7 @@ WORKDIR /build
 ENV CGO_ENABLED=1
 COPY go.mod .
 COPY go.sum .
-RUN go mod download
+RUN go mod tidy
 
 COPY . .
 RUN go build -buildvcs=false -ldflags "-s -w -extldflags '-static'" -o ./openchangelog cmd/server.go
