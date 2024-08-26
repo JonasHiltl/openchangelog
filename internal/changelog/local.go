@@ -1,4 +1,4 @@
-package internal
+package changelog
 
 import (
 	"context"
@@ -15,7 +15,7 @@ type localSource struct {
 	path string
 }
 
-func NewLocalSourceFromStore(s store.LocalSource) Source {
+func newLocalSourceFromStore(s store.LocalSource) Source {
 	return localSource{
 		path: s.Path,
 	}
@@ -23,7 +23,7 @@ func NewLocalSourceFromStore(s store.LocalSource) Source {
 
 func (s localSource) Load(ctx context.Context, page Pagination) (LoadResult, error) {
 	// sanitize params
-	if page.PageSize() < 1 {
+	if page.IsDefined() && page.PageSize() < 1 {
 		return LoadResult{}, nil
 	}
 
@@ -39,22 +39,31 @@ func (s localSource) Load(ctx context.Context, page Pagination) (LoadResult, err
 	}
 }
 
-func loadDir(path string, params Pagination) (LoadResult, error) {
+func loadDir(path string, page Pagination) (LoadResult, error) {
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return LoadResult{}, err
 	}
 
-	if params.StartIdx() >= len(files) {
+	files = filter(files, func(f fs.DirEntry) bool {
+		return filepath.Ext(f.Name()) == ".md"
+	})
+
+	startIdx := page.StartIdx()
+	endIdx := page.EndIdx()
+
+	// If pagination is not applied, process all files
+	if !page.IsDefined() {
+		startIdx = 0
+		endIdx = len(files) - 1
+	}
+
+	if startIdx >= len(files) {
 		return LoadResult{
 			Articles: []RawArticle{},
 			HasMore:  false,
 		}, nil
 	}
-
-	files = filter(files, func(f fs.DirEntry) bool {
-		return filepath.Ext(f.Name()) == ".md"
-	})
 
 	// sort files in descending order by filename
 	sort.Slice(files, func(i, j int) bool {
@@ -62,10 +71,10 @@ func loadDir(path string, params Pagination) (LoadResult, error) {
 	})
 
 	var wg sync.WaitGroup
-	results := make([]RawArticle, 0, params.PageSize())
+	results := make([]RawArticle, 0, page.PageSize())
 	mutex := &sync.Mutex{}
 
-	for i := params.StartIdx(); i <= params.EndIdx() && i < len(files); i++ {
+	for i := startIdx; i <= endIdx && i < len(files); i++ {
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
@@ -85,7 +94,7 @@ func loadDir(path string, params Pagination) (LoadResult, error) {
 
 	return LoadResult{
 		Articles: results,
-		HasMore:  params.EndIdx()+1 < len(files),
+		HasMore:  endIdx+1 < len(files),
 	}, nil
 }
 

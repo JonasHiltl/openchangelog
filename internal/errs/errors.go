@@ -24,6 +24,34 @@ func NewError(domainErr error, appErr error) error {
 	}
 }
 
+func NewBadRequest(wrapped error) error {
+	return Error{
+		appErr:    wrapped,
+		domainErr: ErrBadRequest,
+	}
+}
+
+func NewNotFound(wrapped error) error {
+	return Error{
+		appErr:    wrapped,
+		domainErr: ErrNotFound,
+	}
+}
+
+func NewUnauthorized(wrapped error) error {
+	return Error{
+		appErr:    wrapped,
+		domainErr: ErrUnauthorized,
+	}
+}
+
+func NewServiceUnavailable(wrapped error) error {
+	return Error{
+		appErr:    wrapped,
+		domainErr: ErrServiceUnavailable,
+	}
+}
+
 func (e Error) AppErr() error {
 	return e.appErr
 }

@@ -7,11 +7,11 @@ import (
 	"strings"
 
 	"github.com/jonashiltl/openchangelog/components"
+	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
 	"github.com/jonashiltl/openchangelog/internal/store"
-	"github.com/jonashiltl/openchangelog/parse"
 )
 
 type Renderer interface {
@@ -21,7 +21,7 @@ type Renderer interface {
 
 type RenderIndexArgs struct {
 	CL       store.Changelog
-	Articles []parse.ParsedArticle
+	Articles []changelog.ParsedArticle
 	HasMore  bool
 	NextPage int
 	PageSize int
@@ -30,7 +30,7 @@ type RenderIndexArgs struct {
 type RenderArticleListArgs struct {
 	CID      store.ChangelogID
 	WID      store.WorkspaceID
-	Articles []parse.ParsedArticle
+	Articles []changelog.ParsedArticle
 	HasMore  bool
 	NextPage int
 	PageSize int
@@ -98,7 +98,7 @@ func (r *renderer) RenderIndex(ctx context.Context, w io.Writer, args RenderInde
 	}).Render(ctx, w)
 }
 
-func parsedArticlesToComponentArticles(parsed []parse.ParsedArticle) []components.ArticleArgs {
+func parsedArticlesToComponentArticles(parsed []changelog.ParsedArticle) []components.ArticleArgs {
 	articles := make([]components.ArticleArgs, len(parsed))
 	for i, a := range parsed {
 		buf := new(strings.Builder)
@@ -108,7 +108,7 @@ func parsedArticlesToComponentArticles(parsed []parse.ParsedArticle) []component
 		}
 
 		articles[i] = components.ArticleArgs{
-			ID:          fmt.Sprint(a.Meta.PublishedAt.Unix()),
+			ID:          a.Meta.ID,
 			Title:       a.Meta.Title,
 			Description: a.Meta.Description,
 			PublishedAt: a.Meta.PublishedAt.Format("02 Jan 2006"),

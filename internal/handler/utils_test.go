@@ -1,4 +1,4 @@
-package web
+package handler
 
 import "testing"
 
@@ -38,7 +38,7 @@ func TestParseSubdomain(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		s := parseSubdomain(table.host)
+		s := ParseSubdomain(table.host)
 		if table.subdomain != s {
 			t.Fatalf("expected %s to equal %s", s, table.subdomain)
 		}

@@ -1,13 +1,13 @@
-package parse
+package changelog
 
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"sort"
 	"sync"
 
-	"github.com/jonashiltl/openchangelog/internal"
 	enclave "github.com/quail-ink/goldmark-enclave"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
@@ -45,14 +45,14 @@ func NewParser() Parser {
 	}
 }
 
-func (g *gmark) Parse(ctx context.Context, raw []internal.RawArticle) (ParseResult, error) {
+func (g *gmark) Parse(ctx context.Context, raw []RawArticle) ([]ParsedArticle, error) {
 	var wg sync.WaitGroup
 	result := make([]ParsedArticle, 0, len(raw))
 	mutex := &sync.Mutex{}
 
 	for _, a := range raw {
 		wg.Add(1)
-		go func(a internal.RawArticle) {
+		go func(a RawArticle) {
 			defer wg.Done()
 			parsed, err := g.parseArticle(a)
 			if err != nil {
@@ -69,12 +69,10 @@ func (g *gmark) Parse(ctx context.Context, raw []internal.RawArticle) (ParseResu
 		return result[i].Meta.PublishedAt.After(result[j].Meta.PublishedAt)
 	})
 
-	return ParseResult{
-		Articles: result,
-	}, nil
+	return result, nil
 }
 
-func (g *gmark) parseArticle(raw internal.RawArticle) (ParsedArticle, error) {
+func (g *gmark) parseArticle(raw RawArticle) (ParsedArticle, error) {
 	ctx := parser.NewContext()
 
 	defer raw.Content.Close()
@@ -100,6 +98,9 @@ func (g *gmark) parseArticle(raw internal.RawArticle) (ParsedArticle, error) {
 	if err != nil {
 		return ParsedArticle{}, err
 	}
+
+	meta.ID = fmt.Sprint(meta.PublishedAt.Unix())
+
 	return ParsedArticle{
 		Meta:    meta,
 		Content: &target,

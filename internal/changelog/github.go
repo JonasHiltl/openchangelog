@@ -1,4 +1,4 @@
-package internal
+package changelog
 
 import (
 	"context"
@@ -18,22 +18,15 @@ import (
 	"github.com/naveensrinivasan/httpcache"
 )
 
-type GHSourceArgs struct {
-	// The account name of the owner of the repository
-	Owner string
-	// The repository which holds the markdown files
-	Repository string
-	// The path to the root of the directory which holds all markdown files
-	Path              string
-	AppID             int64
-	AppPrivateKey     string
-	AppInstallationId int64
-	AccessToken       string
-
-	Cache httpcache.Cache
+type ghSource struct {
+	client         *github.Client
+	Owner          string
+	Repo           string
+	Path           string
+	InstallationID int64
 }
 
-func NewGHSourceFromStore(cfg config.Config, gh store.GHSource, cache httpcache.Cache) (Source, error) {
+func newGHSourceFromStore(cfg config.Config, gh store.GHSource, cache httpcache.Cache) (Source, error) {
 	tr := http.DefaultTransport
 
 	if !cfg.HasGithubAuth() {
@@ -69,17 +62,9 @@ func NewGHSourceFromStore(cfg config.Config, gh store.GHSource, cache httpcache.
 	}, nil
 }
 
-type ghSource struct {
-	client         *github.Client
-	Owner          string
-	Repo           string
-	Path           string
-	InstallationID int64
-}
-
 func (s *ghSource) Load(ctx context.Context, page Pagination) (LoadResult, error) {
 	// sanitize params
-	if page.PageSize() < 1 {
+	if page.IsDefined() && page.PageSize() < 1 {
 		return LoadResult{}, nil
 	}
 
@@ -109,7 +94,16 @@ func (s *ghSource) loadDir(ctx context.Context, files []*github.RepositoryConten
 		return filepath.Ext(f.GetName()) == ".md"
 	})
 
-	if page.StartIdx() >= len(files) {
+	startIdx := page.StartIdx()
+	endIdx := page.EndIdx()
+
+	// If pagination is not applied, process all files
+	if !page.IsDefined() {
+		startIdx = 0
+		endIdx = len(files) - 1
+	}
+
+	if startIdx >= len(files) {
 		return LoadResult{
 			Articles: []RawArticle{},
 			HasMore:  false,
@@ -125,7 +119,7 @@ func (s *ghSource) loadDir(ctx context.Context, files []*github.RepositoryConten
 	articles := make([]RawArticle, 0, page.PageSize())
 	mutex := &sync.Mutex{}
 
-	for i := page.StartIdx(); i <= page.EndIdx() && i < len(files); i++ {
+	for i := startIdx; i <= endIdx && i < len(files); i++ {
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
@@ -144,7 +138,7 @@ func (s *ghSource) loadDir(ctx context.Context, files []*github.RepositoryConten
 
 	return LoadResult{
 		Articles: articles,
-		HasMore:  page.EndIdx()+1 < len(files),
+		HasMore:  endIdx+1 < len(files),
 	}, nil
 }
 

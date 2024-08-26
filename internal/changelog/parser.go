@@ -1,14 +1,14 @@
-package parse
+package changelog
 
 import (
 	"context"
 	"io"
 	"time"
-
-	"github.com/jonashiltl/openchangelog/internal"
 )
 
 type Meta struct {
+	// unique id, we use the published date as unix timestampe
+	ID          string
 	Title       string    `yaml:"title"`
 	Description string    `yaml:"description"`
 	PublishedAt time.Time `yaml:"publishedAt"`
@@ -19,10 +19,6 @@ type ParsedArticle struct {
 	Content io.Reader
 }
 
-type ParseResult struct {
-	Articles []ParsedArticle
-}
-
 type Parser interface {
-	Parse(ctx context.Context, raw []internal.RawArticle) (ParseResult, error)
+	Parse(ctx context.Context, raw []RawArticle) ([]ParsedArticle, error)
 }

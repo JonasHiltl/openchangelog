@@ -3,15 +3,14 @@ package web
 import (
 	"embed"
 	"errors"
+	"log"
 	"net/http"
 
+	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
-	"github.com/jonashiltl/openchangelog/internal/store"
-	"github.com/jonashiltl/openchangelog/parse"
 	"github.com/jonashiltl/openchangelog/render"
-	"github.com/naveensrinivasan/httpcache"
 )
 
 //go:embed static/*
@@ -21,36 +20,27 @@ func RegisterWebHandler(mux *http.ServeMux, e *env) {
 	fs := http.FileServer(http.FS(staticAssets))
 	mux.Handle("GET /static/*", fs)
 	mux.HandleFunc("GET /", serveHTTP(e, index))
-	mux.HandleFunc("GET /{workspace}/{changelog}", serveHTTP(e, tenantIndex))
 }
 
 func NewEnv(
 	cfg config.Config,
-	store store.Store,
+	loader *changelog.Loader,
 	render render.Renderer,
-	parse parse.Parser,
-	cache httpcache.Cache,
 ) *env {
 	return &env{
 		cfg:    cfg,
-		store:  store,
+		loader: loader,
 		render: render,
-		parse:  parse,
-		cache:  cache,
 	}
 }
 
 type env struct {
+	loader *changelog.Loader
 	cfg    config.Config
-	store  store.Store
 	render render.Renderer
-	parse  parse.Parser
-	cache  httpcache.Cache
 }
 
-type handler = func(e *env, w http.ResponseWriter, r *http.Request) error
-
-func serveHTTP(env *env, h handler) func(http.ResponseWriter, *http.Request) {
+func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := h(env, w, r)
 		if err != nil {
@@ -64,6 +54,8 @@ func serveHTTP(env *env, h handler) func(http.ResponseWriter, *http.Request) {
 				Message: err.Error(),
 				Path:    path,
 			}
+
+			log.Println(args.Message)
 
 			var domErr errs.Error
 			if errors.As(err, &domErr) {

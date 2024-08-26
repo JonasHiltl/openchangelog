@@ -1,0 +1,25 @@
+{{- /* feed.templ */ -}}
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>{{.CL.Title.String}}</title>
+    <description>{{.CL.Subtitle.String}}</description>
+    <link>{{ .Link }}</link>
+    <pubDate>{{ toRFC822 .CL.CreatedAt }}</pubDate>
+
+    {{range .Articles}}
+    <item>
+      <guid>{{ addFragment $.Link .Meta.ID }}</guid>
+      <title>{{.Meta.Title}}</title>
+      <link>{{ addFragment $.Link .Meta.ID }}</link>
+      <description>
+        <![CDATA[
+          <p>{{.Meta.Description }}</p>
+          {{.Content}}
+        ]]>
+        </description>
+      <pubDate>{{ toRFC822 .Meta.PublishedAt }}</pubDate>
+    </item>
+    {{end}}
+  </channel>
+</rss>

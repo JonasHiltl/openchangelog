@@ -8,11 +8,12 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/handler/rest"
+	"github.com/jonashiltl/openchangelog/internal/handler/rss"
 	"github.com/jonashiltl/openchangelog/internal/handler/web"
 	"github.com/jonashiltl/openchangelog/internal/store"
-	"github.com/jonashiltl/openchangelog/parse"
 	"github.com/jonashiltl/openchangelog/render"
 	"github.com/naveensrinivasan/httpcache"
 	"github.com/naveensrinivasan/httpcache/diskcache"
@@ -39,8 +40,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	loader := changelog.NewLoader(cfg, st, cache)
+
 	rest.RegisterRestHandler(mux, rest.NewEnv(st))
-	web.RegisterWebHandler(mux, web.NewEnv(cfg, st, render.New(cfg), parse.NewParser(), cache))
+	web.RegisterWebHandler(mux, web.NewEnv(cfg, loader, render.New(cfg)))
+	rss.RegisterRSSHandler(mux, rss.NewEnv(cfg, loader))
 
 	fmt.Printf("Starting server at http://%s\n", cfg.Addr)
 	log.Fatal(http.ListenAndServe(cfg.Addr, mux))
