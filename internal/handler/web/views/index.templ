@@ -1,10 +1,13 @@
 package views
 
-import "github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
-import "github.com/jonashiltl/openchangelog/components"
+import (
+	"github.com/jonashiltl/openchangelog/components"
+	"github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
+)
 
 type IndexArgs struct {
 	layout.MainArgs
+	components.RSSArgs
 	components.Logo
 	components.HeaderArgs
 	components.ArticleListArgs
@@ -14,6 +17,7 @@ templ Index(arg IndexArgs) {
 	@layout.Main(arg.MainArgs) {
 		@components.Navbar() {
 			@components.LogoImg(arg.Logo)
+			@components.RSS(arg.RSSArgs)
 		}
 		@components.DefaultStyle() {
 			@components.ChangelogContainer() {

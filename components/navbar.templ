@@ -1,6 +1,9 @@
 package components
 
-import "github.com/guregu/null/v5"
+import (
+	"github.com/guregu/null/v5"
+	"github.com/jonashiltl/openchangelog/internal/handler/web/icons"
+)
 
 type Logo struct {
 	Src    null.String
@@ -21,6 +24,16 @@ templ Navbar() {
 			{ children... }
 		</div>
 	</nav>
+}
+
+type RSSArgs struct {
+	FeedURL string
+}
+
+templ RSS(args RSSArgs) {
+	<a href={ templ.URL(args.FeedURL) } title="Subscribe to RSS feed" class="hover:text-orange-400 hover:bg-orange-50 rounded p-1">
+		@icons.RSS(16, 16)
+	</a>
 }
 
 templ LogoImg(args Logo) {

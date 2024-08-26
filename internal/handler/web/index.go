@@ -45,6 +45,8 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 	if htmxHeader := r.Header.Get("HX-Request"); len(htmxHeader) > 0 {
 		if len(parsed.Articles) > 0 {
 			return e.render.RenderArticleList(r.Context(), w, render.RenderArticleListArgs{
+				WID:      parsed.CL.WorkspaceID,
+				CID:      parsed.CL.ID,
 				Articles: parsed.Articles,
 				HasMore:  parsed.HasMore,
 				NextPage: page + 1,
@@ -57,6 +59,7 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return e.render.RenderIndex(r.Context(), w, render.RenderIndexArgs{
+		FeedURL:  handler.ChangelogToFeedURL(r),
 		CL:       parsed.CL,
 		Articles: parsed.Articles,
 		HasMore:  parsed.HasMore,

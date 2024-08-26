@@ -46,11 +46,12 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	w.Header().Set("Content-Type", "application/rss+xml")
+	link := handler.FeedToChangelogURL(r)
 	args := map[string]any{
 		"CL":       parsed.CL,
 		"Articles": parsed.Articles,
 		"HasMore":  parsed.HasMore,
-		"Link":     getChangelogURL(r),
+		"Link":     strings.ReplaceAll(link, "&", "&amp;"), // & is reserved in xml
 	}
 	return tmpl.Execute(w, args)
 }
@@ -67,28 +68,6 @@ func addFragment(u string, fragment string) string {
 	}
 	parsed.Fragment = fragment
 	return parsed.String()
-}
-
-// Returns the url at which the changelog is hosted.
-func getChangelogURL(r *http.Request) string {
-	newURL := &url.URL{
-		Scheme:   r.URL.Scheme,
-		Host:     r.URL.Host,
-		RawQuery: r.URL.RawQuery,
-	}
-
-	if newURL.Host == "" {
-		newURL.Host = r.Host
-	}
-	if newURL.Scheme == "" {
-		if r.TLS != nil {
-			newURL.Scheme = "https"
-		} else {
-			newURL.Scheme = "http"
-		}
-	}
-
-	return strings.ReplaceAll(newURL.String(), "&", "&amp;")
 }
 
 func loadChangelogDBMode(e *env, r *http.Request) (*changelog.LoadedChangelog, error) {

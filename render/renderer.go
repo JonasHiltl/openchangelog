@@ -25,6 +25,7 @@ type RenderIndexArgs struct {
 	HasMore  bool
 	NextPage int
 	PageSize int
+	FeedURL  string
 }
 
 type RenderArticleListArgs struct {
@@ -76,6 +77,9 @@ func (r *renderer) RenderIndex(ctx context.Context, w io.Writer, args RenderInde
 
 	articles := parsedArticlesToComponentArticles(args.Articles)
 	return views.Index(views.IndexArgs{
+		RSSArgs: components.RSSArgs{
+			FeedURL: args.FeedURL,
+		},
 		MainArgs: layout.MainArgs{
 			Title:       args.CL.Title.String,
 			Description: args.CL.Subtitle.String,
