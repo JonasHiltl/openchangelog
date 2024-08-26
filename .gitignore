@@ -14,3 +14,4 @@ test.db
 .cache
 
 fly.toml
+unit-tests.xml
