@@ -3,7 +3,7 @@ package components
 import "fmt"
 
 type ArticleListArgs struct {
-	Articles []ArticleArgs
+	Articles    []ArticleArgs
 	NextPageURL string
 }
 
@@ -15,15 +15,16 @@ templ ArticleList(a ArticleListArgs) {
 		<div
 			hx-trigger="revealed"
 			hx-target="this"
-			hx-get={a.NextPageURL}
+			hx-get={ a.NextPageURL }
 			hx-swap="afterend"
 			hx-indicator="#skeleton"
-		></div>
-		<div id="skeleton" class="[&:not(.htmx-request)]:opacity-0 [&:not(.htmx-request)]:h-0 [&:not(.htmx-request)]:overflow-hidden">
-			<div class="animate-pulse w-full space-y-2 mt-12">
-				<div class="w-3/4 h-8 rounded bg-gray-100"></div>
-				<div class="w-full h-5 rounded bg-gray-100"></div>
-				<div class="w-full h-24 rounded bg-gray-100"></div>
+		>
+			<div id="skeleton" class="[&:not(.htmx-request)]:opacity-0 [&:not(.htmx-request)]:h-0 [&:not(.htmx-request)]:overflow-hidden">
+				<div class="animate-pulse w-full space-y-2 mt-12">
+					<div class="w-3/4 h-8 rounded bg-gray-100"></div>
+					<div class="w-full h-5 rounded bg-gray-100"></div>
+					<div class="w-full h-24 rounded bg-gray-100"></div>
+				</div>
 			</div>
 		</div>
 	}

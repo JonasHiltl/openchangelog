@@ -50,10 +50,10 @@ type renderer struct {
 func (r *renderer) RenderArticleList(ctx context.Context, w io.Writer, args RenderArticleListArgs) error {
 	articles := parsedArticlesToComponentArticles(args.Articles)
 
-	nextPageURL := ""
+	var nextPageURL string
 	if args.HasMore {
 		if r.cfg.IsDBMode() {
-			nextPageURL = fmt.Sprintf("/%s/%s?page=%d&page-size=%d", args.WID.String(), args.CID.String(), args.NextPage, args.PageSize)
+			nextPageURL = fmt.Sprintf("/?wid=%s&cid=%s&page=%d&page-size=%d", args.WID.String(), args.CID.String(), args.NextPage, args.PageSize)
 		} else {
 			nextPageURL = fmt.Sprintf("/?page=%d&page-size=%d", args.NextPage, args.PageSize)
 		}
