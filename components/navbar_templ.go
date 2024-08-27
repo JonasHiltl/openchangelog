@@ -97,7 +97,7 @@ func RSS(args RSSArgs) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" title=\"Subscribe to RSS feed\" class=\"hover:text-orange-400 hover:bg-orange-50 rounded p-1\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" title=\"Subscribe to RSS feed\" class=\"hover:text-orange-400 hover:bg-orange-400/10 rounded p-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
