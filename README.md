@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="750" src="https://github.com/user-attachments/assets/75226c07-cce1-4ef8-a7ae-f9721b07c1aa"/>
+  <img width="750" src="https://github.com/user-attachments/assets/64259c72-17b7-479e-8079-98d7e2b72593"/>
   <h1 align="center"><b>Openchangelog</b></h1>
 </p>
 <p align="center">
@@ -20,6 +20,7 @@ Openchangelog takes your Markdown files, hosted on GitHub or locally and renders
 - Easy to self-host, just a single config file
 - Written in Go → lightweight
 - Various integrations, open an issue to request a new integration
+- Automatic RSS feed
 
 ## Writing Changelogs
 Each new Changelog, e.g. from a new release, is written in a new Markdown file, this allows adding custom metadata for each article using the markdown Frontmatter.  
