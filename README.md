@@ -22,6 +22,12 @@ Openchangelog takes your Markdown files, hosted on GitHub or locally and renders
 - Various integrations, open an issue to request a new integration
 - Automatic RSS feed
 
+## Quickstart
+Create an `openchangelog.yml` config file, for more infos see the [configuration](#configuration) section.
+```
+docker run -v ./openchangelog.yml:/etc/openchangelog.yml:ro -p 6001:6001 ghcr.io/jonashiltl/openchangelog:0.0.7
+```
+
 ## Writing Changelogs
 Each new Changelog, e.g. from a new release, is written in a new Markdown file, this allows adding custom metadata for each article using the markdown Frontmatter.  
 All files are stored in the same directory, either local or in remote sources.
@@ -107,4 +113,3 @@ cache:
   s3: # used when type is s3
     bucket: # the bucket url, env AWS_ACCESS_KEY_ID and AWS_SECRET_KEY are used as credentials
 ```
-
