@@ -25,7 +25,7 @@ Openchangelog takes your Markdown files, hosted on GitHub or locally and renders
 ## Quickstart
 Create an `openchangelog.yml` config file, for more infos see the [configuration](#configuration) section.
 ```
-docker run -v ./openchangelog.yml:/etc/openchangelog.yml:ro -p 6001:6001 ghcr.io/jonashiltl/openchangelog:0.0.7
+docker run -v ./openchangelog.yml:/etc/openchangelog.yml:ro -p 6001:6001 ghcr.io/jonashiltl/openchangelog:0.1.0
 ```
 
 ## Writing Changelogs
