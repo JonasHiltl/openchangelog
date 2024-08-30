@@ -3,7 +3,7 @@
   <h1 align="center"><b>Openchangelog</b></h1>
 </p>
 <p align="center">
-  Transform your changelog Markdown files to beatiful product updates
+  Transform your changelog Markdown files to beautiful product updates
   <br />
   <br />
   <a href="https://openchangelog.com">Website</a>
@@ -16,7 +16,7 @@
 <br />
 </p>
 
-Openchangelog takes your Markdown files, hosted on GitHub or locally and renders them as a beatiful Changelog Website.
+Openchangelog takes your Markdown files, hosted on GitHub or locally and renders them as a beautiful Changelog Website.
 - Easy to self-host, just a single config file
 - Written in Go → lightweight
 - Various integrations, open an issue to request a new integration
