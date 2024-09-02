@@ -1,6 +1,8 @@
 package store
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"strings"
 
@@ -15,7 +17,11 @@ const (
 type Token string
 
 func NewToken() Token {
-	return Token("tkn_" + xid.New().String())
+	id := xid.New()
+	hasher := md5.New()
+	hasher.Write(id.Bytes())
+
+	return Token("tkn_" + hex.EncodeToString(hasher.Sum(nil)))
 }
 
 var errKeyFormat = errs.NewError(errs.ErrBadRequest, errors.New("wrong token key format"))
