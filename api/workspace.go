@@ -38,3 +38,20 @@ func (c *Client) CreateWorkspace(ctx context.Context, args apitypes.CreateWorksp
 	err = resp.DecodeJSON(&w)
 	return w, err
 }
+
+func (c *Client) DeleteWorkspace(ctx context.Context, id string) error {
+	req, err := c.NewRequest(
+		ctx, http.MethodDelete,
+		fmt.Sprintf("/workspaces/%s", id),
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.rawRequestWithContext(req)
+	if err != nil {
+		return fmt.Errorf("error while creating workspace: %w", err)
+	}
+	return nil
+}
