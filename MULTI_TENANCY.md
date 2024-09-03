@@ -4,6 +4,7 @@ Openchangelog supports multi tenancy by storing `workspaces`, `sources` & `chang
 **Note**: We do **not** store the changelog articles in SQLite, they still must be stored in a source like Github.
 
 To configure sqlite and enable Multi Tenancy you need to specify the SQLite URL on the `openchangelog.yml`.
+Also set `?_foreign_keys=on` on the sqlite url to enfore foreign key constraints.
 ```
 # openchangelog.yml
 sqliteUrl:
