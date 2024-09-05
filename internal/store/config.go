@@ -69,7 +69,7 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 	return cl, nil
 }
 
-func (s *configStore) GetChangelogBySubdomain(ctx context.Context, subdomain string) (Changelog, error) {
+func (s *configStore) GetChangelogByDomainOrSubdomain(ctx context.Context, domain Domain, subdomain string) (Changelog, error) {
 	return s.GetChangelog(ctx, WS_DEFAULT_ID, CL_DEFAULT_ID)
 }
 

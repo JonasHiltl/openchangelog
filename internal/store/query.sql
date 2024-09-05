@@ -36,8 +36,8 @@ LIMIT 1;
 
 -- name: createChangelog :one
 INSERT INTO changelogs (
-    workspace_id, id, subdomain, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    workspace_id, id, subdomain, domain, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 RETURNING *;
 
 -- name: deleteChangelog :exec
@@ -50,11 +50,11 @@ FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
 WHERE c.workspace_id = ? AND c.id = ?;
 
--- name: getChangelogBySubdomain :one
+-- name: getChangelogByDomainOrSubdomain :one
 SELECT sqlc.embed(c), sqlc.embed(cs)
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
-WHERE c.subdomain = ?;
+WHERE c.domain = ? OR c.subdomain = ?;
 
 -- name: listChangelogs :many
 SELECT sqlc.embed(c), sqlc.embed(cs)
@@ -68,6 +68,7 @@ SET
    title = coalesce(sqlc.narg(title), title),
    subtitle = coalesce(sqlc.narg(subtitle), subtitle),
    subdomain = coalesce(sqlc.narg(subdomain), subdomain),
+   domain = coalesce(sqlc.narg(domain), domain),
    logo_src = coalesce(sqlc.narg(logo_src), logo_src),
    logo_link = coalesce(sqlc.narg(logo_link), logo_link),
    logo_alt = coalesce(sqlc.narg(logo_alt), logo_alt),

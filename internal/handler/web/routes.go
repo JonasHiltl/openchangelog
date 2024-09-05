@@ -3,7 +3,6 @@ package web
 import (
 	"embed"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/jonashiltl/openchangelog/internal/changelog"
@@ -54,8 +53,6 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 				Message: err.Error(),
 				Path:    path,
 			}
-
-			log.Println(args.Message)
 
 			var domErr errs.Error
 			if errors.As(err, &domErr) {

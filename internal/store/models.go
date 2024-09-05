@@ -21,6 +21,7 @@ type changelog struct {
 	LogoHeight  sql.NullString
 	LogoWidth   sql.NullString
 	CreatedAt   int64
+	Domain      sql.NullString
 }
 
 type changelogSource struct {

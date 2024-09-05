@@ -23,6 +23,7 @@ func TestChangelogMarshaling(t *testing.T) {
 				ID:          "cl_xxxx",
 				WorkspaceID: "ws_xxxx",
 				Subdomain:   "workspace_fjhla",
+				Domain:      null.NewString("demo.openchangelog.com", true),
 				Title:       null.NewString("Test Title", true),
 				Subtitle:    null.NewString("Test Subtitle", true),
 				Logo: Logo{
@@ -46,6 +47,7 @@ func TestChangelogMarshaling(t *testing.T) {
 				"workspaceId": "ws_xxxx",
 				"subdomain": "workspace_fjhla",
 				"title": "Test Title",
+				"domain": "demo.openchangelog.com",
 				"subtitle": "Test Subtitle",
 				"logo": {
 					"src": "logo src",
@@ -89,6 +91,7 @@ func TestChangelogUnmarshaling(t *testing.T) {
 			ID:          "cl_xxxx",
 			WorkspaceID: "ws_xxxx",
 			Subdomain:   "workspace_fjhla",
+			Domain:      null.NewString("demo.openchangelog.com", true),
 			Title:       null.NewString("Test Title", true),
 			Subtitle:    null.NewString("Test Subtitle", true),
 			Source: GHSource{

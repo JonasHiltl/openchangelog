@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/jonashiltl/openchangelog/internal/errs"
@@ -12,11 +13,12 @@ import (
 	"github.com/guregu/null/v5"
 )
 
-func (cl changelog) ToExported(source changelogSource) Changelog {
+func (cl changelog) toExported(source changelogSource) Changelog {
 	c := Changelog{
 		WorkspaceID: WorkspaceID(cl.WorkspaceID),
 		ID:          ChangelogID(cl.ID),
 		Subdomain:   cl.Subdomain,
+		Domain:      DomainFromSQL(cl.Domain),
 		Title:       null.NewString(cl.Title.String, cl.Title.Valid),
 		Subtitle:    null.NewString(cl.Subtitle.String, cl.Subtitle.Valid),
 		LogoSrc:     null.NewString(cl.LogoSrc.String, cl.LogoSrc.Valid),
@@ -41,7 +43,7 @@ func (cl changelog) ToExported(source changelogSource) Changelog {
 	return c
 }
 
-func (gh ghSource) ToExported() GHSource {
+func (gh ghSource) toExported() GHSource {
 	return GHSource{
 		ID:             GHSourceID(gh.ID),
 		WorkspaceID:    WorkspaceID(gh.WorkspaceID),
@@ -76,6 +78,7 @@ func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, 
 		ID:          cl.ID.String(),
 		WorkspaceID: cl.WorkspaceID.String(),
 		Subdomain:   cl.Subdomain,
+		Domain:      cl.Domain.NullString,
 		Title:       cl.Title.NullString,
 		Subtitle:    cl.Subtitle.NullString,
 		LogoSrc:     cl.LogoSrc.NullString,
@@ -85,11 +88,17 @@ func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, 
 		LogoWidth:   cl.LogoWidth.NullString,
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed: changelogs.subdomain") {
+			return Changelog{}, errs.NewBadRequest(errors.New("subdomain already taken, please try again with a different one"))
+		}
+		if strings.Contains(err.Error(), "UNIQUE constraint failed: changelogs.domain") {
+			return Changelog{}, errs.NewBadRequest(errors.New("domain already taken, please try again with a different one"))
+		}
 		return Changelog{}, err
 	}
 
 	// TODO get source
-	return c.ToExported(changelogSource{}), nil
+	return c.toExported(changelogSource{}), nil
 }
 
 var errNoChangelog = errs.NewError(errs.ErrNotFound, errors.New("changelog not found"))
@@ -106,11 +115,14 @@ func (s *sqlite) GetChangelog(ctx context.Context, wID WorkspaceID, cID Changelo
 		return Changelog{}, err
 	}
 
-	return cl.changelog.ToExported(cl.ChangelogSource), nil
+	return cl.changelog.toExported(cl.ChangelogSource), nil
 }
 
-func (s *sqlite) GetChangelogBySubdomain(ctx context.Context, subdomain string) (Changelog, error) {
-	cl, err := s.q.getChangelogBySubdomain(ctx, subdomain)
+func (s *sqlite) GetChangelogByDomainOrSubdomain(ctx context.Context, domain Domain, subdomain string) (Changelog, error) {
+	cl, err := s.q.getChangelogByDomainOrSubdomain(ctx, getChangelogByDomainOrSubdomainParams{
+		Domain:    domain.NullString,
+		Subdomain: subdomain,
+	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return Changelog{}, errNoChangelog
@@ -118,7 +130,7 @@ func (s *sqlite) GetChangelogBySubdomain(ctx context.Context, subdomain string) 
 		return Changelog{}, err
 	}
 
-	return cl.changelog.ToExported(cl.ChangelogSource), nil
+	return cl.changelog.toExported(cl.ChangelogSource), nil
 }
 
 func (s *sqlite) ListChangelogs(ctx context.Context, wID WorkspaceID) ([]Changelog, error) {
@@ -132,7 +144,7 @@ func (s *sqlite) ListChangelogs(ctx context.Context, wID WorkspaceID) ([]Changel
 
 	res := make([]Changelog, len(cls))
 	for i, cl := range cls {
-		res[i] = cl.changelog.ToExported(cl.ChangelogSource)
+		res[i] = cl.changelog.toExported(cl.ChangelogSource)
 	}
 	return res, nil
 }
@@ -147,6 +159,7 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 			String: args.Subdomain.String,
 			Valid:  args.Subdomain.Valid && args.Subdomain.String != "",
 		},
+		Domain:     args.Domain.NullString,
 		Subtitle:   args.Subtitle.NullString,
 		LogoSrc:    args.LogoSrc.NullString,
 		LogoLink:   args.LogoLink.NullString,
@@ -158,9 +171,15 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 		if errors.Is(err, sql.ErrNoRows) {
 			return Changelog{}, errNoChangelog
 		}
+		if strings.Contains(err.Error(), "UNIQUE constraint failed: changelogs.subdomain") {
+			return Changelog{}, errs.NewBadRequest(errors.New("subdomain already taken, please try again with a different one"))
+		}
+		if strings.Contains(err.Error(), "UNIQUE constraint failed: changelogs.domain") {
+			return Changelog{}, errs.NewBadRequest(errors.New("domain already taken, please try again with a different one"))
+		}
 		return Changelog{}, err
 	}
-	return c.ToExported(changelogSource{}), nil
+	return c.toExported(changelogSource{}), nil
 }
 
 func (s *sqlite) DeleteChangelog(ctx context.Context, wID WorkspaceID, cID ChangelogID) error {
@@ -262,7 +281,7 @@ func (s *sqlite) CreateGHSource(ctx context.Context, gh GHSource) (GHSource, err
 	if err != nil {
 		return GHSource{}, err
 	}
-	return row.ToExported(), nil
+	return row.toExported(), nil
 }
 
 func (s *sqlite) DeleteGHSource(ctx context.Context, wID WorkspaceID, ghID GHSourceID) error {
@@ -280,7 +299,7 @@ func (s *sqlite) GetGHSource(ctx context.Context, wID WorkspaceID, ghID GHSource
 	if err != nil {
 		return GHSource{}, err
 	}
-	return row.ToExported(), nil
+	return row.toExported(), nil
 }
 
 func (s *sqlite) ListGHSources(ctx context.Context, wID WorkspaceID) ([]GHSource, error) {
@@ -294,7 +313,7 @@ func (s *sqlite) ListGHSources(ctx context.Context, wID WorkspaceID) ([]GHSource
 
 	sources := make([]GHSource, len(rows))
 	for i, row := range rows {
-		sources[i] = row.ToExported()
+		sources[i] = row.toExported()
 	}
 	return sources, nil
 }

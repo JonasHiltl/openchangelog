@@ -12,7 +12,6 @@ import (
 	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/store"
-	"github.com/mattn/go-sqlite3"
 )
 
 const (
@@ -23,6 +22,7 @@ func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 	c := apitypes.Changelog{
 		ID:          cl.ID.String(),
 		Subdomain:   cl.Subdomain,
+		Domain:      cl.Domain.ToNullString(),
 		WorkspaceID: cl.WorkspaceID.String(),
 		Title:       cl.Title,
 		Subtitle:    cl.Subtitle,
@@ -68,7 +68,7 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	wsName := strings.ReplaceAll(strings.ToLower(ws.Name), " ", "-")
 	rnd := rand.Intn(10000)
 
-	c, err := e.store.CreateChangelog(r.Context(), store.Changelog{
+	cl := store.Changelog{
 		WorkspaceID: t.WorkspaceID,
 		ID:          store.NewCID(),
 		Subdomain:   fmt.Sprintf("%s-%d", wsName, rnd),
@@ -79,14 +79,16 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		LogoAlt:     req.Logo.Alt,
 		LogoHeight:  req.Logo.Height,
 		LogoWidth:   req.Logo.Width,
-	})
+	}
+
+	d, err := store.ParseDomain(req.Domain)
 	if err != nil {
-		var sqliteErr sqlite3.Error
-		if errors.As(err, &sqliteErr) {
-			if sqliteErr.Code == sqlite3.ErrConstraint && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
-				return errs.NewError(errs.ErrBadRequest, errors.New("subdomain already taken, please try again with a different one"))
-			}
-		}
+		return err
+	}
+	cl.Domain = d
+
+	c, err := e.store.CreateChangelog(r.Context(), cl)
+	if err != nil {
 		return err
 	}
 	return encodeChangelog(w, c)
@@ -111,14 +113,7 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	if req.Subdomain.Valid && req.Subdomain.String != "" {
-		req.Subdomain.String = strings.ToLower(req.Subdomain.String)
-		if !subdomainRegex.MatchString(req.Subdomain.String) {
-			return errs.NewError(errs.ErrBadRequest, errors.New("subdomain not valid"))
-		}
-	}
-
-	c, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, store.UpdateChangelogArgs{
+	args := store.UpdateChangelogArgs{
 		Title:      req.Title,
 		Subdomain:  req.Subdomain,
 		Subtitle:   req.Subtitle,
@@ -127,7 +122,22 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		LogoAlt:    req.Logo.Alt,
 		LogoHeight: req.Logo.Height,
 		LogoWidth:  req.Logo.Width,
-	})
+	}
+
+	if req.Subdomain.Valid && req.Subdomain.String != "" {
+		args.Subdomain.String = strings.ToLower(req.Subdomain.String)
+		if !subdomainRegex.MatchString(req.Subdomain.String) {
+			return errs.NewBadRequest(errors.New("subdomain not valid"))
+		}
+	}
+
+	domain, err := store.ParseDomain(req.Domain)
+	if err != nil {
+		return err
+	}
+	args.Domain = domain
+
+	c, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, args)
 	if err != nil {
 		return err
 	}

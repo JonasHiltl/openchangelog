@@ -3,6 +3,7 @@ package changelog
 import (
 	"context"
 
+	"github.com/guregu/null/v5"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"github.com/naveensrinivasan/httpcache"
@@ -45,8 +46,13 @@ func (l *Loader) FromConfig(ctx context.Context, page Pagination) (*LoadedChange
 	}, nil
 }
 
-func (l *Loader) FromSubdomain(ctx context.Context, subdomain string, page Pagination) (*LoadedChangelog, error) {
-	cl, err := l.store.GetChangelogBySubdomain(ctx, subdomain)
+func (l *Loader) FromDomainOrSubdomain(ctx context.Context, domain, subdomain string, page Pagination) (*LoadedChangelog, error) {
+	d, err := store.ParseDomain(null.NewString(domain, domain != ""))
+	if err != nil {
+		return nil, err
+	}
+
+	cl, err := l.store.GetChangelogByDomainOrSubdomain(ctx, d, subdomain)
 	if err != nil {
 		return nil, err
 	}
