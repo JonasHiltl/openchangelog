@@ -120,7 +120,7 @@ func (s *sqlite) GetChangelog(ctx context.Context, wID WorkspaceID, cID Changelo
 
 func (s *sqlite) GetChangelogByDomainOrSubdomain(ctx context.Context, domain Domain, subdomain Subdomain) (Changelog, error) {
 	cl, err := s.q.getChangelogByDomainOrSubdomain(ctx, getChangelogByDomainOrSubdomainParams{
-		Domain:    domain.NullString,
+		Domain:    sql.NullString{String: domain.String, Valid: true}, // never find changelogs with domains == NULL
 		Subdomain: subdomain.String(),
 	})
 	if err != nil {
