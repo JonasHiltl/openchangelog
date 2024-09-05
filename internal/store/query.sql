@@ -54,6 +54,7 @@ WHERE c.workspace_id = ? AND c.id = ?;
 SELECT sqlc.embed(c), sqlc.embed(cs)
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
+-- first search by domain, if not found by subdomain
 WHERE c.domain = ? OR c.subdomain = ?
 LIMIT 1;
 
