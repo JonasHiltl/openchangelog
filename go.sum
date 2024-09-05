@@ -37,8 +37,8 @@ github.com/guregu/null/v5 v5.0.0/go.mod h1:SjupzNy+sCPtwQTKWhUCqjhVCO69hpsl2QsZr
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240826155412-cff3cf2774e2 h1:8/uzU4svgUkFPocnAG2OI5ZEsnlR8d7EjQsllvp7P9Q=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240826155412-cff3cf2774e2/go.mod h1:xnbFN3Wrw2B1F/D7pvjjwoeXSt+njRI31ccPFno0BM0=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240905142126-1444edc89471 h1:Pc55zJt8Xgtog5aHcjR8+pp/HWzs2LQ6r48h8YqAMBw=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240905142126-1444edc89471/go.mod h1:xnbFN3Wrw2B1F/D7pvjjwoeXSt+njRI31ccPFno0BM0=
 github.com/kr/http v0.0.0-20150505212737-77bd98b60462 h1:b07ir+udaggBgCywmX2B8jIvNJJaEYXLjnLzIHm/uVg=
 github.com/kr/http v0.0.0-20150505212737-77bd98b60462/go.mod h1:cM5SqzKqF3qr2a/EhVFFGK1+3Co6d40ogrTacbrLzvA=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
@@ -115,8 +115,8 @@ golang.org/x/sys v0.0.0-20180909124046-d0be0721c37e/go.mod h1:STP8DvDyc/dI5b8T5h
 golang.org/x/sys v0.23.0 h1:YfKFowiIMvtgl1UERQoTPPToxltDeZfbj4H7dVUCwmM=
 golang.org/x/sys v0.23.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
-golang.org/x/text v0.17.0 h1:XtiM5bkSOt+ewxlOE/aE/AKEHibwj/6gvWMl9Rsh0Qc=
-golang.org/x/text v0.17.0/go.mod h1:BuEKDfySbSR4drPmRPG/7iBdf8hvFMuRexcpahXilzY=
+golang.org/x/text v0.18.0 h1:XvMDiNzPAl0jr17s6W9lcaIhGUfUORdGCNsuLmPG224=
+golang.org/x/text v0.18.0/go.mod h1:BuEKDfySbSR4drPmRPG/7iBdf8hvFMuRexcpahXilzY=
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c h1:Hei/4ADfdWqJk1ZMxUNpqntNwaWcugrBjAiHlqqRiVk=
