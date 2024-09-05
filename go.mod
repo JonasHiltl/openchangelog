@@ -17,6 +17,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/yuin/goldmark v1.7.1
 	go.abhg.dev/goldmark/frontmatter v0.2.0
+	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	mvdan.cc/xurls/v2 v2.5.0
 )
 
@@ -41,7 +42,6 @@ require (
 	github.com/sqs/s3 v0.0.0-20150203110030-ee47412d98d9 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/sys v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
