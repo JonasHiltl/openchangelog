@@ -66,6 +66,14 @@ func TestParseSubdomain(t *testing.T) {
 			subdomain: "tenant-2",
 		},
 		{
+			host:      "https://changelog.test.com",
+			subdomain: "changelog",
+		},
+		{
+			host:      "https://changelog.test.com:6001",
+			subdomain: "changelog",
+		},
+		{
 			host:      "openchangelog.com",
 			subdomain: "",
 		},

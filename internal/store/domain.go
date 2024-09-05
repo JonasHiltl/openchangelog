@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 	"regexp"
 	"strings"
@@ -48,13 +47,12 @@ func (s Subdomain) String() string {
 }
 
 func (s Subdomain) NullString() null.String {
-	log.Println(s.String())
 	return null.NewString(s.String(), s.String() != "")
 }
 
 func NewSubdomain(workspaceName string) Subdomain {
 	wsName := strings.ReplaceAll(strings.ToLower(workspaceName), " ", "-")
-	rnd := rand.Intn(10000)
+	rnd := rand.Intn(100000)
 
 	return Subdomain(fmt.Sprintf("%s-%d", wsName, rnd))
 }
@@ -68,7 +66,18 @@ func ParseSubdomain(subdomain string) Subdomain {
 // Returns the subdomain from the host.
 // Returns an error if the host doesn't have a subdomain
 func SubdomainFromHost(host string) (Subdomain, error) {
-	host = strings.Split(host, ":")[0]
+	// add scheme, else parsed url won't include host
+	if !strings.Contains(host, "://") {
+		host = "https://" + host
+	}
+
+	parsedURL, err := url.Parse(host)
+	if err != nil {
+		return "", errs.NewBadRequest(errors.New("invalid URL"))
+	}
+
+	// Extract the host from the parsed URL
+	host = parsedURL.Host
 	parts := strings.Split(host, ".")
 	if parts[0] == "www" {
 		parts = parts[1:]
