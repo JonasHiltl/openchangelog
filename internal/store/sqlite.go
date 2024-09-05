@@ -17,7 +17,7 @@ func (cl changelog) toExported(source changelogSource) Changelog {
 	c := Changelog{
 		WorkspaceID: WorkspaceID(cl.WorkspaceID),
 		ID:          ChangelogID(cl.ID),
-		Subdomain:   cl.Subdomain,
+		Subdomain:   Subdomain(cl.Subdomain),
 		Domain:      DomainFromSQL(cl.Domain),
 		Title:       null.NewString(cl.Title.String, cl.Title.Valid),
 		Subtitle:    null.NewString(cl.Subtitle.String, cl.Subtitle.Valid),
@@ -77,7 +77,7 @@ func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, 
 	c, err := s.q.createChangelog(ctx, createChangelogParams{
 		ID:          cl.ID.String(),
 		WorkspaceID: cl.WorkspaceID.String(),
-		Subdomain:   cl.Subdomain,
+		Subdomain:   cl.Subdomain.String(),
 		Domain:      cl.Domain.NullString,
 		Title:       cl.Title.NullString,
 		Subtitle:    cl.Subtitle.NullString,
@@ -118,10 +118,10 @@ func (s *sqlite) GetChangelog(ctx context.Context, wID WorkspaceID, cID Changelo
 	return cl.changelog.toExported(cl.ChangelogSource), nil
 }
 
-func (s *sqlite) GetChangelogByDomainOrSubdomain(ctx context.Context, domain Domain, subdomain string) (Changelog, error) {
+func (s *sqlite) GetChangelogByDomainOrSubdomain(ctx context.Context, domain Domain, subdomain Subdomain) (Changelog, error) {
 	cl, err := s.q.getChangelogByDomainOrSubdomain(ctx, getChangelogByDomainOrSubdomainParams{
 		Domain:    domain.NullString,
-		Subdomain: subdomain,
+		Subdomain: subdomain.String(),
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -154,18 +154,14 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 		ID:          cID.String(),
 		WorkspaceID: wID.String(),
 		Title:       args.Title.NullString,
-		// subdomain is required, so null && "" are considered NULL in db
-		Subdomain: sql.NullString{
-			String: args.Subdomain.String,
-			Valid:  args.Subdomain.Valid && args.Subdomain.String != "",
-		},
-		Domain:     args.Domain.NullString,
-		Subtitle:   args.Subtitle.NullString,
-		LogoSrc:    args.LogoSrc.NullString,
-		LogoLink:   args.LogoLink.NullString,
-		LogoAlt:    args.LogoAlt.NullString,
-		LogoHeight: args.LogoHeight.NullString,
-		LogoWidth:  args.LogoWidth.NullString,
+		Subdomain:   args.Subdomain.NullString().NullString,
+		Domain:      args.Domain.NullString,
+		Subtitle:    args.Subtitle.NullString,
+		LogoSrc:     args.LogoSrc.NullString,
+		LogoLink:    args.LogoLink.NullString,
+		LogoAlt:     args.LogoAlt.NullString,
+		LogoHeight:  args.LogoHeight.NullString,
+		LogoWidth:   args.LogoWidth.NullString,
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

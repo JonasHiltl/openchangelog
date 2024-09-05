@@ -46,13 +46,16 @@ func (l *Loader) FromConfig(ctx context.Context, page Pagination) (*LoadedChange
 	}, nil
 }
 
-func (l *Loader) FromDomainOrSubdomain(ctx context.Context, domain, subdomain string, page Pagination) (*LoadedChangelog, error) {
-	d, err := store.ParseDomain(null.NewString(domain, domain != ""))
+// Tries to load the corresponding changelog for the host, either by it's subdomain or domain.
+func (l *Loader) FromHost(ctx context.Context, host string, page Pagination) (*LoadedChangelog, error) {
+	// ignore error, since subdomain might not exists, we should still try by domain.
+	subdomain, _ := store.SubdomainFromHost(host)
+	domain, err := store.ParseDomain(null.NewString(host, host != ""))
 	if err != nil {
 		return nil, err
 	}
 
-	cl, err := l.store.GetChangelogByDomainOrSubdomain(ctx, d, subdomain)
+	cl, err := l.store.GetChangelogByDomainOrSubdomain(ctx, domain, subdomain)
 	if err != nil {
 		return nil, err
 	}

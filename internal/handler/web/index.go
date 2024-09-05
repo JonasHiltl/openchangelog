@@ -79,9 +79,7 @@ func loadChangelogDBMode(e *env, r *http.Request, page changelog.Pagination) (*c
 		host = r.Header.Get("X-Forwarded-Host")
 	}
 
-	subdomain := handler.ParseSubdomain(host)
-
-	return e.loader.FromDomainOrSubdomain(r.Context(), host, subdomain, page)
+	return e.loader.FromHost(r.Context(), host, changelog.NoPagination())
 }
 
 func loadChangelogConfigMode(e *env, r *http.Request, page changelog.Pagination) (*changelog.LoadedChangelog, error) {

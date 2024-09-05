@@ -4,10 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math/rand"
 	"net/http"
-	"regexp"
-	"strings"
 
 	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/errs"
@@ -21,7 +18,7 @@ const (
 func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 	c := apitypes.Changelog{
 		ID:          cl.ID.String(),
-		Subdomain:   cl.Subdomain,
+		Subdomain:   cl.Subdomain.String(),
 		Domain:      cl.Domain.ToNullString(),
 		WorkspaceID: cl.WorkspaceID.String(),
 		Title:       cl.Title,
@@ -65,13 +62,10 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	wsName := strings.ReplaceAll(strings.ToLower(ws.Name), " ", "-")
-	rnd := rand.Intn(10000)
-
 	cl := store.Changelog{
 		WorkspaceID: t.WorkspaceID,
 		ID:          store.NewCID(),
-		Subdomain:   fmt.Sprintf("%s-%d", wsName, rnd),
+		Subdomain:   store.NewSubdomain(ws.Name),
 		Title:       req.Title,
 		Subtitle:    req.Subtitle,
 		LogoSrc:     req.Logo.Src,
@@ -94,8 +88,6 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	return encodeChangelog(w, c)
 }
 
-var subdomainRegex = regexp.MustCompile("^[a-z0-9-]*$")
-
 func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	t, err := bearerAuth(e, r)
 	if err != nil {
@@ -115,20 +107,13 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 
 	args := store.UpdateChangelogArgs{
 		Title:      req.Title,
-		Subdomain:  req.Subdomain,
+		Subdomain:  store.ParseSubdomain(req.Subdomain.ValueOrZero()),
 		Subtitle:   req.Subtitle,
 		LogoSrc:    req.Logo.Src,
 		LogoLink:   req.Logo.Link,
 		LogoAlt:    req.Logo.Alt,
 		LogoHeight: req.Logo.Height,
 		LogoWidth:  req.Logo.Width,
-	}
-
-	if req.Subdomain.Valid && req.Subdomain.String != "" {
-		args.Subdomain.String = strings.ToLower(req.Subdomain.String)
-		if !subdomainRegex.MatchString(req.Subdomain.String) {
-			return errs.NewBadRequest(errors.New("subdomain not valid"))
-		}
 	}
 
 	domain, err := store.ParseDomain(req.Domain)

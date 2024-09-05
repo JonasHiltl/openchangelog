@@ -8,38 +8,38 @@ import (
 
 func TestParseDomain(t *testing.T) {
 	tables := []struct {
-		domain    string
+		host      string
 		expected  null.String
 		expectErr bool
 	}{
 		{
-			domain:   "openchangelog",
+			host:     "openchangelog",
 			expected: null.NewString("openchangelog", true),
 		},
 		{
-			domain:   "openchangelog.com",
+			host:     "openchangelog.com",
 			expected: null.NewString("openchangelog.com", true),
 		},
 		{
-			domain:   "changelog.openchangelog.com",
+			host:     "changelog.openchangelog.com",
 			expected: null.NewString("changelog.openchangelog.com", true),
 		},
 		{
-			domain:   "changelog.openchangelog.com:3000",
+			host:     "changelog.openchangelog.com:3000",
 			expected: null.NewString("changelog.openchangelog.com:3000", true),
 		},
 		{
-			domain:   "https://changelog.openchangelog.com",
+			host:     "https://changelog.openchangelog.com",
 			expected: null.NewString("changelog.openchangelog.com", true),
 		},
 		{
-			domain:   "http://changelog.openchangelog.com",
+			host:     "http://changelog.openchangelog.com",
 			expected: null.NewString("changelog.openchangelog.com", true),
 		},
 	}
 
 	for _, table := range tables {
-		d, err := ParseDomain(null.NewString(table.domain, table.domain != ""))
+		d, err := ParseDomain(null.NewString(table.host, table.host != ""))
 		if table.expectErr && err == nil {
 			t.Error("expected to error but no error returned")
 		}
@@ -48,6 +48,49 @@ func TestParseDomain(t *testing.T) {
 		}
 		if d.Valid != table.expected.Valid {
 			t.Errorf("expected valid %t to equal%t", d.Valid, table.expected.Valid)
+		}
+	}
+}
+
+func TestParseSubdomain(t *testing.T) {
+	tables := []struct {
+		host      string
+		subdomain string
+	}{
+		{
+			host:      "tenant.openchangelog.com",
+			subdomain: "tenant",
+		},
+		{
+			host:      "tenant-2.openchangelog.com",
+			subdomain: "tenant-2",
+		},
+		{
+			host:      "openchangelog.com",
+			subdomain: "",
+		},
+		{
+			host:      "www.openchangelog.com",
+			subdomain: "",
+		},
+		{
+			host:      "",
+			subdomain: "",
+		},
+		{
+			host:      ".",
+			subdomain: "",
+		},
+		{
+			host:      ".com",
+			subdomain: "",
+		},
+	}
+
+	for _, table := range tables {
+		s, _ := SubdomainFromHost(table.host)
+		if table.subdomain != s.String() {
+			t.Fatalf("expected %s to equal %s", s, table.subdomain)
 		}
 	}
 }

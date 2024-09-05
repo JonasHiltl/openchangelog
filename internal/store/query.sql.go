@@ -224,6 +224,7 @@ SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.lo
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
 WHERE c.domain = ? OR c.subdomain = ?
+LIMIT 1
 `
 
 type getChangelogByDomainOrSubdomainParams struct {
