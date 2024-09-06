@@ -78,12 +78,12 @@ func loadChangelogDBMode(e *env, r *http.Request) (*changelog.LoadedChangelog, e
 		return e.loader.FromWorkspace(r.Context(), wID, cID, changelog.NoPagination())
 	}
 
-	subdomain := handler.ParseSubdomain(r.Host)
-	if subdomain != "" {
-		return e.loader.FromSubdomain(r.Context(), subdomain, changelog.NoPagination())
+	host := r.Host
+	if r.Header.Get("X-Forwarded-Host") != "" {
+		host = r.Header.Get("X-Forwarded-Host")
 	}
 
-	return nil, errs.NewServiceUnavailable(errors.New("you need to specify the subdomain or workspace & changelog id when running openchangelog in db mode"))
+	return e.loader.FromHost(r.Context(), host, changelog.NoPagination())
 }
 
 func loadChangelogConfigMode(e *env, r *http.Request) (*changelog.LoadedChangelog, error) {

@@ -1,12 +1,10 @@
 package web
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/jonashiltl/openchangelog/internal/changelog"
-	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/render"
 )
@@ -76,12 +74,12 @@ func loadChangelogDBMode(e *env, r *http.Request, page changelog.Pagination) (*c
 		return e.loader.FromWorkspace(r.Context(), wID, cID, page)
 	}
 
-	subdomain := handler.ParseSubdomain(r.Host)
-	if subdomain != "" {
-		return e.loader.FromSubdomain(r.Context(), subdomain, page)
+	host := r.Host
+	if r.Header.Get("X-Forwarded-Host") != "" {
+		host = r.Header.Get("X-Forwarded-Host")
 	}
 
-	return nil, errs.NewServiceUnavailable(errors.New("you are running openchangelog in db mode, backed by sqlite. please specify the subdomain or workspace & changelog id (?wid=...&cid=...)"))
+	return e.loader.FromHost(r.Context(), host, changelog.NoPagination())
 }
 
 func loadChangelogConfigMode(e *env, r *http.Request, page changelog.Pagination) (*changelog.LoadedChangelog, error) {

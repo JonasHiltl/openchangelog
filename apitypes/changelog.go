@@ -13,6 +13,7 @@ type Changelog struct {
 	ID          string
 	WorkspaceID string
 	Subdomain   string
+	Domain      null.String
 	Title       null.String
 	Subtitle    null.String
 	Logo        Logo
@@ -26,6 +27,7 @@ func (l Changelog) MarshalJSON() ([]byte, error) {
 		WorkspaceID string    `json:"workspaceId"`
 		Subdomain   string    `json:"subdomain"`
 		Title       string    `json:"title,omitempty"`
+		Domain      string    `json:"domain,omitempty"`
 		Subtitle    string    `json:"subtitle,omitempty"`
 		Logo        Logo      `json:"logo"`
 		Source      Source    `json:"source,omitempty"`
@@ -34,6 +36,7 @@ func (l Changelog) MarshalJSON() ([]byte, error) {
 		ID:          l.ID,
 		WorkspaceID: l.WorkspaceID,
 		Subdomain:   l.Subdomain,
+		Domain:      l.Domain.ValueOrZero(),
 		Title:       l.Title.ValueOrZero(),
 		Subtitle:    l.Subtitle.ValueOrZero(),
 		Logo:        l.Logo,
@@ -66,6 +69,13 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 
 	if subdomainRaw, ok := objMap["subdomain"]; ok {
 		err = json.Unmarshal(*subdomainRaw, &c.Subdomain)
+		if err != nil {
+			return err
+		}
+	}
+
+	if domainRaw, ok := objMap["domain"]; ok {
+		err = json.Unmarshal(*domainRaw, &c.Domain)
 		if err != nil {
 			return err
 		}
@@ -149,6 +159,7 @@ type CreateChangelogBody struct {
 	Title    null.String `json:"title"`
 	Subtitle null.String `json:"subtitle"`
 	Logo     Logo        `json:"logo"`
+	Domain   null.String `json:"domain"`
 }
 
 type UpdateChangelogBody struct {

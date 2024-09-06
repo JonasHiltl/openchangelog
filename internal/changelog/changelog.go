@@ -2,8 +2,11 @@ package changelog
 
 import (
 	"context"
+	"errors"
 
+	"github.com/guregu/null/v5"
 	"github.com/jonashiltl/openchangelog/internal/config"
+	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"github.com/naveensrinivasan/httpcache"
 )
@@ -45,8 +48,15 @@ func (l *Loader) FromConfig(ctx context.Context, page Pagination) (*LoadedChange
 	}, nil
 }
 
-func (l *Loader) FromSubdomain(ctx context.Context, subdomain string, page Pagination) (*LoadedChangelog, error) {
-	cl, err := l.store.GetChangelogBySubdomain(ctx, subdomain)
+// Tries to load the corresponding changelog for the host, either by it's subdomain or domain.
+func (l *Loader) FromHost(ctx context.Context, host string, page Pagination) (*LoadedChangelog, error) {
+	subdomain, serr := store.SubdomainFromHost(host)
+	domain, derr := store.ParseDomain(null.NewString(host, host != ""))
+	if derr != nil && serr != nil {
+		return nil, errs.NewBadRequest(errors.New("host is not a valid url"))
+	}
+
+	cl, err := l.store.GetChangelogByDomainOrSubdomain(ctx, domain, subdomain)
 	if err != nil {
 		return nil, err
 	}
