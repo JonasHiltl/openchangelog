@@ -36,6 +36,10 @@ func TestParseDomain(t *testing.T) {
 			host:     "http://changelog.openchangelog.com",
 			expected: null.NewString("changelog.openchangelog.com", true),
 		},
+		{
+			host:      "https://test com",
+			expectErr: true,
+		},
 	}
 
 	for _, table := range tables {

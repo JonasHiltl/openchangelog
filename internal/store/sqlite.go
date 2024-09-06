@@ -88,13 +88,7 @@ func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, 
 		LogoWidth:   cl.LogoWidth.NullString,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "UNIQUE constraint failed: changelogs.subdomain") {
-			return Changelog{}, errs.NewBadRequest(errors.New("subdomain already taken, please try again with a different one"))
-		}
-		if strings.Contains(err.Error(), "UNIQUE constraint failed: changelogs.domain") {
-			return Changelog{}, errs.NewBadRequest(errors.New("domain already taken, please try again with a different one"))
-		}
-		return Changelog{}, err
+		return Changelog{}, formatUnqueConstraint(err)
 	}
 
 	// TODO get source
@@ -167,15 +161,21 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 		if errors.Is(err, sql.ErrNoRows) {
 			return Changelog{}, errNoChangelog
 		}
-		if strings.Contains(err.Error(), "UNIQUE constraint failed: changelogs.subdomain") {
-			return Changelog{}, errs.NewBadRequest(errors.New("subdomain already taken, please try again with a different one"))
-		}
-		if strings.Contains(err.Error(), "UNIQUE constraint failed: changelogs.domain") {
-			return Changelog{}, errs.NewBadRequest(errors.New("domain already taken, please try again with a different one"))
-		}
-		return Changelog{}, err
+		return Changelog{}, formatUnqueConstraint(err)
 	}
 	return c.toExported(changelogSource{}), nil
+}
+
+// If err is a unique constraint error, return humanized error message.
+// Otherwise return err
+func formatUnqueConstraint(err error) error {
+	if strings.Contains(err.Error(), "UNIQUE constraint failed: changelogs.subdomain") {
+		return errs.NewBadRequest(errors.New("subdomain already taken, please try again with a different one"))
+	}
+	if strings.Contains(err.Error(), "UNIQUE constraint failed: changelogs.domain") {
+		return errs.NewBadRequest(errors.New("domain already taken, please try again with a different one"))
+	}
+	return err
 }
 
 func (s *sqlite) DeleteChangelog(ctx context.Context, wID WorkspaceID, cID ChangelogID) error {

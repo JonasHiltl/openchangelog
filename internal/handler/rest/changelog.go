@@ -105,24 +105,22 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	args := store.UpdateChangelogArgs{
+	domain, err := store.ParseDomain(req.Domain)
+	if err != nil {
+		return err
+	}
+
+	c, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, store.UpdateChangelogArgs{
 		Title:      req.Title,
 		Subdomain:  store.ParseSubdomain(req.Subdomain.ValueOrZero()),
+		Domain:     domain,
 		Subtitle:   req.Subtitle,
 		LogoSrc:    req.Logo.Src,
 		LogoLink:   req.Logo.Link,
 		LogoAlt:    req.Logo.Alt,
 		LogoHeight: req.Logo.Height,
 		LogoWidth:  req.Logo.Width,
-	}
-
-	domain, err := store.ParseDomain(req.Domain)
-	if err != nil {
-		return err
-	}
-	args.Domain = domain
-
-	c, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, args)
+	})
 	if err != nil {
 		return err
 	}
