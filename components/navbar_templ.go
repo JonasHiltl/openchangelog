@@ -50,7 +50,7 @@ func Navbar() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"sticky z-[1] top-0 flex justify-center py-2 px-4 backdrop-blur-md border-solid border-b\"><div class=\"max-w-prose h-10 w-full flex justify-between items-center\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"sticky z-[1] top-0 flex justify-center py-2 px-4 backdrop-blur-md border-solid border-b border-b-gray-200 dark:border-b-gray-800\"><div class=\"max-w-prose h-10 w-full flex justify-between items-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -97,7 +97,7 @@ func RSS(args RSSArgs) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" title=\"Subscribe to RSS feed\" class=\"hover:text-orange-400 hover:bg-orange-400/10 rounded p-1\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" title=\"Subscribe to RSS feed\" class=\"hover:text-orange-400 hover:bg-orange-400/10 dark:text-gray-600 rounded p-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -146,7 +146,7 @@ func LogoImg(args Logo) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"h-full\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"flex items-center h-full\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
