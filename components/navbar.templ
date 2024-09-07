@@ -19,7 +19,7 @@ css imgSize(width string, height string) {
 }
 
 templ Navbar() {
-	<nav class="sticky z-[1] top-0 flex justify-center py-2 px-4 backdrop-blur-md border-solid border-b">
+	<nav class="sticky z-[1] top-0 flex justify-center py-2 px-4 backdrop-blur-md border-solid border-b border-b-gray-200 dark:border-b-gray-800">
 		<div class="max-w-prose h-10 w-full flex justify-between items-center">
 			{ children... }
 		</div>
@@ -31,7 +31,7 @@ type RSSArgs struct {
 }
 
 templ RSS(args RSSArgs) {
-	<a href={ templ.URL(args.FeedURL) } title="Subscribe to RSS feed" class="hover:text-orange-400 hover:bg-orange-400/10 rounded p-1">
+	<a href={ templ.URL(args.FeedURL) } title="Subscribe to RSS feed" class="hover:text-orange-400 hover:bg-orange-400/10 dark:text-gray-600 rounded p-1">
 		@icons.RSS(16, 16)
 	</a>
 }
@@ -40,7 +40,7 @@ templ LogoImg(args Logo) {
 	if args.Link.ValueOrZero() == "" {
 		@img(args)
 	} else {
-		<a href={ templ.URL(args.Link.ValueOrZero()) } class="h-full">
+		<a href={ templ.URL(args.Link.ValueOrZero()) } class="flex items-center h-full">
 			@img(args)
 		</a>
 	}
