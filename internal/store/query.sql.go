@@ -237,6 +237,7 @@ type getChangelogByDomainOrSubdomainRow struct {
 	ChangelogSource changelogSource
 }
 
+// first search by domain, if not found by subdomain
 func (q *Queries) getChangelogByDomainOrSubdomain(ctx context.Context, arg getChangelogByDomainOrSubdomainParams) (getChangelogByDomainOrSubdomainRow, error) {
 	row := q.db.QueryRowContext(ctx, getChangelogByDomainOrSubdomain, arg.Domain, arg.Subdomain)
 	var i getChangelogByDomainOrSubdomainRow
@@ -470,43 +471,59 @@ func (q *Queries) setChangelogSource(ctx context.Context, arg setChangelogSource
 const updateChangelog = `-- name: updateChangelog :one
 UPDATE changelogs
 SET
-   title = coalesce(?1, title),
-   subtitle = coalesce(?2, subtitle),
-   subdomain = coalesce(?3, subdomain),
-   domain = coalesce(?4, domain),
-   logo_src = coalesce(?5, logo_src),
-   logo_link = coalesce(?6, logo_link),
-   logo_alt = coalesce(?7, logo_alt),
-   logo_height = coalesce(?8, logo_height),
-   logo_width = coalesce(?9, logo_width)
-WHERE workspace_id = ?10 AND id = ?11
+   subdomain = coalesce(?1, subdomain),
+   title = CASE WHEN ?2 THEN ?3 ELSE title END,
+   subtitle = CASE WHEN ?4 THEN ?5 ELSE subtitle END,
+   domain = CASE WHEN ?6 THEN ?7 ELSE domain END,
+   logo_src = CASE WHEN ?8 THEN ?9 ELSE logo_src END,
+   logo_link = CASE WHEN ?10 THEN ?11 ELSE logo_link END,
+   logo_alt = CASE WHEN ?12 THEN ?13 ELSE logo_alt END,
+   logo_height = CASE WHEN ?14 THEN ?15 ELSE logo_height END,
+   logo_width = CASE WHEN ?16 THEN ?17 ELSE logo_width END
+WHERE workspace_id = ?18 AND id = ?19
 RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at, domain
 `
 
 type updateChangelogParams struct {
-	Title       sql.NullString
-	Subtitle    sql.NullString
-	Subdomain   sql.NullString
-	Domain      sql.NullString
-	LogoSrc     sql.NullString
-	LogoLink    sql.NullString
-	LogoAlt     sql.NullString
-	LogoHeight  sql.NullString
-	LogoWidth   sql.NullString
-	WorkspaceID string
-	ID          string
+	Subdomain     sql.NullString
+	SetTitle      sql.NullString
+	Title         sql.NullString
+	SetSubtitle   sql.NullString
+	Subtitle      sql.NullString
+	SetDomain     sql.NullString
+	Domain        sql.NullString
+	SetLogoSrc    sql.NullString
+	LogoSrc       sql.NullString
+	SetLogoLink   sql.NullString
+	LogoLink      sql.NullString
+	SetLogoAlt    sql.NullString
+	LogoAlt       sql.NullString
+	SetLogoHeight sql.NullString
+	LogoHeight    sql.NullString
+	SetLogoWidth  sql.NullString
+	LogoWidth     sql.NullString
+	WorkspaceID   string
+	ID            string
 }
 
 func (q *Queries) updateChangelog(ctx context.Context, arg updateChangelogParams) (changelog, error) {
 	row := q.db.QueryRowContext(ctx, updateChangelog,
-		arg.Title,
-		arg.Subtitle,
 		arg.Subdomain,
+		arg.SetTitle,
+		arg.Title,
+		arg.SetSubtitle,
+		arg.Subtitle,
+		arg.SetDomain,
 		arg.Domain,
+		arg.SetLogoSrc,
 		arg.LogoSrc,
+		arg.SetLogoLink,
 		arg.LogoLink,
+		arg.SetLogoAlt,
 		arg.LogoAlt,
+		arg.SetLogoHeight,
 		arg.LogoHeight,
+		arg.SetLogoWidth,
 		arg.LogoWidth,
 		arg.WorkspaceID,
 		arg.ID,
