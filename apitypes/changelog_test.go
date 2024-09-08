@@ -96,7 +96,7 @@ func TestChangelogMarshaling(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		b, err := json.MarshalIndent(table.input, "", "\t")
+		b, err := json.Marshal(table.input)
 		if err != nil {
 			t.Error(err)
 		}

@@ -44,7 +44,7 @@ func (l Changelog) MarshalJSON() ([]byte, error) {
 		obj.CreatedAt = &l.CreatedAt
 	}
 
-	if !l.Logo.IsZero() {
+	if l.Logo.IsValid() {
 		obj.Logo = &l.Logo
 	}
 
@@ -165,26 +165,28 @@ type Logo struct {
 func (l Logo) MarshalJSON() ([]byte, error) {
 	data := make(map[string]NullString)
 
-	if l.Src.IsNull() || l.Src.IsValid() {
+	if l.Src.IsValid() {
+
 		data["src"] = l.Src
 	}
-	if l.Link.IsNull() || l.Link.IsValid() {
+	if l.Link.IsValid() {
 		data["link"] = l.Link
 	}
-	if l.Alt.IsNull() || l.Alt.IsValid() {
+	if l.Alt.IsValid() {
 		data["alt"] = l.Alt
 	}
-	if l.Height.IsNull() || l.Height.IsValid() {
+	if l.Height.IsValid() {
 		data["height"] = l.Height
 	}
-	if l.Width.IsNull() || l.Width.IsValid() {
+	if l.Width.IsValid() {
 		data["width"] = l.Width
 	}
 	return json.Marshal(data)
 }
 
-func (l Logo) IsZero() bool {
-	return !l.Src.IsValid() && !l.Src.IsNull() && !l.Link.IsValid() && !l.Link.IsNull() && !l.Alt.IsValid() && !l.Alt.IsNull() && !l.Height.IsValid() && !l.Height.IsNull() && !l.Width.IsValid() && !l.Width.IsNull()
+// Returns true if at least one field is valid
+func (l Logo) IsValid() bool {
+	return l.Src.IsValid() || l.Link.IsValid() || l.Alt.IsValid() || l.Height.IsValid() || l.Width.IsValid()
 }
 
 type CreateChangelogBody struct {

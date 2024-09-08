@@ -4,6 +4,8 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUnmarshalString(t *testing.T) {
@@ -32,15 +34,7 @@ func TestUnmarshalString(t *testing.T) {
 			t.Error(err)
 		}
 
-		if ns.IsValid() != table.expected.IsValid() {
-			t.Errorf("Expected isValid to be %t got %t", table.expected.IsValid(), ns.IsValid())
-		}
-		if ns.IsNull() != table.expected.IsNull() {
-			t.Errorf("Expected isNull to be %t got %t", table.expected.IsNull(), ns.IsNull())
-		}
-		if ns.String() != table.expected.String() {
-			t.Errorf("Expected str to be %s got %s", table.expected.String(), ns.String())
-		}
+		assert.Equal(t, table.expected, ns)
 	}
 }
 
@@ -117,15 +111,8 @@ func TestScanString(t *testing.T) {
 				t.Errorf("Expected wantErr %t but got %s", table.wantErr, err)
 			}
 
-			if ns.IsValid() != table.expected.IsValid() {
-				t.Errorf("Expected IsValid to be %t got %t", table.expected.IsValid(), ns.IsValid())
-			}
-			if ns.IsNull() != table.expected.IsNull() {
-				t.Errorf("Expected isNull to be %t got %t", table.expected.IsNull(), ns.IsNull())
-			}
-			if ns.String() != table.expected.String() {
-				t.Errorf("Expected str to be %s got %s", table.expected.String(), ns.String())
-			}
+			assert.Equal(t, table.expected, ns)
+
 		})
 	}
 }
@@ -149,11 +136,6 @@ func TestValueString(t *testing.T) {
 		{
 			name:     "Empty string",
 			ns:       NewString(""),
-			expected: "",
-		},
-		{
-			name:     "Not set",
-			ns:       NullString{str: nil, isNull: false},
 			expected: nil,
 		},
 	}

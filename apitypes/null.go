@@ -5,20 +5,19 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
 // Represents a value that can be null, not set, or set
 // Supports JSON un/marshaling and implements the Scanner interface.
 type NullString struct {
-	str *string
+	str string
 	// whether the value is null. JSON null value.
 	isNull bool
 }
 
-// Create a new NullString with a set value
+// Create a new NullString with a valid value
 func NewString(str string) NullString {
-	return NullString{str: &str}
+	return NullString{str: str}
 }
 
 // Creates a new null NullString
@@ -28,21 +27,26 @@ func NewNullString() NullString {
 
 // Returns "" if NullString is null or not valid, else the value.
 func (ns NullString) String() string {
-	if ns.IsNull() || !ns.IsValid() {
+	if ns.IsNull() {
 		return ""
 	}
 
-	return *ns.str
+	return ns.str
 }
 
 // Returns true if the string is defined, otherwise false.
-func (ns NullString) IsValid() bool {
-	return ns.str != nil
+func (ns NullString) IsZero() bool {
+	return ns.str == ""
 }
 
 // Returns true if the string is null, otherwiese false.
 func (ns NullString) IsNull() bool {
 	return ns.isNull
+}
+
+// Returns true if ns is neither null or zero value.
+func (ns NullString) IsValid() bool {
+	return !ns.IsNull() && !ns.IsZero()
 }
 
 func (ns *NullString) UnmarshalJSON(data []byte) error {
@@ -72,11 +76,9 @@ func (n *NullString) Scan(value interface{}) error {
 		return err
 	}
 
-	log.Printf("%+v\n", ns)
-
 	n.isNull = !ns.Valid // !valid means value is NULL in db
 	if ns.Valid {
-		n.str = &ns.String
+		n.str = ns.String
 	}
 	return nil
 }
@@ -84,7 +86,7 @@ func (n *NullString) Scan(value interface{}) error {
 func (n NullString) Value() (driver.Value, error) {
 	ns := sql.NullString{
 		String: n.String(),
-		Valid:  !n.IsNull() && n.IsValid(),
+		Valid:  n.IsValid(),
 	}
 	return ns.Value()
 }
