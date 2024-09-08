@@ -8,6 +8,36 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewString(t *testing.T) {
+	tables := []struct {
+		name    string
+		input   string
+		isZero  bool
+		isValid bool
+	}{
+		{
+			name:    "Empty string",
+			input:   "",
+			isZero:  true,
+			isValid: false,
+		},
+		{
+			name:    "Valid string",
+			input:   "hello",
+			isZero:  false,
+			isValid: true,
+		},
+	}
+
+	for _, table := range tables {
+		t.Run(table.name, func(t *testing.T) {
+			ns := NewString(table.input)
+			assert.Equal(t, ns.IsZero(), table.isZero)
+			assert.Equal(t, ns.IsValid(), table.isValid)
+		})
+	}
+}
+
 func TestUnmarshalString(t *testing.T) {
 	tables := []struct {
 		input    string
