@@ -14,25 +14,25 @@ func TestUnmarshalString(t *testing.T) {
 		{
 			input: "null",
 			expected: NullString{
-				IsSet:  true,
-				String: "",
-				IsNull: true,
+				isSet:  true,
+				str:    "",
+				isNull: true,
 			},
 		},
 		{
 			input: `""`,
 			expected: NullString{
-				IsSet:  true,
-				String: "",
-				IsNull: false,
+				isSet:  true,
+				str:    "",
+				isNull: false,
 			},
 		},
 		{
 			input: `"test"`,
 			expected: NullString{
-				IsSet:  true,
-				String: "test",
-				IsNull: false,
+				isSet:  true,
+				str:    "test",
+				isNull: false,
 			},
 		},
 	}
@@ -44,14 +44,14 @@ func TestUnmarshalString(t *testing.T) {
 			t.Error(err)
 		}
 
-		if string.IsSet != table.expected.IsSet {
-			t.Errorf("Expected IsSet to be %t got %t", table.expected.IsSet, string.IsSet)
+		if string.isSet != table.expected.isSet {
+			t.Errorf("Expected isSet to be %t got %t", table.expected.isSet, string.isSet)
 		}
-		if string.IsNull != table.expected.IsNull {
-			t.Errorf("Expected IsNull to be %t got %t", table.expected.IsNull, string.IsNull)
+		if string.isNull != table.expected.isNull {
+			t.Errorf("Expected isNull to be %t got %t", table.expected.isNull, string.isNull)
 		}
-		if string.String != table.expected.String {
-			t.Errorf("Expected String to be %s got %s", table.expected.String, string.String)
+		if string.str != table.expected.str {
+			t.Errorf("Expected str to be %s got %s", table.expected.str, string.str)
 		}
 	}
 }
@@ -63,25 +63,25 @@ func TestMarshalString(t *testing.T) {
 	}{
 		{
 			input: NullString{
-				IsSet:  true,
-				String: "",
-				IsNull: true,
+				isSet:  true,
+				str:    "",
+				isNull: true,
 			},
 			expect: "null",
 		},
 		{
 			input: NullString{
-				IsSet:  true,
-				String: "",
-				IsNull: false,
+				isSet:  true,
+				str:    "",
+				isNull: false,
 			},
 			expect: `""`,
 		},
 		{
 			input: NullString{
-				IsSet:  true,
-				String: "test",
-				IsNull: false,
+				isSet:  true,
+				str:    "test",
+				isNull: false,
 			},
 			expect: `"test"`,
 		},
@@ -111,18 +111,18 @@ func TestScanString(t *testing.T) {
 			name:  "Valid string",
 			input: "hello",
 			expected: NullString{
-				String: "hello",
-				IsSet:  true,
-				IsNull: false,
+				str:    "hello",
+				isSet:  true,
+				isNull: false,
 			},
 		},
 		{
 			name:  "Null value",
 			input: nil,
 			expected: NullString{
-				String: "",
-				IsSet:  true,
-				IsNull: true,
+				str:    "",
+				isSet:  true,
+				isNull: true,
 			},
 			wantErr: false,
 		},
@@ -130,9 +130,9 @@ func TestScanString(t *testing.T) {
 			name:  "Empty string",
 			input: "",
 			expected: NullString{
-				String: "",
-				IsSet:  true,
-				IsNull: false,
+				str:    "",
+				isSet:  true,
+				isNull: false,
 			},
 			wantErr: false,
 		},
@@ -140,9 +140,9 @@ func TestScanString(t *testing.T) {
 			name:  "Non-string input (integer)",
 			input: 123,
 			expected: NullString{
-				String: "123",
-				IsSet:  true,
-				IsNull: false,
+				str:    "123",
+				isSet:  true,
+				isNull: false,
 			},
 			wantErr: false,
 		},
@@ -153,20 +153,18 @@ func TestScanString(t *testing.T) {
 			var ns NullString
 			err := ns.Scan(table.input)
 
-			if table.wantErr && err == nil {
-				t.Error("Expected an error but got none")
-			} else if !table.wantErr && err != nil {
-				t.Errorf("Expected no error, but got %s", err)
+			if table.wantErr == (err == nil) {
+				t.Errorf("Expected wantErr %t but got %s", table.wantErr, err)
 			}
 
-			if ns.IsSet != table.expected.IsSet {
-				t.Errorf("Expected IsSet to be %t got %t", table.expected.IsSet, ns.IsSet)
+			if ns.isSet != table.expected.isSet {
+				t.Errorf("Expected isSet to be %t got %t", table.expected.isSet, ns.isSet)
 			}
-			if ns.IsNull != table.expected.IsNull {
-				t.Errorf("Expected IsNull to be %t got %t", table.expected.IsNull, ns.IsNull)
+			if ns.isNull != table.expected.isNull {
+				t.Errorf("Expected isNull to be %t got %t", table.expected.isNull, ns.isNull)
 			}
-			if ns.String != table.expected.String {
-				t.Errorf("Expected String to be %s got %s", table.expected.String, ns.String)
+			if ns.str != table.expected.str {
+				t.Errorf("Expected str to be %s got %s", table.expected.str, ns.str)
 			}
 		})
 	}
@@ -180,22 +178,22 @@ func TestValueString(t *testing.T) {
 	}{
 		{
 			name:     "Valid string",
-			ns:       NullString{String: "hello", IsSet: true, IsNull: false},
+			ns:       NullString{str: "hello", isSet: true, isNull: false},
 			expected: "hello",
 		},
 		{
 			name:     "Null value",
-			ns:       NullString{String: "", IsSet: true, IsNull: true},
+			ns:       NullString{str: "", isSet: true, isNull: true},
 			expected: nil,
 		},
 		{
 			name:     "Empty string",
-			ns:       NullString{String: "", IsSet: true, IsNull: false},
+			ns:       NullString{str: "", isSet: true, isNull: false},
 			expected: "",
 		},
 		{
 			name:     "Not set",
-			ns:       NullString{String: "", IsSet: false, IsNull: false},
+			ns:       NullString{str: "", isSet: false, isNull: false},
 			expected: nil,
 		},
 	}
