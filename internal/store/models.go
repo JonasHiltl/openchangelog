@@ -6,30 +6,32 @@ package store
 
 import (
 	"database/sql"
+
+	"github.com/jonashiltl/openchangelog/apitypes"
 )
 
 type changelog struct {
 	ID          string
 	WorkspaceID string
 	Subdomain   string
-	Title       sql.NullString
-	Subtitle    sql.NullString
-	SourceID    sql.NullString
-	LogoSrc     sql.NullString
-	LogoLink    sql.NullString
-	LogoAlt     sql.NullString
-	LogoHeight  sql.NullString
-	LogoWidth   sql.NullString
+	Title       apitypes.NullString
+	Subtitle    apitypes.NullString
+	SourceID    apitypes.NullString
+	LogoSrc     apitypes.NullString
+	LogoLink    apitypes.NullString
+	LogoAlt     apitypes.NullString
+	LogoHeight  apitypes.NullString
+	LogoWidth   apitypes.NullString
 	CreatedAt   int64
-	Domain      sql.NullString
+	Domain      apitypes.NullString
 }
 
 type changelogSource struct {
-	ID             sql.NullString
-	WorkspaceID    sql.NullString
-	Owner          sql.NullString
-	Repo           sql.NullString
-	Path           sql.NullString
+	ID             apitypes.NullString
+	WorkspaceID    apitypes.NullString
+	Owner          apitypes.NullString
+	Repo           apitypes.NullString
+	Path           apitypes.NullString
 	InstallationID sql.NullInt64
 }
 

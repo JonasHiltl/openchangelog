@@ -3,38 +3,38 @@ package store
 import (
 	"testing"
 
-	"github.com/guregu/null/v5"
+	"github.com/jonashiltl/openchangelog/apitypes"
 )
 
 func TestParseDomain(t *testing.T) {
 	tables := []struct {
 		host      string
-		expected  null.String
+		expected  apitypes.NullString
 		expectErr bool
 	}{
 		{
 			host:     "openchangelog",
-			expected: null.NewString("openchangelog", true),
+			expected: apitypes.NewString("openchangelog"),
 		},
 		{
 			host:     "openchangelog.com",
-			expected: null.NewString("openchangelog.com", true),
+			expected: apitypes.NewString("openchangelog.com"),
 		},
 		{
 			host:     "changelog.openchangelog.com",
-			expected: null.NewString("changelog.openchangelog.com", true),
+			expected: apitypes.NewString("changelog.openchangelog.com"),
 		},
 		{
 			host:     "changelog.openchangelog.com:3000",
-			expected: null.NewString("changelog.openchangelog.com:3000", true),
+			expected: apitypes.NewString("changelog.openchangelog.com:3000"),
 		},
 		{
 			host:     "https://changelog.openchangelog.com",
-			expected: null.NewString("changelog.openchangelog.com", true),
+			expected: apitypes.NewString("changelog.openchangelog.com"),
 		},
 		{
 			host:     "http://changelog.openchangelog.com",
-			expected: null.NewString("changelog.openchangelog.com", true),
+			expected: apitypes.NewString("changelog.openchangelog.com"),
 		},
 		{
 			host:      "https://test com",
@@ -43,16 +43,15 @@ func TestParseDomain(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		d, err := ParseDomain(null.NewString(table.host, table.host != ""))
-		if table.expectErr && err == nil {
-			t.Error("expected to error but no error returned")
-		}
-		if d.String != table.expected.String {
-			t.Errorf("expected %s to equal %s", d.String, table.expected.String)
-		}
-		if d.Valid != table.expected.Valid {
-			t.Errorf("expected valid %t to equal%t", d.Valid, table.expected.Valid)
-		}
+		t.Run(table.host, func(t *testing.T) {
+			d, err := ParseDomain(table.host)
+			if table.expectErr && err == nil {
+				t.Error("expected to error but no error returned")
+			}
+			if d.String() != table.expected.String() {
+				t.Errorf("expected %s to equal %s", d.String(), table.expected.String())
+			}
+		})
 	}
 }
 
@@ -100,9 +99,11 @@ func TestParseSubdomain(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		s, _ := SubdomainFromHost(table.host)
-		if table.subdomain != s.String() {
-			t.Fatalf("expected %s to equal %s", s, table.subdomain)
-		}
+		t.Run(table.host, func(t *testing.T) {
+			s, _ := SubdomainFromHost(table.host)
+			if table.subdomain != s.String() {
+				t.Fatalf("expected %s to equal %s", s, table.subdomain)
+			}
+		})
 	}
 }

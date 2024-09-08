@@ -81,8 +81,8 @@ func (r *renderer) RenderIndex(ctx context.Context, w io.Writer, args RenderInde
 			FeedURL: args.FeedURL,
 		},
 		MainArgs: layout.MainArgs{
-			Title:       args.CL.Title.String,
-			Description: args.CL.Subtitle.String,
+			Title:       args.CL.Title.String(),
+			Description: args.CL.Subtitle.String(),
 		},
 		HeaderArgs: components.HeaderArgs{
 			Title:    args.CL.Title,

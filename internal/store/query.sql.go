@@ -7,7 +7,8 @@ package store
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jonashiltl/openchangelog/apitypes"
 )
 
 const createChangelog = `-- name: createChangelog :one
@@ -21,14 +22,14 @@ type createChangelogParams struct {
 	WorkspaceID string
 	ID          string
 	Subdomain   string
-	Domain      sql.NullString
-	Title       sql.NullString
-	Subtitle    sql.NullString
-	LogoSrc     sql.NullString
-	LogoLink    sql.NullString
-	LogoAlt     sql.NullString
-	LogoHeight  sql.NullString
-	LogoWidth   sql.NullString
+	Domain      apitypes.NullString
+	Title       apitypes.NullString
+	Subtitle    apitypes.NullString
+	LogoSrc     apitypes.NullString
+	LogoLink    apitypes.NullString
+	LogoAlt     apitypes.NullString
+	LogoHeight  apitypes.NullString
+	LogoWidth   apitypes.NullString
 }
 
 func (q *Queries) createChangelog(ctx context.Context, arg createChangelogParams) (changelog, error) {
@@ -228,7 +229,7 @@ LIMIT 1
 `
 
 type getChangelogByDomainOrSubdomainParams struct {
-	Domain    sql.NullString
+	Domain    apitypes.NullString
 	Subdomain string
 }
 
@@ -458,7 +459,7 @@ WHERE workspace_id = ? AND id = ?
 `
 
 type setChangelogSourceParams struct {
-	SourceID    sql.NullString
+	SourceID    apitypes.NullString
 	WorkspaceID string
 	ID          string
 }
@@ -472,36 +473,36 @@ const updateChangelog = `-- name: updateChangelog :one
 UPDATE changelogs
 SET
    subdomain = coalesce(?1, subdomain),
-   title = CASE WHEN ?2 THEN ?3 ELSE title END,
-   subtitle = CASE WHEN ?4 THEN ?5 ELSE subtitle END,
-   domain = CASE WHEN ?6 THEN ?7 ELSE domain END,
-   logo_src = CASE WHEN ?8 THEN ?9 ELSE logo_src END,
-   logo_link = CASE WHEN ?10 THEN ?11 ELSE logo_link END,
-   logo_alt = CASE WHEN ?12 THEN ?13 ELSE logo_alt END,
-   logo_height = CASE WHEN ?14 THEN ?15 ELSE logo_height END,
-   logo_width = CASE WHEN ?16 THEN ?17 ELSE logo_width END
+   title = CASE WHEN cast(?2 as bool) THEN ?3 ELSE title END,
+   subtitle = CASE WHEN cast(?4 as bool) THEN ?5 ELSE subtitle END,
+   domain = CASE WHEN cast(?6 as bool) THEN ?7 ELSE domain END,
+   logo_src = CASE WHEN cast(?8 as bool) THEN ?9 ELSE logo_src END,
+   logo_link = CASE WHEN cast(?10 as bool) THEN ?11 ELSE logo_link END,
+   logo_alt = CASE WHEN cast(?12 as bool) THEN ?13 ELSE logo_alt END,
+   logo_height = CASE WHEN cast(?14 as bool) THEN ?15 ELSE logo_height END,
+   logo_width = CASE WHEN cast(?16 as bool) THEN ?17 ELSE logo_width END
 WHERE workspace_id = ?18 AND id = ?19
 RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at, domain
 `
 
 type updateChangelogParams struct {
-	Subdomain     sql.NullString
-	SetTitle      sql.NullString
-	Title         sql.NullString
-	SetSubtitle   sql.NullString
-	Subtitle      sql.NullString
-	SetDomain     sql.NullString
-	Domain        sql.NullString
-	SetLogoSrc    sql.NullString
-	LogoSrc       sql.NullString
-	SetLogoLink   sql.NullString
-	LogoLink      sql.NullString
-	SetLogoAlt    sql.NullString
-	LogoAlt       sql.NullString
-	SetLogoHeight sql.NullString
-	LogoHeight    sql.NullString
-	SetLogoWidth  sql.NullString
-	LogoWidth     sql.NullString
+	Subdomain     apitypes.NullString
+	SetTitle      bool
+	Title         apitypes.NullString
+	SetSubtitle   bool
+	Subtitle      apitypes.NullString
+	SetDomain     bool
+	Domain        apitypes.NullString
+	SetLogoSrc    bool
+	LogoSrc       apitypes.NullString
+	SetLogoLink   bool
+	LogoLink      apitypes.NullString
+	SetLogoAlt    bool
+	LogoAlt       apitypes.NullString
+	SetLogoHeight bool
+	LogoHeight    apitypes.NullString
+	SetLogoWidth  bool
+	LogoWidth     apitypes.NullString
 	WorkspaceID   string
 	ID            string
 }

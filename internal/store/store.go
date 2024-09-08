@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/jonashiltl/openchangelog/apitypes"
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/guregu/null/v5"
@@ -14,13 +15,13 @@ type Changelog struct {
 	ID          ChangelogID
 	Subdomain   Subdomain
 	Domain      Domain
-	Title       null.String
-	Subtitle    null.String
-	LogoSrc     null.String
-	LogoLink    null.String
-	LogoAlt     null.String
-	LogoHeight  null.String
-	LogoWidth   null.String
+	Title       apitypes.NullString
+	Subtitle    apitypes.NullString
+	LogoSrc     apitypes.NullString
+	LogoLink    apitypes.NullString
+	LogoAlt     apitypes.NullString
+	LogoHeight  apitypes.NullString
+	LogoWidth   apitypes.NullString
 	CreatedAt   time.Time
 	GHSource    null.Value[GHSource]
 	LocalSource null.Value[LocalSource]
@@ -46,15 +47,15 @@ type LocalSource struct {
 }
 
 type UpdateChangelogArgs struct {
-	Title      null.String
-	Subdomain  Subdomain
+	Title      apitypes.NullString
+	Subdomain  apitypes.NullString
 	Domain     Domain
-	Subtitle   null.String
-	LogoSrc    null.String
-	LogoLink   null.String
-	LogoAlt    null.String
-	LogoHeight null.String
-	LogoWidth  null.String
+	Subtitle   apitypes.NullString
+	LogoSrc    apitypes.NullString
+	LogoLink   apitypes.NullString
+	LogoAlt    apitypes.NullString
+	LogoHeight apitypes.NullString
+	LogoWidth  apitypes.NullString
 }
 
 type Store interface {
