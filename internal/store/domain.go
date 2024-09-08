@@ -22,15 +22,20 @@ func (d Domain) NullString() apitypes.NullString {
 	return apitypes.NullString(d)
 }
 
+var errInvalidDomain = errs.NewBadRequest(errors.New("domain is not valid"))
+
 // strips everything from domain except the host
 func ParseDomain(domain string) (Domain, error) {
+	if !strings.Contains(domain, ".") {
+		return Domain{}, errInvalidDomain
+	}
 	if !strings.Contains(domain, "://") {
 		domain = "http://" + domain // Add a default scheme, else host is empty
 	}
 
 	parsedUrl, err := url.Parse(domain)
 	if err != nil {
-		return Domain{}, errs.NewBadRequest(errors.New("domain not valid"))
+		return Domain{}, errInvalidDomain
 	}
 
 	domain = parsedUrl.Host
