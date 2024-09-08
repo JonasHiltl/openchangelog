@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-// Represents a value that can be null, not set, or set
+// Represents a nullable string.
 // Supports JSON un/marshaling and implements the Scanner interface.
 type NullString struct {
 	str string
@@ -15,7 +15,7 @@ type NullString struct {
 	isNull bool
 }
 
-// Create a new NullString with a valid value
+// Create a new NullString from a string value
 func NewString(str string) NullString {
 	return NullString{str: str}
 }
@@ -25,7 +25,7 @@ func NewNullString() NullString {
 	return NullString{isNull: true}
 }
 
-// Returns "" if NullString is null or not valid, else the value.
+// Returns "" if NullString is null, else the string value.
 func (ns NullString) String() string {
 	if ns.IsNull() {
 		return ""
@@ -34,8 +34,12 @@ func (ns NullString) String() string {
 	return ns.str
 }
 
-// Returns true if the string is defined, otherwise false.
+// Returns true if the string is it's zero value.
+// Returns false if ns is null or not "".
 func (ns NullString) IsZero() bool {
+	if ns.IsNull() {
+		return false
+	}
 	return ns.str == ""
 }
 
