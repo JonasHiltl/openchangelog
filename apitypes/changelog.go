@@ -3,8 +3,6 @@ package apitypes
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/guregu/null/v5"
 )
 
 // Represents the Changelog returned by the API via json encoding.
@@ -13,36 +11,44 @@ type Changelog struct {
 	ID          string
 	WorkspaceID string
 	Subdomain   string
-	Domain      null.String
-	Title       null.String
-	Subtitle    null.String
+	Domain      NullString
+	Title       NullString
+	Subtitle    NullString
 	Logo        Logo
 	Source      Source
 	CreatedAt   time.Time
 }
 
 func (l Changelog) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&struct {
-		ID          string    `json:"id"`
-		WorkspaceID string    `json:"workspaceId"`
-		Subdomain   string    `json:"subdomain"`
-		Title       string    `json:"title,omitempty"`
-		Domain      string    `json:"domain,omitempty"`
-		Subtitle    string    `json:"subtitle,omitempty"`
-		Logo        Logo      `json:"logo"`
-		Source      Source    `json:"source,omitempty"`
-		CreatedAt   time.Time `json:"createdAt"`
+	obj := struct {
+		ID          string     `json:"id"`
+		WorkspaceID string     `json:"workspaceId"`
+		Subdomain   string     `json:"subdomain,omitempty"`
+		Title       string     `json:"title,omitempty"`
+		Domain      string     `json:"domain,omitempty"`
+		Subtitle    string     `json:"subtitle,omitempty"`
+		Logo        *Logo      `json:"logo,omitempty"`
+		Source      Source     `json:"source,omitempty"`
+		CreatedAt   *time.Time `json:"createdAt,omitempty"`
 	}{
 		ID:          l.ID,
 		WorkspaceID: l.WorkspaceID,
 		Subdomain:   l.Subdomain,
-		Domain:      l.Domain.ValueOrZero(),
-		Title:       l.Title.ValueOrZero(),
-		Subtitle:    l.Subtitle.ValueOrZero(),
-		Logo:        l.Logo,
+		Domain:      l.Domain.String(),
+		Title:       l.Title.String(),
+		Subtitle:    l.Subtitle.String(),
 		Source:      l.Source,
-		CreatedAt:   l.CreatedAt,
-	})
+	}
+
+	if !l.CreatedAt.IsZero() {
+		obj.CreatedAt = &l.CreatedAt
+	}
+
+	if !l.Logo.IsZero() {
+		obj.Logo = &l.Logo
+	}
+
+	return json.Marshal(obj)
 }
 
 func (c *Changelog) UnmarshalJSON(b []byte) error {
@@ -148,21 +154,47 @@ func DecodeSource(in json.RawMessage) Source {
 }
 
 type Logo struct {
-	Src    null.String `json:"src"`
-	Link   null.String `json:"link"`
-	Alt    null.String `json:"alt"`
-	Height null.String `json:"height"`
-	Width  null.String `json:"width"`
+	Src    NullString
+	Link   NullString
+	Alt    NullString
+	Height NullString
+	Width  NullString
+}
+
+// Omits fields from the Logo if they are neither null or valid
+func (l Logo) MarshalJSON() ([]byte, error) {
+	data := make(map[string]NullString)
+
+	if l.Src.IsNull() || l.Src.IsValid() {
+		data["src"] = l.Src
+	}
+	if l.Link.IsNull() || l.Link.IsValid() {
+		data["link"] = l.Link
+	}
+	if l.Alt.IsNull() || l.Alt.IsValid() {
+		data["alt"] = l.Alt
+	}
+	if l.Height.IsNull() || l.Height.IsValid() {
+		data["height"] = l.Height
+	}
+	if l.Width.IsNull() || l.Width.IsValid() {
+		data["width"] = l.Width
+	}
+	return json.Marshal(data)
+}
+
+func (l Logo) IsZero() bool {
+	return !l.Src.IsValid() && !l.Src.IsNull() && !l.Link.IsValid() && !l.Link.IsNull() && !l.Alt.IsValid() && !l.Alt.IsNull() && !l.Height.IsValid() && !l.Height.IsNull() && !l.Width.IsValid() && !l.Width.IsNull()
 }
 
 type CreateChangelogBody struct {
-	Title    null.String `json:"title"`
-	Subtitle null.String `json:"subtitle"`
-	Logo     Logo        `json:"logo"`
-	Domain   null.String `json:"domain"`
+	Title    NullString `json:"title"`
+	Subtitle NullString `json:"subtitle"`
+	Logo     Logo       `json:"logo"`
+	Domain   NullString `json:"domain"`
 }
 
 type UpdateChangelogBody struct {
 	CreateChangelogBody
-	Subdomain null.String `json:"subdomain"`
+	Subdomain NullString `json:"subdomain"`
 }

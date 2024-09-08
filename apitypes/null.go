@@ -5,48 +5,64 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
-// Represents a nullable value.
+// Represents a value that can be null, not set, or set
 // Supports JSON un/marshaling and implements the Scanner interface.
 type NullString struct {
-	str    string
-	isSet  bool
+	str *string
+	// whether the value is null. JSON null value.
 	isNull bool
 }
 
+// Create a new NullString with a set value
+func NewString(str string) NullString {
+	return NullString{str: &str}
+}
+
+// Creates a new null NullString
+func NewNullString() NullString {
+	return NullString{isNull: true}
+}
+
+// Returns "" if NullString is null or not valid, else the value.
 func (ns NullString) String() string {
-	return ns.str
+	if ns.IsNull() || !ns.IsValid() {
+		return ""
+	}
+
+	return *ns.str
 }
 
-func (ns NullString) IsSet() bool {
-	return ns.isSet
+// Returns true if the string is defined, otherwise false.
+func (ns NullString) IsValid() bool {
+	return ns.str != nil
 }
 
+// Returns true if the string is null, otherwiese false.
 func (ns NullString) IsNull() bool {
 	return ns.isNull
 }
 
-func (s *NullString) UnmarshalJSON(data []byte) error {
+func (ns *NullString) UnmarshalJSON(data []byte) error {
 	if len(data) > 0 && data[0] == 'n' {
-		s.isSet = true
-		s.isNull = true
+		ns.isNull = true
 		return nil
 	}
 
-	if err := json.Unmarshal(data, &s.str); err != nil {
-		return fmt.Errorf("null: couldn't unmarshal JSON: %w", err)
+	if err := json.Unmarshal(data, &ns.str); err != nil {
+		return fmt.Errorf("NullString: couldn't unmarshal JSON: %w", err)
 	}
 
-	s.isSet = true
 	return nil
 }
 
-func (s NullString) MarshalJSON() ([]byte, error) {
-	if s.isNull {
+func (ns NullString) MarshalJSON() ([]byte, error) {
+	if ns.IsNull() {
 		return []byte("null"), nil
 	}
-	return json.Marshal(s.str)
+	return json.Marshal(ns.String())
 }
 
 func (n *NullString) Scan(value interface{}) error {
@@ -56,16 +72,19 @@ func (n *NullString) Scan(value interface{}) error {
 		return err
 	}
 
-	n.str = ns.String
-	n.isNull = !ns.Valid
-	n.isSet = true
+	log.Printf("%+v\n", ns)
+
+	n.isNull = !ns.Valid // !valid means value is NULL in db
+	if ns.Valid {
+		n.str = &ns.String
+	}
 	return nil
 }
 
 func (n NullString) Value() (driver.Value, error) {
 	ns := sql.NullString{
-		String: n.str,
-		Valid:  !n.isNull && n.isSet,
+		String: n.String(),
+		Valid:  !n.IsNull() && n.IsValid(),
 	}
 	return ns.Value()
 }
