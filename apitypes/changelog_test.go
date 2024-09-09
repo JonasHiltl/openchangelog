@@ -70,12 +70,14 @@ func TestChangelogMarshaling(t *testing.T) {
 				ID:          "cl_xxxx",
 				WorkspaceID: "ws_xxxx",
 				Title:       NewString("Test Title"),
+				CreatedAt:   now,
 			},
-			expect: `{
+			expect: fmt.Sprintf(`{
 				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
-				"title": "Test Title"
-			}`,
+				"title": "Test Title",
+				"createdAt": "%s"
+			}`, nowStr),
 		},
 		{
 			input: Changelog{
@@ -84,14 +86,16 @@ func TestChangelogMarshaling(t *testing.T) {
 				Logo: Logo{
 					Alt: NewString("test"),
 				},
+				CreatedAt: now,
 			},
-			expect: `{
+			expect: fmt.Sprintf(`{
 				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
 				"logo": {
 					"alt": "test"
-				}
-			}`,
+				},
+				"createdAt": "%s"
+			}`, nowStr),
 		},
 	}
 
