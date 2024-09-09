@@ -86,16 +86,14 @@ func TestChangelogMarshaling(t *testing.T) {
 				Logo: Logo{
 					Alt: NewString("test"),
 				},
-				CreatedAt: now,
 			},
-			expect: fmt.Sprintf(`{
+			expect: `{
 				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
 				"logo": {
 					"alt": "test"
-				},
-				"createdAt": "%s"
-			}`, nowStr),
+				}
+			}`,
 		},
 	}
 

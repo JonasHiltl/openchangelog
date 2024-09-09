@@ -21,15 +21,15 @@ type Changelog struct {
 
 func (l Changelog) MarshalJSON() ([]byte, error) {
 	obj := struct {
-		ID          string    `json:"id"`
-		WorkspaceID string    `json:"workspaceId"`
-		Subdomain   string    `json:"subdomain,omitempty"`
-		Title       string    `json:"title,omitempty"`
-		Domain      string    `json:"domain,omitempty"`
-		Subtitle    string    `json:"subtitle,omitempty"`
-		Logo        *Logo     `json:"logo,omitempty"`
-		Source      Source    `json:"source,omitempty"`
-		CreatedAt   time.Time `json:"createdAt,omitempty"`
+		ID          string     `json:"id"`
+		WorkspaceID string     `json:"workspaceId"`
+		Subdomain   string     `json:"subdomain,omitempty"`
+		Title       string     `json:"title,omitempty"`
+		Domain      string     `json:"domain,omitempty"`
+		Subtitle    string     `json:"subtitle,omitempty"`
+		Logo        *Logo      `json:"logo,omitempty"`
+		Source      Source     `json:"source,omitempty"`
+		CreatedAt   *time.Time `json:"createdAt,omitempty"`
 	}{
 		ID:          l.ID,
 		WorkspaceID: l.WorkspaceID,
@@ -38,11 +38,14 @@ func (l Changelog) MarshalJSON() ([]byte, error) {
 		Title:       l.Title.String(),
 		Subtitle:    l.Subtitle.String(),
 		Source:      l.Source,
-		CreatedAt:   l.CreatedAt,
 	}
 
 	if l.Logo.IsValid() {
 		obj.Logo = &l.Logo
+	}
+
+	if !l.CreatedAt.IsZero() {
+		obj.CreatedAt = &l.CreatedAt
 	}
 
 	return json.Marshal(obj)
