@@ -90,7 +90,7 @@ func (n *NullString) Scan(value interface{}) error {
 func (n NullString) Value() (driver.Value, error) {
 	ns := sql.NullString{
 		String: n.String(),
-		Valid:  n.IsValid(),
+		Valid:  n.IsValid(), // this way we also store zero values as NULL in db
 	}
 	return ns.Value()
 }
