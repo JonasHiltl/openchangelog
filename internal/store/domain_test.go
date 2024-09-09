@@ -12,10 +12,7 @@ func TestParseDomain(t *testing.T) {
 		expected  apitypes.NullString
 		expectErr bool
 	}{
-		{
-			host:     "openchangelog",
-			expected: apitypes.NewString("openchangelog"),
-		},
+
 		{
 			host:     "openchangelog.com",
 			expected: apitypes.NewString("openchangelog.com"),
@@ -38,6 +35,10 @@ func TestParseDomain(t *testing.T) {
 		},
 		{
 			host:      "https://test com",
+			expectErr: true,
+		},
+		{
+			host:      "openchangelog",
 			expectErr: true,
 		},
 	}
