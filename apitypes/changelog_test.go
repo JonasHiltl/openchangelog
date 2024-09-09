@@ -145,10 +145,6 @@ func TestChangelogUnmarshaling(t *testing.T) {
 			t.Error(err)
 		}
 
-		// expected logo isNull: false
-		// actual logo isNull: true
-
-		// fails because Logo is empty, not equal after unmarshaling
 		assert.Equal(t, table, c)
 	}
 }
