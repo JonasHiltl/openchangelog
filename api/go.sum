@@ -2,6 +2,8 @@ github.com/hashicorp/go-cleanhttp v0.5.2 h1:035FKYIWjmULyFRBKPs8TBQoi0x6d9G4xc9n
 github.com/hashicorp/go-cleanhttp v0.5.2/go.mod h1:kO/YDlP8L1346E6Sodw+PrpBSV4/SoxCXGY6BqNFT48=
 github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240517151103-28a6b6640a2a h1:xZ4K64HKamSM5BfiKB/biEdrqQIoa3TBoHV0EpK3gFc=
 github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240517151103-28a6b6640a2a/go.mod h1:sKBXkYwBrhc35rI0nEudIzIJ9ITA7XEKZ/qB1fW0bs0=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240909181858-40b7b20ae842 h1:aOW1gLvP8l/vLB8Gy88PAovCM0pa+fDZ0I3suvsAVRc=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240909181858-40b7b20ae842/go.mod h1:xnbFN3Wrw2B1F/D7pvjjwoeXSt+njRI31ccPFno0BM0=
 golang.org/x/net v0.25.0 h1:d/OCCoBEUq33pjydKrGQhw7IlUPI2Oylr+8qLx49kac=
 golang.org/x/net v0.25.0/go.mod h1:JkAGAh7GEvH74S6FOH42FLoXpXbE/aqXSrIQjXgsiwM=
 golang.org/x/text v0.15.0 h1:h1V/4gjBv8v9cjcR6+AR5+/cIYK5N/WAgiv4xlsEtAk=
