@@ -161,24 +161,23 @@ type Logo struct {
 	Width  NullString
 }
 
-// Omits fields from the Logo if they are neither null or valid
+// omits fields if they are empty
 func (l Logo) MarshalJSON() ([]byte, error) {
 	data := make(map[string]NullString)
 
-	if l.Src.IsValid() {
-
+	if !l.Src.IsZero() {
 		data["src"] = l.Src
 	}
-	if l.Link.IsValid() {
+	if !l.Link.IsZero() {
 		data["link"] = l.Link
 	}
-	if l.Alt.IsValid() {
+	if !l.Alt.IsZero() {
 		data["alt"] = l.Alt
 	}
-	if l.Height.IsValid() {
+	if !l.Height.IsZero() {
 		data["height"] = l.Height
 	}
-	if l.Width.IsValid() {
+	if !l.Width.IsZero() {
 		data["width"] = l.Width
 	}
 	return json.Marshal(data)

@@ -107,7 +107,7 @@ func TestChangelogMarshaling(t *testing.T) {
 	}
 }
 
-func TestChangelogUnmarshaling(t *testing.T) {
+func TestChangelogUnmarshal(t *testing.T) {
 	tables := []Changelog{
 		{
 			ID:          "cl_xxxx",
@@ -148,5 +148,150 @@ func TestChangelogUnmarshaling(t *testing.T) {
 		}
 
 		assert.Equal(t, table, c)
+	}
+}
+
+func TestUpdateChangelogBodyMarshal(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    UpdateChangelogBody
+		expected string
+	}{
+		{
+			name:  "empty struct",
+			input: UpdateChangelogBody{},
+			expected: `{
+				"title": "",
+				"subtitle": "",
+				"logo": {},
+				"domain": "",
+				"subdomain": ""
+			}`,
+		},
+		{
+			name: "valid title",
+			input: UpdateChangelogBody{
+				CreateChangelogBody: CreateChangelogBody{
+					Title: NewString("test"),
+				},
+			},
+			expected: `{
+				"title": "test",
+				"subtitle": "",
+				"logo": {},
+				"domain": "",
+				"subdomain": ""
+			}`,
+		},
+		{
+			name: "null title",
+			input: UpdateChangelogBody{
+				CreateChangelogBody: CreateChangelogBody{
+					Title: NewNullString(),
+				},
+			},
+			expected: `{
+				"title": null,
+				"subtitle": "",
+				"logo": {},
+				"domain": "",
+				"subdomain": ""
+			}`,
+		},
+		{
+			name: "valid logo",
+			input: UpdateChangelogBody{
+				CreateChangelogBody: CreateChangelogBody{
+					Logo: Logo{
+						Src: NewString("test"),
+					},
+				},
+			},
+			expected: `{
+				"title": "",
+				"subtitle": "",
+				"logo": {
+					"src": "test"
+				},
+				"domain": "",
+				"subdomain": ""
+			}`,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			b, err := json.Marshal(test.input)
+			if err != nil {
+				t.Error(err)
+			}
+
+			assert.JSONEq(t, test.expected, string(b))
+		})
+	}
+}
+
+func TestTestUpdateChangelogBodyUnmarshal(t *testing.T) {
+	tests := []struct {
+		name  string
+		input UpdateChangelogBody
+	}{
+		{
+			name:  "empty body",
+			input: UpdateChangelogBody{},
+		},
+		{
+			name: "valid title",
+			input: UpdateChangelogBody{
+				CreateChangelogBody: CreateChangelogBody{
+					Title: NewString("test"),
+				},
+			},
+		},
+		{
+			name: "null title",
+			input: UpdateChangelogBody{
+				CreateChangelogBody: CreateChangelogBody{
+					Title: NewNullString(),
+				},
+			},
+		},
+		{
+			name: "valid logo",
+			input: UpdateChangelogBody{
+				CreateChangelogBody: CreateChangelogBody{
+					Logo: Logo{
+						Src: NewString("test"),
+					},
+				},
+			},
+		},
+		{
+			name: "null logo src",
+			input: UpdateChangelogBody{
+				CreateChangelogBody: CreateChangelogBody{
+					Logo: Logo{
+						Src: NewNullString(),
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			b, err := json.Marshal(test.input)
+			if err != nil {
+				t.Error(err)
+			}
+
+			var body UpdateChangelogBody
+			err = json.Unmarshal(b, &body)
+			if err != nil {
+				t.Error(err)
+			}
+
+			assert.Equal(t, test.input, body)
+		})
 	}
 }

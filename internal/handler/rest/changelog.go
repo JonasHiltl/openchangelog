@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/jonashiltl/openchangelog/apitypes"
@@ -99,6 +100,8 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+
+	log.Printf("%+v\n", req)
 
 	cId, err := store.ParseCID(r.PathValue(changelog_id_param))
 	if err != nil {
