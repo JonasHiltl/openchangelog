@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	_ "github.com/mattn/go-sqlite3"
 
@@ -18,25 +19,25 @@ func (cl changelog) toExported(source changelogSource) Changelog {
 		WorkspaceID: WorkspaceID(cl.WorkspaceID),
 		ID:          ChangelogID(cl.ID),
 		Subdomain:   Subdomain(cl.Subdomain),
-		Domain:      DomainFromSQL(cl.Domain),
-		Title:       null.NewString(cl.Title.String, cl.Title.Valid),
-		Subtitle:    null.NewString(cl.Subtitle.String, cl.Subtitle.Valid),
-		LogoSrc:     null.NewString(cl.LogoSrc.String, cl.LogoSrc.Valid),
-		LogoLink:    null.NewString(cl.LogoLink.String, cl.LogoLink.Valid),
-		LogoAlt:     null.NewString(cl.LogoAlt.String, cl.LogoAlt.Valid),
-		LogoHeight:  null.NewString(cl.LogoHeight.String, cl.LogoHeight.Valid),
-		LogoWidth:   null.NewString(cl.LogoWidth.String, cl.LogoWidth.Valid),
+		Domain:      Domain(cl.Domain),
+		Title:       cl.Title,
+		Subtitle:    cl.Subtitle,
+		LogoSrc:     cl.LogoSrc,
+		LogoLink:    cl.LogoLink,
+		LogoAlt:     cl.LogoAlt,
+		LogoHeight:  cl.LogoHeight,
+		LogoWidth:   cl.LogoWidth,
 		CreatedAt:   time.Unix(cl.CreatedAt, 0),
 		GHSource:    null.NewValue(GHSource{}, false),
 	}
 
-	if source.ID.Valid && source.WorkspaceID.Valid {
+	if !source.ID.IsNull() && source.ID.IsValid() && !source.WorkspaceID.IsNull() && source.WorkspaceID.IsValid() {
 		c.GHSource = null.NewValue(GHSource{
-			ID:             GHSourceID(source.ID.String),
-			WorkspaceID:    WorkspaceID(source.WorkspaceID.String),
-			Owner:          source.Owner.String,
-			Repo:           source.Repo.String,
-			Path:           source.Path.String,
+			ID:             GHSourceID(source.ID.String()),
+			WorkspaceID:    WorkspaceID(source.WorkspaceID.String()),
+			Owner:          source.Owner.String(),
+			Repo:           source.Repo.String(),
+			Path:           source.Path.String(),
 			InstallationID: source.InstallationID.Int64,
 		}, true)
 	}
@@ -78,14 +79,14 @@ func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, 
 		ID:          cl.ID.String(),
 		WorkspaceID: cl.WorkspaceID.String(),
 		Subdomain:   cl.Subdomain.String(),
-		Domain:      cl.Domain.NullString,
-		Title:       cl.Title.NullString,
-		Subtitle:    cl.Subtitle.NullString,
-		LogoSrc:     cl.LogoSrc.NullString,
-		LogoLink:    cl.LogoLink.NullString,
-		LogoAlt:     cl.LogoAlt.NullString,
-		LogoHeight:  cl.LogoHeight.NullString,
-		LogoWidth:   cl.LogoWidth.NullString,
+		Domain:      cl.Domain.NullString(),
+		Title:       cl.Title,
+		Subtitle:    cl.Subtitle,
+		LogoSrc:     cl.LogoSrc,
+		LogoLink:    cl.LogoLink,
+		LogoAlt:     cl.LogoAlt,
+		LogoHeight:  cl.LogoHeight,
+		LogoWidth:   cl.LogoWidth,
 	})
 	if err != nil {
 		return Changelog{}, formatUnqueConstraint(err)
@@ -114,7 +115,7 @@ func (s *sqlite) GetChangelog(ctx context.Context, wID WorkspaceID, cID Changelo
 
 func (s *sqlite) GetChangelogByDomainOrSubdomain(ctx context.Context, domain Domain, subdomain Subdomain) (Changelog, error) {
 	cl, err := s.q.getChangelogByDomainOrSubdomain(ctx, getChangelogByDomainOrSubdomainParams{
-		Domain:    sql.NullString{String: domain.String, Valid: true}, // never find changelogs with domains == NULL
+		Domain:    domain.NullString(),
 		Subdomain: subdomain.String(),
 	})
 	if err != nil {
@@ -144,18 +145,27 @@ func (s *sqlite) ListChangelogs(ctx context.Context, wID WorkspaceID) ([]Changel
 }
 
 func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID ChangelogID, args UpdateChangelogArgs) (Changelog, error) {
+	// does not update string fields if they are zero value
 	c, err := s.q.updateChangelog(ctx, updateChangelogParams{
-		ID:          cID.String(),
-		WorkspaceID: wID.String(),
-		Title:       args.Title.NullString,
-		Subdomain:   args.Subdomain.NullString().NullString,
-		Domain:      args.Domain.NullString,
-		Subtitle:    args.Subtitle.NullString,
-		LogoSrc:     args.LogoSrc.NullString,
-		LogoLink:    args.LogoLink.NullString,
-		LogoAlt:     args.LogoAlt.NullString,
-		LogoHeight:  args.LogoHeight.NullString,
-		LogoWidth:   args.LogoWidth.NullString,
+		ID:            cID.String(),
+		WorkspaceID:   wID.String(),
+		Subdomain:     args.Subdomain,
+		Title:         args.Title,
+		SetTitle:      !args.Title.IsZero(),
+		Subtitle:      args.Subtitle,
+		SetSubtitle:   !args.Subtitle.IsZero(),
+		Domain:        args.Domain.NullString(),
+		SetDomain:     !args.Domain.NullString().IsZero(),
+		LogoSrc:       args.LogoSrc,
+		SetLogoSrc:    !args.LogoSrc.IsZero(),
+		LogoLink:      args.LogoLink,
+		SetLogoLink:   !args.LogoLink.IsZero(),
+		LogoAlt:       args.LogoAlt,
+		SetLogoAlt:    !args.LogoAlt.IsZero(),
+		LogoHeight:    args.LogoHeight,
+		SetLogoHeight: !args.LogoHeight.IsZero(),
+		LogoWidth:     args.LogoWidth,
+		SetLogoWidth:  !args.LogoWidth.IsZero(),
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -187,7 +197,7 @@ func (s *sqlite) DeleteChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 
 func (s *sqlite) SetChangelogGHSource(ctx context.Context, wID WorkspaceID, cID ChangelogID, ghID GHSourceID) error {
 	return s.q.setChangelogSource(ctx, setChangelogSourceParams{
-		SourceID:    sql.NullString{String: ghID.String(), Valid: true},
+		SourceID:    apitypes.NewString(ghID.String()),
 		WorkspaceID: wID.String(),
 		ID:          cID.String(),
 	})

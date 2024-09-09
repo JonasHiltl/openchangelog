@@ -1,4 +1,4 @@
-name: build
+name: test
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Test
-        run: go run gotest.tools/gotestsum@latest --junitfile unit-tests.xml --format pkgname
+        run: go run gotest.tools/gotestsum@latest --junitfile unit-tests.xml --format pkgname github.com/jonashiltl/openchangelog/...
 
       - name: Test Summary
         uses: test-summary/action@v2

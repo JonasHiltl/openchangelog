@@ -1,16 +1,16 @@
 package components
 
 import (
-	"github.com/guregu/null/v5"
+	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/icons"
 )
 
 type Logo struct {
-	Src    null.String
-	Width  null.String
-	Height null.String
-	Alt    null.String
-	Link   null.String
+	Src    apitypes.NullString
+	Width  apitypes.NullString
+	Height apitypes.NullString
+	Alt    apitypes.NullString
+	Link   apitypes.NullString
 }
 
 css imgSize(width string, height string) {
@@ -37,10 +37,10 @@ templ RSS(args RSSArgs) {
 }
 
 templ LogoImg(args Logo) {
-	if args.Link.ValueOrZero() == "" {
+	if args.Link.String() == "" {
 		@img(args)
 	} else {
-		<a href={ templ.URL(args.Link.ValueOrZero()) } class="flex items-center h-full">
+		<a href={ templ.URL(args.Link.String()) } class="flex items-center h-full">
 			@img(args)
 		</a>
 	}
@@ -48,8 +48,8 @@ templ LogoImg(args Logo) {
 
 templ img(args Logo) {
 	<img
-		src={ args.Src.ValueOrZero() }
-		alt={ args.Alt.ValueOrZero() }
-		class={ "max-h-full max-w-full object-contain", imgSize(args.Width.ValueOrZero(), args.Height.ValueOrZero()) }
+		src={ args.Src.String() }
+		alt={ args.Alt.String() }
+		class={ "max-h-full max-w-full object-contain", imgSize(args.Width.String(), args.Height.String()) }
 	/>
 }

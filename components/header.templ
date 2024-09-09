@@ -1,6 +1,6 @@
 package components
 
-import "github.com/guregu/null/v5"
+import "github.com/jonashiltl/openchangelog/apitypes"
 
 templ HeaderContainer() {
 	<header>
@@ -9,15 +9,15 @@ templ HeaderContainer() {
 }
 
 type HeaderArgs struct {
-	Title    null.String
-	Subtitle null.String
+	Title    apitypes.NullString
+	Subtitle apitypes.NullString
 }
 
 templ HeaderContent(args HeaderArgs) {
-	if !args.Title.IsZero() {
-		<h1>{ args.Title.String }</h1>
+	if !args.Title.IsNull() && args.Title.IsValid() {
+		<h1>{ args.Title.String() }</h1>
 	}
-	if !args.Subtitle.IsZero() {
-		<p>{ args.Subtitle.String }</p>
+	if !args.Subtitle.IsNull() && args.Subtitle.IsValid() {
+		<p>{ args.Subtitle.String() }</p>
 	}
 }

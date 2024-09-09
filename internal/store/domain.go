@@ -1,43 +1,53 @@
 package store
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
 
-	"github.com/guregu/null/v5"
+	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"golang.org/x/exp/rand"
 )
 
-type Domain null.String
+type Domain apitypes.NullString
 
-func (d Domain) ToNullString() null.String {
-	return null.NewString(d.String, d.Valid)
+func (d Domain) String() string {
+	return d.NullString().String()
 }
 
-func DomainFromSQL(d sql.NullString) Domain {
-	return Domain(null.NewString(d.String, d.Valid))
+func (d Domain) NullString() apitypes.NullString {
+	return apitypes.NullString(d)
 }
 
-// strips everything from d except the host
-func ParseDomain(d null.String) (Domain, error) {
-	if d.Valid && d.String != "" {
-		if !strings.Contains(d.String, "://") {
-			d.String = "http://" + d.String // Add a default scheme, else host is empty
-		}
+var errInvalidDomain = errs.NewBadRequest(errors.New("domain is not valid"))
 
-		parsedUrl, err := url.Parse(d.String)
-		if err != nil {
-			return Domain{}, errs.NewBadRequest(errors.New("domain not valid"))
-		}
-
-		d.String = parsedUrl.Host
+// strips everything from domain except the host
+func ParseDomain(domain string) (Domain, error) {
+	if !strings.Contains(domain, ".") {
+		return Domain{}, errInvalidDomain
 	}
-	return Domain(d), nil
+	if !strings.Contains(domain, "://") {
+		domain = "http://" + domain // Add a default scheme, else host is empty
+	}
+
+	parsedUrl, err := url.Parse(domain)
+	if err != nil {
+		return Domain{}, errInvalidDomain
+	}
+
+	domain = parsedUrl.Host
+	return Domain(apitypes.NewString(domain)), nil
+}
+
+// if ns is valid, it parses the domain by stripping everything except the host from the string.
+func ParseDomainNullString(ns apitypes.NullString) (Domain, error) {
+	if !ns.IsValid() {
+		return Domain(ns), nil
+	}
+	return ParseDomain(ns.String())
 }
 
 type Subdomain string
@@ -46,8 +56,8 @@ func (s Subdomain) String() string {
 	return string(s)
 }
 
-func (s Subdomain) NullString() null.String {
-	return null.NewString(s.String(), s.String() != "")
+func (s Subdomain) NullString() apitypes.NullString {
+	return apitypes.NewString(s.String())
 }
 
 func NewSubdomain(workspaceName string) Subdomain {
@@ -58,10 +68,6 @@ func NewSubdomain(workspaceName string) Subdomain {
 }
 
 var subdomainRegex = regexp.MustCompile("^[a-z0-9-]*$")
-
-func ParseSubdomain(subdomain string) Subdomain {
-	return Subdomain(subdomain)
-}
 
 // Returns the subdomain from the host.
 // Returns an error if the host doesn't have a subdomain

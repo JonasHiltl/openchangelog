@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/guregu/null/v5"
+	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 )
@@ -40,17 +41,17 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 	}
 
 	if s.cfg.Page != nil {
-		cl.Title = null.NewString(s.cfg.Page.Title, s.cfg.Page.Title != "")
-		cl.Subtitle = null.NewString(s.cfg.Page.Subtitle, s.cfg.Page.Subtitle != "")
+		cl.Title = apitypes.NewString(s.cfg.Page.Title)
+		cl.Subtitle = apitypes.NewString(s.cfg.Page.Subtitle)
 	}
 
 	if s.cfg.Page.Logo != nil {
 		l := s.cfg.Page.Logo
-		cl.LogoSrc = null.NewString(l.Src, l.Src != "")
-		cl.LogoLink = null.NewString(l.Link, l.Link != "")
-		cl.LogoAlt = null.NewString(l.Alt, l.Alt != "")
-		cl.LogoHeight = null.NewString(l.Height, l.Height != "")
-		cl.LogoWidth = null.NewString(l.Width, l.Width != "")
+		cl.LogoSrc = apitypes.NewString(l.Src)
+		cl.LogoLink = apitypes.NewString(l.Link)
+		cl.LogoAlt = apitypes.NewString(l.Alt)
+		cl.LogoHeight = apitypes.NewString(l.Height)
+		cl.LogoWidth = apitypes.NewString(l.Width)
 	}
 
 	// parse local source from config

@@ -3,12 +3,10 @@ package apitypes
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
-	"strings"
 	"testing"
 	"time"
 
-	"github.com/guregu/null/v5"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestChangelogMarshaling(t *testing.T) {
@@ -23,15 +21,15 @@ func TestChangelogMarshaling(t *testing.T) {
 				ID:          "cl_xxxx",
 				WorkspaceID: "ws_xxxx",
 				Subdomain:   "workspace_fjhla",
-				Domain:      null.NewString("demo.openchangelog.com", true),
-				Title:       null.NewString("Test Title", true),
-				Subtitle:    null.NewString("Test Subtitle", true),
+				Domain:      NewString("demo.openchangelog.com"),
+				Title:       NewString("Test Title"),
+				Subtitle:    NewString("Test Subtitle"),
 				Logo: Logo{
-					Src:    null.NewString("logo src", true),
-					Link:   null.NewString("logo link", true),
-					Alt:    null.NewString("logo description", true),
-					Height: null.NewString("30px", true),
-					Width:  null.NewString("40px", true),
+					Src:    NewString("logo src"),
+					Link:   NewString("logo link"),
+					Alt:    NewString("logo description"),
+					Height: NewString("30px"),
+					Width:  NewString("40px"),
 				},
 				Source: GHSource{
 					ID:          "gh_xxxx",
@@ -50,9 +48,9 @@ func TestChangelogMarshaling(t *testing.T) {
 				"domain": "demo.openchangelog.com",
 				"subtitle": "Test Subtitle",
 				"logo": {
+					"alt": "logo description",
 					"src": "logo src",
 					"link": "logo link",	
-					"alt": "logo description",
 					"height": "30px",
 					"width": "40px"
 				},
@@ -67,21 +65,45 @@ func TestChangelogMarshaling(t *testing.T) {
 				"createdAt": "%s"
 			}`, nowStr),
 		},
+		{
+			input: Changelog{
+				ID:          "cl_xxxx",
+				WorkspaceID: "ws_xxxx",
+				Title:       NewString("Test Title"),
+				CreatedAt:   now,
+			},
+			expect: fmt.Sprintf(`{
+				"id": "cl_xxxx",
+				"workspaceId": "ws_xxxx",
+				"title": "Test Title",
+				"createdAt": "%s"
+			}`, nowStr),
+		},
+		{
+			input: Changelog{
+				ID:          "cl_xxxx",
+				WorkspaceID: "ws_xxxx",
+				Logo: Logo{
+					Alt: NewString("test"),
+				},
+			},
+			expect: `{
+				"id": "cl_xxxx",
+				"workspaceId": "ws_xxxx",
+				"logo": {
+					"alt": "test"
+				}
+			}`,
+		},
 	}
 
 	for _, table := range tables {
-		b, err := json.MarshalIndent(table.input, "", "\t")
+		b, err := json.Marshal(table.input)
 		if err != nil {
 			t.Error(err)
 		}
 
-		output := strings.Fields(string(b))
-		expect := strings.Fields(table.expect)
-
-		eq := reflect.DeepEqual(output, expect)
-		if !eq {
-			t.Errorf("Expected %s to equal %s", output, expect)
-		}
+		assert.JSONEq(t, table.expect, string(b))
 	}
 }
 
@@ -91,9 +113,9 @@ func TestChangelogUnmarshaling(t *testing.T) {
 			ID:          "cl_xxxx",
 			WorkspaceID: "ws_xxxx",
 			Subdomain:   "workspace_fjhla",
-			Domain:      null.NewString("demo.openchangelog.com", true),
-			Title:       null.NewString("Test Title", true),
-			Subtitle:    null.NewString("Test Subtitle", true),
+			Domain:      NewString("demo.openchangelog.com"),
+			Title:       NewString("Test Title"),
+			Subtitle:    NewString("Test Subtitle"),
 			Source: GHSource{
 				ID:          "gh_xxxx",
 				WorkspaceID: "ws_xxxx",
@@ -101,15 +123,15 @@ func TestChangelogUnmarshaling(t *testing.T) {
 				Repo:        "openchangelog",
 				Path:        ".testdata",
 			},
-			CreatedAt: time.Unix(1715958564, 0),
+			CreatedAt: time.Unix(1715958564, 0).UTC(),
 		},
 		{
 			ID:          "cl_xxxx",
 			WorkspaceID: "ws_xxxx",
 			Subdomain:   "workspace_fjhla",
-			Title:       null.NewString("Test Title", true),
-			Subtitle:    null.NewString("Test Subtitle", true),
-			CreatedAt:   time.Unix(1715958564, 0),
+			Title:       NewString("Test Title"),
+			Subtitle:    NewString("Test Subtitle"),
+			CreatedAt:   time.Unix(1715958564, 0).UTC(),
 		},
 	}
 
@@ -125,9 +147,6 @@ func TestChangelogUnmarshaling(t *testing.T) {
 			t.Error(err)
 		}
 
-		eq := reflect.DeepEqual(table, c)
-		if !eq {
-			t.Errorf("Expected %+v to equal %+v", c, table)
-		}
+		assert.Equal(t, table, c)
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/guregu/null/v5"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/store"
@@ -51,7 +50,7 @@ func (l *Loader) FromConfig(ctx context.Context, page Pagination) (*LoadedChange
 // Tries to load the corresponding changelog for the host, either by it's subdomain or domain.
 func (l *Loader) FromHost(ctx context.Context, host string, page Pagination) (*LoadedChangelog, error) {
 	subdomain, serr := store.SubdomainFromHost(host)
-	domain, derr := store.ParseDomain(null.NewString(host, host != ""))
+	domain, derr := store.ParseDomain(host)
 	if derr != nil && serr != nil {
 		return nil, errs.NewBadRequest(errors.New("host is not a valid url"))
 	}

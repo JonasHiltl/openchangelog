@@ -67,15 +67,15 @@ WHERE c.workspace_id = ?;
 -- name: updateChangelog :one
 UPDATE changelogs
 SET
-   title = coalesce(sqlc.narg(title), title),
-   subtitle = coalesce(sqlc.narg(subtitle), subtitle),
    subdomain = coalesce(sqlc.narg(subdomain), subdomain),
-   domain = coalesce(sqlc.narg(domain), domain),
-   logo_src = coalesce(sqlc.narg(logo_src), logo_src),
-   logo_link = coalesce(sqlc.narg(logo_link), logo_link),
-   logo_alt = coalesce(sqlc.narg(logo_alt), logo_alt),
-   logo_height = coalesce(sqlc.narg(logo_height), logo_height),
-   logo_width = coalesce(sqlc.narg(logo_width), logo_width)
+   title = CASE WHEN cast(@set_title as bool) THEN @title ELSE title END,
+   subtitle = CASE WHEN cast(@set_subtitle as bool) THEN @subtitle ELSE subtitle END,
+   domain = CASE WHEN cast(@set_domain as bool) THEN @domain ELSE domain END,
+   logo_src = CASE WHEN cast(@set_logo_src as bool) THEN @logo_src ELSE logo_src END,
+   logo_link = CASE WHEN cast(@set_logo_link as bool) THEN @logo_link ELSE logo_link END,
+   logo_alt = CASE WHEN cast(@set_logo_alt as bool) THEN @logo_alt ELSE logo_alt END,
+   logo_height = CASE WHEN cast(@set_logo_height as bool) THEN @logo_height ELSE logo_height END,
+   logo_width = CASE WHEN cast(@set_logo_width as bool) THEN @logo_width ELSE logo_width END
 WHERE workspace_id = sqlc.arg(workspace_id) AND id = sqlc.arg(id)
 RETURNING *;
 

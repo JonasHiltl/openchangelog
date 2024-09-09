@@ -9,16 +9,16 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/guregu/null/v5"
+	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/icons"
 )
 
 type Logo struct {
-	Src    null.String
-	Width  null.String
-	Height null.String
-	Alt    null.String
-	Link   null.String
+	Src    apitypes.NullString
+	Width  apitypes.NullString
+	Height apitypes.NullString
+	Alt    apitypes.NullString
+	Link   apitypes.NullString
 }
 
 func imgSize(width string, height string) templ.CSSClass {
@@ -131,7 +131,7 @@ func LogoImg(args Logo) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if args.Link.ValueOrZero() == "" {
+		if args.Link.String() == "" {
 			templ_7745c5c3_Err = img(args).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -141,7 +141,7 @@ func LogoImg(args Logo) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 templ.SafeURL = templ.URL(args.Link.ValueOrZero())
+			var templ_7745c5c3_Var5 templ.SafeURL = templ.URL(args.Link.String())
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var5)))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -181,7 +181,7 @@ func img(args Logo) templ.Component {
 			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var7 = []any{"max-h-full max-w-full object-contain", imgSize(args.Width.ValueOrZero(), args.Height.ValueOrZero())}
+		var templ_7745c5c3_Var7 = []any{"max-h-full max-w-full object-contain", imgSize(args.Width.String(), args.Height.String())}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var7...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -191,9 +191,9 @@ func img(args Logo) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(args.Src.ValueOrZero())
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(args.Src.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/navbar.templ`, Line: 51, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/navbar.templ`, Line: 51, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -204,9 +204,9 @@ func img(args Logo) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
-		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(args.Alt.ValueOrZero())
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(args.Alt.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/navbar.templ`, Line: 52, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/navbar.templ`, Line: 52, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {

@@ -12,6 +12,12 @@ sql:
         overrides:
           - db_type: "INTEGER"
             go_type: "int64"
+          - db_type: "TEXT"
+            nullable: true
+            go_type:
+              import: "github.com/jonashiltl/openchangelog/apitypes"
+              type: "NullString"
+
         rename:
           workspace: "workspace"
           token: "token"

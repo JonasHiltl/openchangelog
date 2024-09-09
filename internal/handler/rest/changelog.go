@@ -19,7 +19,7 @@ func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 	c := apitypes.Changelog{
 		ID:          cl.ID.String(),
 		Subdomain:   cl.Subdomain.String(),
-		Domain:      cl.Domain.ToNullString(),
+		Domain:      cl.Domain.NullString(),
 		WorkspaceID: cl.WorkspaceID.String(),
 		Title:       cl.Title,
 		Subtitle:    cl.Subtitle,
@@ -75,7 +75,7 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		LogoWidth:   req.Logo.Width,
 	}
 
-	d, err := store.ParseDomain(req.Domain)
+	d, err := store.ParseDomainNullString(req.Domain)
 	if err != nil {
 		return err
 	}
@@ -105,14 +105,14 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	domain, err := store.ParseDomain(req.Domain)
+	domain, err := store.ParseDomainNullString(req.Domain)
 	if err != nil {
 		return err
 	}
 
 	c, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, store.UpdateChangelogArgs{
 		Title:      req.Title,
-		Subdomain:  store.ParseSubdomain(req.Subdomain.ValueOrZero()),
+		Subdomain:  req.Subdomain,
 		Domain:     domain,
 		Subtitle:   req.Subtitle,
 		LogoSrc:    req.Logo.Src,
