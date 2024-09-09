@@ -125,7 +125,7 @@ func TestChangelogUnmarshaling(t *testing.T) {
 				Repo:        "openchangelog",
 				Path:        ".testdata",
 			},
-			CreatedAt: time.Unix(1715958564, 0),
+			CreatedAt: time.Unix(1715958564, 0).UTC(),
 		},
 		{
 			ID:          "cl_xxxx",
@@ -133,7 +133,7 @@ func TestChangelogUnmarshaling(t *testing.T) {
 			Subdomain:   "workspace_fjhla",
 			Title:       NewString("Test Title"),
 			Subtitle:    NewString("Test Subtitle"),
-			CreatedAt:   time.Unix(1715958564, 0),
+			CreatedAt:   time.Unix(1715958564, 0).UTC(),
 		},
 	}
 
