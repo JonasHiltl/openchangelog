@@ -27,12 +27,12 @@ Openchangelog is divided into **three** separate packages.
 Install [Go](https://go.dev/dl/), [Templ](https://templ.guide/quick-start/installation) and optionally [Air](https://github.com/air-verse/air) for live reloading.  
 
 ## Starting Openchangelog as a contributor
-Create a `openchangelog.yml` file in the repo root. Have a look at the `openchangelog.example.yml` file for inspiration.  
+Create a `openchangelog.yml` file in the repo root. Have a look at the `openchangelog.example.yml` file for inspiration or just copy it's content fully for a working config.  
 Run `templ generate --watch` in the repo root to have `templ` automatically generate go code from the `*.templ` files.  
 
 Inside `internal/handler/web` run `npm run watch` to generate the `base.css` file with tailwind whenever anything changes.  
 
-Now run `air` in the repo root to start Openchangelog with live reloading. Since `base.css` is embedded on server start, `air` sometimes doesn't update the `css` file after it changes. Rerunning `air` fixes this issue.
+Now run `air` or `go run cmd/server.go` in the repo root to start Openchangelog with live reloading. Since `base.css` is embedded on server start, `air` sometimes doesn't update the `css` file after it changes. Rerunning `air` fixes this issue.
 
 ## Creating a PR
 If you've made changes to any `*.templ` files, ensure you run `templ generate` afterward.  
