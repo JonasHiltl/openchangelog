@@ -19,7 +19,7 @@ Below are a set of guidlines for contributing to Openchangelog. These are mostly
 
 ## Project structure
 Openchangelog is divided into **three** separate packages.  
-- The Openchangelog server is located in the repository root, it's entry point is the `cmd/server.go` file. It's the HTTP server that loads the changelog from a config or `sqlite` db and also loads it's articles through a `source` (GitHub or local). Then it parses the markdown files and responds to the user with the rendered HTML changelog.
+- The Openchangelog server is located in the repo root, it's entry point is the `cmd/server.go` file. It's the HTTP server that loads the changelog from a config or `sqlite` db and also loads it's articles through a `source` (GitHub or local). Then it parses the markdown files and responds to the user with the rendered HTML changelog.
 - The **apitypes** package holds all models that are returned from the api. These are shared between the `go` api client and the Openchangelog server.
 - The **api** package is the `go` api client which can be used to interact with the Openchangelog API (mostly needed in multi-tenancy setup).
 
@@ -27,13 +27,17 @@ Openchangelog is divided into **three** separate packages.
 Install [Go](https://go.dev/dl/), [Templ](https://templ.guide/quick-start/installation) and optionally [Air](https://github.com/air-verse/air) for live reloading.  
 
 ## Starting Openchangelog as a contributor
-Create a `openchangelog.yml` file in the root of the repo. Have a look at the `openchangelog.example.yml` file for inspiration.  
+Create a `openchangelog.yml` file in the repo root. Have a look at the `openchangelog.example.yml` file for inspiration.  
 Run `templ generate --watch` in the repo root to have `templ` automatically generate go code from the `*.templ` files.  
+
 Inside `internal/handler/web` run `npm run watch` to generate the `base.css` file with tailwind whenever anything changes.  
+
 Now run `air` in the repo root to start Openchangelog with live reloading. Since `base.css` is embedded on server start, `air` sometimes doesn't update the `css` file after it changes. Rerunning `air` fixes this issue.
 
 ## Creating a PR
-If you've made changes to any `*.templ` files, ensure you run `templ generate` afterward.
+If you've made changes to any `*.templ` files, ensure you run `templ generate` afterward.  
 Additionally, after using watch mode, manually run `templ generate` again. Watch mode updates every `*_templ.go` file, even if no actual changes were made. Without this step, many lines may appear modified, even though no `*.templ` files were changed.  
+
 If you changed any tailwind classes, make sure you ran `npm run watch` to generate the new `base.css` file with the tailwind styling.  
+
 After following the above steps, you can create a PR to Openchangelog and a maintainer will review your PR swiftly.
