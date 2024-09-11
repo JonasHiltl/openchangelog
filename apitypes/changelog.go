@@ -44,9 +44,9 @@ func (l Changelog) MarshalJSON() ([]byte, error) {
 		ID:          l.ID,
 		WorkspaceID: l.WorkspaceID,
 		Subdomain:   l.Subdomain,
-		Domain:      l.Domain.String(),
-		Title:       l.Title.String(),
-		Subtitle:    l.Subtitle.String(),
+		Domain:      l.Domain.V(),
+		Title:       l.Title.V(),
+		Subtitle:    l.Subtitle.V(),
 		ColorScheme: string(l.ColorScheme),
 		Source:      l.Source,
 	}

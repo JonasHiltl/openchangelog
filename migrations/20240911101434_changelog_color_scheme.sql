@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-ALTER TABLE changelogs ADD color_scheme INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE changelogs ADD color_scheme INTEGER NOT NULL DEFAULT 1;
 -- +goose StatementEnd
 
 -- +goose Down

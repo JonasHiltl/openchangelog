@@ -63,7 +63,7 @@ func TestChangelogMarshaling(t *testing.T) {
 					"repo": "openchangelog",
 					"path": ".testdata"
 				},
-				"color_scheme": "dark",
+				"colorScheme": "dark",
 				"createdAt": "%s"
 			}`, nowStr),
 		},
@@ -79,7 +79,7 @@ func TestChangelogMarshaling(t *testing.T) {
 				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
 				"title": "Test Title",
-				"color_scheme": "automatic",
+				"colorScheme": "automatic",
 				"createdAt": "%s"
 			}`, nowStr),
 		},
@@ -171,7 +171,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"subtitle": "",
 				"logo": {},
 				"domain": "",
-				"subdomain": ""
+				"subdomain": "",
+				"colorScheme": ""
 			}`,
 		},
 		{
@@ -186,7 +187,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"subtitle": "",
 				"logo": {},
 				"domain": "",
-				"subdomain": ""
+				"subdomain": "",
+				"colorScheme": ""
 			}`,
 		},
 		{
@@ -201,7 +203,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"subtitle": "",
 				"logo": {},
 				"domain": "",
-				"subdomain": ""
+				"subdomain": "",
+				"colorScheme": ""
 			}`,
 		},
 		{
@@ -220,7 +223,24 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 					"src": "test"
 				},
 				"domain": "",
-				"subdomain": ""
+				"subdomain": "",
+				"colorScheme": ""
+			}`,
+		},
+		{
+			name: "valid color scheme",
+			input: UpdateChangelogBody{
+				CreateChangelogBody: CreateChangelogBody{
+					ColorScheme: Dark,
+				},
+			},
+			expected: `{
+				"title": "",
+				"subtitle": "",
+				"logo": {},
+				"domain": "",
+				"subdomain": "",
+				"colorScheme": "dark"
 			}`,
 		},
 	}
@@ -237,7 +257,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 	}
 }
 
-func TestTestUpdateChangelogBodyUnmarshal(t *testing.T) {
+func TestUpdateChangelogBodyUnmarshal(t *testing.T) {
 	tests := []struct {
 		name  string
 		input UpdateChangelogBody
@@ -279,6 +299,14 @@ func TestTestUpdateChangelogBodyUnmarshal(t *testing.T) {
 					Logo: Logo{
 						Src: NewNullString(),
 					},
+				},
+			},
+		},
+		{
+			name: "valid color scheme",
+			input: UpdateChangelogBody{
+				CreateChangelogBody: CreateChangelogBody{
+					ColorScheme: Dark,
 				},
 			},
 		},

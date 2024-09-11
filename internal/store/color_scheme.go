@@ -11,9 +11,9 @@ import (
 type ColorScheme int
 
 const (
-	Automatic ColorScheme = 0
-	Light     ColorScheme = 1
-	Dark      ColorScheme = 2
+	Automatic ColorScheme = 1
+	Light     ColorScheme = 2
+	Dark      ColorScheme = 3
 )
 
 func NewColorScheme(cs apitypes.ColorScheme) ColorScheme {
@@ -25,7 +25,7 @@ func NewColorScheme(cs apitypes.ColorScheme) ColorScheme {
 	case apitypes.Light:
 		return Light
 	}
-	return Automatic
+	return 0
 }
 
 func (cs ColorScheme) String() string {

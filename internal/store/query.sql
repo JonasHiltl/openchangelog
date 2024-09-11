@@ -68,7 +68,6 @@ WHERE c.workspace_id = ?;
 UPDATE changelogs
 SET
    subdomain = coalesce(sqlc.narg(subdomain), subdomain),
-   color_scheme = coalesce(sqlc.narg(color_scheme), color_scheme),
    title = CASE WHEN cast(@set_title as bool) THEN @title ELSE title END,
    subtitle = CASE WHEN cast(@set_subtitle as bool) THEN @subtitle ELSE subtitle END,
    domain = CASE WHEN cast(@set_domain as bool) THEN @domain ELSE domain END,
@@ -76,7 +75,8 @@ SET
    logo_link = CASE WHEN cast(@set_logo_link as bool) THEN @logo_link ELSE logo_link END,
    logo_alt = CASE WHEN cast(@set_logo_alt as bool) THEN @logo_alt ELSE logo_alt END,
    logo_height = CASE WHEN cast(@set_logo_height as bool) THEN @logo_height ELSE logo_height END,
-   logo_width = CASE WHEN cast(@set_logo_width as bool) THEN @logo_width ELSE logo_width END
+   logo_width = CASE WHEN cast(@set_logo_width as bool) THEN @logo_width ELSE logo_width END,
+   color_scheme = CASE WHEN cast(@set_color_scheme as bool) THEN @color_scheme ELSE color_scheme END
 WHERE workspace_id = sqlc.arg(workspace_id) AND id = sqlc.arg(id)
 RETURNING *;
 
