@@ -1,0 +1,48 @@
+package layout
+
+import "github.com/jonashiltl/openchangelog/internal/store"
+
+type ThemeArgs struct {
+	ColorScheme store.ColorScheme
+}
+
+templ Theme(args ThemeArgs) {
+	if args.ColorScheme == store.Automatic {
+		<script>
+			function setTheme(isDark) {
+				if (isDark) {
+					document.querySelector('#theme-container').setAttribute('color-scheme', 'dark');
+				} else {
+					document.querySelector('#theme-container').setAttribute('color-scheme', 'light');
+				}
+			};
+
+			// initialize theme with current scheme
+			document.addEventListener('DOMContentLoaded', () => 
+				setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches)
+			);
+			// listen to theme changes
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => setTheme(e.matches));
+		</script>
+	}
+	<div
+		id="theme-container"
+		class="flex flex-col bg-neutral-50 dark:bg-neutral-950"
+		if args.ColorScheme != store.Automatic {
+			color-scheme={ getColorSchemeString(args.ColorScheme) }
+		}
+	>
+		{ children... }
+	</div>
+}
+
+func getColorSchemeString(cs store.ColorScheme) string {
+	switch cs {
+	case store.Light:
+		return "light"
+	case store.Dark:
+		return "dark"
+	default:
+		return ""
+	}
+}

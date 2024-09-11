@@ -1,7 +1,7 @@
 package layout
 
 type MainArgs struct {
-	Title string
+	Title       string
 	Description string
 }
 
@@ -21,7 +21,7 @@ templ Main(args MainArgs) {
 			<link rel="stylesheet" href="https://rsms.me/inter/inter.css"/>
 			<script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
 		</head>
-		<body class="flex flex-col dark:bg-black">
+		<body>
 			{ children... }
 		</body>
 	</html>
