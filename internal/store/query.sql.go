@@ -13,9 +13,9 @@ import (
 
 const createChangelog = `-- name: createChangelog :one
 INSERT INTO changelogs (
-    workspace_id, id, subdomain, domain, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at, domain
+    workspace_id, id, subdomain, domain, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width, color_scheme
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at, domain, color_scheme
 `
 
 type createChangelogParams struct {
@@ -30,6 +30,7 @@ type createChangelogParams struct {
 	LogoAlt     apitypes.NullString
 	LogoHeight  apitypes.NullString
 	LogoWidth   apitypes.NullString
+	ColorScheme ColorScheme
 }
 
 func (q *Queries) createChangelog(ctx context.Context, arg createChangelogParams) (changelog, error) {
@@ -45,6 +46,7 @@ func (q *Queries) createChangelog(ctx context.Context, arg createChangelogParams
 		arg.LogoAlt,
 		arg.LogoHeight,
 		arg.LogoWidth,
+		arg.ColorScheme,
 	)
 	var i changelog
 	err := row.Scan(
@@ -61,6 +63,7 @@ func (q *Queries) createChangelog(ctx context.Context, arg createChangelogParams
 		&i.LogoWidth,
 		&i.CreatedAt,
 		&i.Domain,
+		&i.ColorScheme,
 	)
 	return i, err
 }
@@ -177,7 +180,7 @@ func (q *Queries) deleteWorkspace(ctx context.Context, id string) error {
 }
 
 const getChangelog = `-- name: getChangelog :one
-SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
+SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, c.color_scheme, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
 WHERE c.workspace_id = ? AND c.id = ?
@@ -210,6 +213,7 @@ func (q *Queries) getChangelog(ctx context.Context, arg getChangelogParams) (get
 		&i.changelog.LogoWidth,
 		&i.changelog.CreatedAt,
 		&i.changelog.Domain,
+		&i.changelog.ColorScheme,
 		&i.ChangelogSource.ID,
 		&i.ChangelogSource.WorkspaceID,
 		&i.ChangelogSource.Owner,
@@ -221,7 +225,7 @@ func (q *Queries) getChangelog(ctx context.Context, arg getChangelogParams) (get
 }
 
 const getChangelogByDomainOrSubdomain = `-- name: getChangelogByDomainOrSubdomain :one
-SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
+SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, c.color_scheme, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
 WHERE c.domain = ? OR c.subdomain = ?
@@ -256,6 +260,7 @@ func (q *Queries) getChangelogByDomainOrSubdomain(ctx context.Context, arg getCh
 		&i.changelog.LogoWidth,
 		&i.changelog.CreatedAt,
 		&i.changelog.Domain,
+		&i.changelog.ColorScheme,
 		&i.ChangelogSource.ID,
 		&i.ChangelogSource.WorkspaceID,
 		&i.ChangelogSource.Owner,
@@ -342,7 +347,7 @@ func (q *Queries) getWorkspace(ctx context.Context, id string) (getWorkspaceRow,
 }
 
 const listChangelogs = `-- name: listChangelogs :many
-SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
+SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, c.color_scheme, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
 WHERE c.workspace_id = ?
@@ -376,6 +381,7 @@ func (q *Queries) listChangelogs(ctx context.Context, workspaceID string) ([]lis
 			&i.changelog.LogoWidth,
 			&i.changelog.CreatedAt,
 			&i.changelog.Domain,
+			&i.changelog.ColorScheme,
 			&i.ChangelogSource.ID,
 			&i.ChangelogSource.WorkspaceID,
 			&i.ChangelogSource.Owner,
@@ -473,20 +479,22 @@ const updateChangelog = `-- name: updateChangelog :one
 UPDATE changelogs
 SET
    subdomain = coalesce(?1, subdomain),
-   title = CASE WHEN cast(?2 as bool) THEN ?3 ELSE title END,
-   subtitle = CASE WHEN cast(?4 as bool) THEN ?5 ELSE subtitle END,
-   domain = CASE WHEN cast(?6 as bool) THEN ?7 ELSE domain END,
-   logo_src = CASE WHEN cast(?8 as bool) THEN ?9 ELSE logo_src END,
-   logo_link = CASE WHEN cast(?10 as bool) THEN ?11 ELSE logo_link END,
-   logo_alt = CASE WHEN cast(?12 as bool) THEN ?13 ELSE logo_alt END,
-   logo_height = CASE WHEN cast(?14 as bool) THEN ?15 ELSE logo_height END,
-   logo_width = CASE WHEN cast(?16 as bool) THEN ?17 ELSE logo_width END
-WHERE workspace_id = ?18 AND id = ?19
-RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at, domain
+   color_scheme = coalesce(?2, color_scheme),
+   title = CASE WHEN cast(?3 as bool) THEN ?4 ELSE title END,
+   subtitle = CASE WHEN cast(?5 as bool) THEN ?6 ELSE subtitle END,
+   domain = CASE WHEN cast(?7 as bool) THEN ?8 ELSE domain END,
+   logo_src = CASE WHEN cast(?9 as bool) THEN ?10 ELSE logo_src END,
+   logo_link = CASE WHEN cast(?11 as bool) THEN ?12 ELSE logo_link END,
+   logo_alt = CASE WHEN cast(?13 as bool) THEN ?14 ELSE logo_alt END,
+   logo_height = CASE WHEN cast(?15 as bool) THEN ?16 ELSE logo_height END,
+   logo_width = CASE WHEN cast(?17 as bool) THEN ?18 ELSE logo_width END
+WHERE workspace_id = ?19 AND id = ?20
+RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at, domain, color_scheme
 `
 
 type updateChangelogParams struct {
 	Subdomain     apitypes.NullString
+	ColorScheme   ColorScheme
 	SetTitle      bool
 	Title         apitypes.NullString
 	SetSubtitle   bool
@@ -510,6 +518,7 @@ type updateChangelogParams struct {
 func (q *Queries) updateChangelog(ctx context.Context, arg updateChangelogParams) (changelog, error) {
 	row := q.db.QueryRowContext(ctx, updateChangelog,
 		arg.Subdomain,
+		arg.ColorScheme,
 		arg.SetTitle,
 		arg.Title,
 		arg.SetSubtitle,
@@ -544,6 +553,7 @@ func (q *Queries) updateChangelog(ctx context.Context, arg updateChangelogParams
 		&i.LogoWidth,
 		&i.CreatedAt,
 		&i.Domain,
+		&i.ColorScheme,
 	)
 	return i, err
 }

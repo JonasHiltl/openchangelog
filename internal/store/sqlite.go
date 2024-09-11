@@ -27,6 +27,7 @@ func (cl changelog) toExported(source changelogSource) Changelog {
 		LogoAlt:     cl.LogoAlt,
 		LogoHeight:  cl.LogoHeight,
 		LogoWidth:   cl.LogoWidth,
+		ColorScheme: cl.ColorScheme,
 		CreatedAt:   time.Unix(cl.CreatedAt, 0),
 		GHSource:    null.NewValue(GHSource{}, false),
 	}
@@ -87,6 +88,7 @@ func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, 
 		LogoAlt:     cl.LogoAlt,
 		LogoHeight:  cl.LogoHeight,
 		LogoWidth:   cl.LogoWidth,
+		ColorScheme: cl.ColorScheme,
 	})
 	if err != nil {
 		return Changelog{}, formatUnqueConstraint(err)
@@ -150,6 +152,7 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 		ID:            cID.String(),
 		WorkspaceID:   wID.String(),
 		Subdomain:     args.Subdomain,
+		ColorScheme:   args.ColorScheme,
 		Title:         args.Title,
 		SetTitle:      !args.Title.IsZero(),
 		Subtitle:      args.Subtitle,

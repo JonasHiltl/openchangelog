@@ -38,7 +38,8 @@ func TestChangelogMarshaling(t *testing.T) {
 					Repo:        "openchangelog",
 					Path:        ".testdata",
 				},
-				CreatedAt: now,
+				ColorScheme: Dark,
+				CreatedAt:   now,
 			},
 			expect: fmt.Sprintf(`{
 				"id": "cl_xxxx",
@@ -62,6 +63,7 @@ func TestChangelogMarshaling(t *testing.T) {
 					"repo": "openchangelog",
 					"path": ".testdata"
 				},
+				"color_scheme": "dark",
 				"createdAt": "%s"
 			}`, nowStr),
 		},
@@ -70,12 +72,14 @@ func TestChangelogMarshaling(t *testing.T) {
 				ID:          "cl_xxxx",
 				WorkspaceID: "ws_xxxx",
 				Title:       NewString("Test Title"),
+				ColorScheme: Automatic,
 				CreatedAt:   now,
 			},
 			expect: fmt.Sprintf(`{
 				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
 				"title": "Test Title",
+				"color_scheme": "automatic",
 				"createdAt": "%s"
 			}`, nowStr),
 		},
@@ -123,7 +127,8 @@ func TestChangelogUnmarshal(t *testing.T) {
 				Repo:        "openchangelog",
 				Path:        ".testdata",
 			},
-			CreatedAt: time.Unix(1715958564, 0).UTC(),
+			ColorScheme: Dark,
+			CreatedAt:   time.Unix(1715958564, 0).UTC(),
 		},
 		{
 			ID:          "cl_xxxx",
@@ -132,6 +137,7 @@ func TestChangelogUnmarshal(t *testing.T) {
 			Title:       NewString("Test Title"),
 			Subtitle:    NewString("Test Subtitle"),
 			CreatedAt:   time.Unix(1715958564, 0).UTC(),
+			ColorScheme: Light,
 		},
 	}
 

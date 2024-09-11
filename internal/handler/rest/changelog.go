@@ -30,13 +30,26 @@ func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 			Height: cl.LogoHeight,
 			Width:  cl.LogoWidth,
 		},
-		CreatedAt: cl.CreatedAt,
+		ColorScheme: colorSchemeToApiType(cl.ColorScheme),
+		CreatedAt:   cl.CreatedAt,
 	}
 
 	if cl.GHSource.Valid {
 		c.Source = ghToApiType(cl.GHSource.ValueOrZero())
 	}
 	return c
+}
+
+func colorSchemeToApiType(cs store.ColorScheme) apitypes.ColorScheme {
+	switch cs {
+	case store.Automatic:
+		return apitypes.Automatic
+	case store.Dark:
+		return apitypes.Dark
+	case store.Light:
+		return apitypes.Light
+	}
+	return apitypes.Automatic
 }
 
 func encodeChangelog(w http.ResponseWriter, cl store.Changelog) error {
@@ -73,6 +86,7 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		LogoAlt:     req.Logo.Alt,
 		LogoHeight:  req.Logo.Height,
 		LogoWidth:   req.Logo.Width,
+		ColorScheme: store.NewColorScheme(req.ColorScheme),
 	}
 
 	d, err := store.ParseDomainNullString(req.Domain)
@@ -111,15 +125,16 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	c, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, store.UpdateChangelogArgs{
-		Title:      req.Title,
-		Subdomain:  req.Subdomain,
-		Domain:     domain,
-		Subtitle:   req.Subtitle,
-		LogoSrc:    req.Logo.Src,
-		LogoLink:   req.Logo.Link,
-		LogoAlt:    req.Logo.Alt,
-		LogoHeight: req.Logo.Height,
-		LogoWidth:  req.Logo.Width,
+		Title:       req.Title,
+		Subdomain:   req.Subdomain,
+		Domain:      domain,
+		Subtitle:    req.Subtitle,
+		LogoSrc:     req.Logo.Src,
+		LogoLink:    req.Logo.Link,
+		LogoAlt:     req.Logo.Alt,
+		LogoHeight:  req.Logo.Height,
+		LogoWidth:   req.Logo.Width,
+		ColorScheme: store.NewColorScheme(req.ColorScheme),
 	})
 	if err != nil {
 		return err

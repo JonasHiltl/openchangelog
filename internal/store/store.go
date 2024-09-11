@@ -22,6 +22,7 @@ type Changelog struct {
 	LogoAlt     apitypes.NullString
 	LogoHeight  apitypes.NullString
 	LogoWidth   apitypes.NullString
+	ColorScheme ColorScheme
 	CreatedAt   time.Time
 	GHSource    null.Value[GHSource]
 	LocalSource null.Value[LocalSource]
@@ -47,15 +48,16 @@ type LocalSource struct {
 }
 
 type UpdateChangelogArgs struct {
-	Title      apitypes.NullString
-	Subdomain  apitypes.NullString
-	Domain     Domain
-	Subtitle   apitypes.NullString
-	LogoSrc    apitypes.NullString
-	LogoLink   apitypes.NullString
-	LogoAlt    apitypes.NullString
-	LogoHeight apitypes.NullString
-	LogoWidth  apitypes.NullString
+	Title       apitypes.NullString
+	Subdomain   apitypes.NullString
+	Domain      Domain
+	Subtitle    apitypes.NullString
+	LogoSrc     apitypes.NullString
+	LogoLink    apitypes.NullString
+	LogoAlt     apitypes.NullString
+	LogoHeight  apitypes.NullString
+	LogoWidth   apitypes.NullString
+	ColorScheme ColorScheme
 }
 
 type Store interface {
