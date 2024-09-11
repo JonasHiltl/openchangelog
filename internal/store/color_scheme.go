@@ -11,15 +11,15 @@ import (
 type ColorScheme int
 
 const (
-	Automatic ColorScheme = 1
-	Light     ColorScheme = 2
-	Dark      ColorScheme = 3
+	System ColorScheme = 1
+	Light  ColorScheme = 2
+	Dark   ColorScheme = 3
 )
 
 func NewColorScheme(cs apitypes.ColorScheme) ColorScheme {
 	switch cs {
-	case apitypes.Automatic:
-		return Automatic
+	case apitypes.System:
+		return System
 	case apitypes.Dark:
 		return Dark
 	case apitypes.Light:
@@ -30,8 +30,8 @@ func NewColorScheme(cs apitypes.ColorScheme) ColorScheme {
 
 func (cs ColorScheme) String() string {
 	switch cs {
-	case Automatic:
-		return "automatic"
+	case System:
+		return "system"
 	case Light:
 		return "light"
 	case Dark:
@@ -47,7 +47,7 @@ func (cs *ColorScheme) Scan(value interface{}) error {
 	}
 
 	switch ColorScheme(i) {
-	case Automatic, Light, Dark:
+	case System, Light, Dark:
 		*cs = ColorScheme(i)
 		return nil
 	default:

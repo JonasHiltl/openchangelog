@@ -42,14 +42,14 @@ func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 
 func colorSchemeToApiType(cs store.ColorScheme) apitypes.ColorScheme {
 	switch cs {
-	case store.Automatic:
-		return apitypes.Automatic
+	case store.System:
+		return apitypes.System
 	case store.Dark:
 		return apitypes.Dark
 	case store.Light:
 		return apitypes.Light
 	}
-	return apitypes.Automatic
+	return apitypes.System
 }
 
 func encodeChangelog(w http.ResponseWriter, cl store.Changelog) error {

@@ -11,15 +11,15 @@ func TestColorSchemeValue(t *testing.T) {
 	}{
 		{
 			scheme:   Dark,
-			expected: 2,
+			expected: 3,
 		},
 		{
 			scheme:   Light,
-			expected: 1,
+			expected: 2,
 		},
 		{
-			scheme:   Automatic,
-			expected: 0,
+			scheme:   System,
+			expected: 1,
 		},
 	}
 
@@ -38,7 +38,7 @@ func TestColorSchemeValue(t *testing.T) {
 
 func TestColorSchemeScan(t *testing.T) {
 	schemes := []ColorScheme{
-		Automatic, Dark, Light,
+		System, Dark, Light,
 	}
 
 	for _, input := range schemes {

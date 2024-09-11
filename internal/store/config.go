@@ -45,14 +45,14 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 		cl.Title = apitypes.NewString(s.cfg.Page.Title)
 		cl.Subtitle = apitypes.NewString(s.cfg.Page.Subtitle)
 		switch strings.ToLower(s.cfg.Page.ColorScheme) {
-		case Automatic.String():
-			cl.ColorScheme = Automatic
+		case System.String():
+			cl.ColorScheme = System
 		case Light.String():
 			cl.ColorScheme = Light
 		case Dark.String():
 			cl.ColorScheme = Dark
 		default:
-			cl.ColorScheme = Automatic
+			cl.ColorScheme = System
 		}
 	}
 

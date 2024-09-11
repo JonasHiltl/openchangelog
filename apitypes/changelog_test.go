@@ -72,14 +72,14 @@ func TestChangelogMarshaling(t *testing.T) {
 				ID:          "cl_xxxx",
 				WorkspaceID: "ws_xxxx",
 				Title:       NewString("Test Title"),
-				ColorScheme: Automatic,
+				ColorScheme: System,
 				CreatedAt:   now,
 			},
 			expect: fmt.Sprintf(`{
 				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
 				"title": "Test Title",
-				"colorScheme": "automatic",
+				"colorScheme": "system",
 				"createdAt": "%s"
 			}`, nowStr),
 		},

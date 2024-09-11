@@ -23,9 +23,9 @@ type Changelog struct {
 type ColorScheme string
 
 const (
-	Dark      ColorScheme = "dark"
-	Light     ColorScheme = "light"
-	Automatic ColorScheme = "automatic"
+	Dark   ColorScheme = "dark"
+	Light  ColorScheme = "light"
+	System ColorScheme = "system"
 )
 
 func (l Changelog) MarshalJSON() ([]byte, error) {

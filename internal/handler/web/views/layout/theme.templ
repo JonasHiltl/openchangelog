@@ -7,7 +7,7 @@ type ThemeArgs struct {
 }
 
 templ Theme(args ThemeArgs) {
-	if args.ColorScheme == store.Automatic {
+	if args.ColorScheme == store.System {
 		<script>
 			function setTheme(isDark) {
 				if (isDark) {
@@ -28,7 +28,7 @@ templ Theme(args ThemeArgs) {
 	<div
 		id="theme-container"
 		class="flex flex-col bg-neutral-50 dark:bg-neutral-950"
-		if args.ColorScheme != store.Automatic {
+		if args.ColorScheme != store.System {
 			color-scheme={ getColorSchemeString(args.ColorScheme) }
 		}
 	>
