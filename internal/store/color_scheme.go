@@ -31,13 +31,13 @@ func NewColorScheme(cs apitypes.ColorScheme) ColorScheme {
 func (cs ColorScheme) String() string {
 	switch cs {
 	case Automatic:
-		return "Automatic"
+		return "automatic"
 	case Light:
-		return "Light"
+		return "light"
 	case Dark:
-		return "Dark"
+		return "dark"
 	}
-	return "Unkown"
+	return "unkown"
 }
 
 func (cs *ColorScheme) Scan(value interface{}) error {
