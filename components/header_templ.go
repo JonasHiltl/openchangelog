@@ -67,7 +67,7 @@ func HeaderContent(args HeaderArgs) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if !args.Title.IsNull() && args.Title.IsValid() {
+		if args.Title.IsValid() {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -86,7 +86,7 @@ func HeaderContent(args HeaderArgs) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		if !args.Subtitle.IsNull() && args.Subtitle.IsValid() {
+		if args.Subtitle.IsValid() {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
