@@ -84,7 +84,7 @@ func (r *renderer) RenderIndex(ctx context.Context, w io.Writer, args RenderInde
 			Title:       args.CL.Title.V(),
 			Description: args.CL.Subtitle.V(),
 		},
-		ThemeArgs: layout.ThemeArgs{
+		ThemeArgs: components.ThemeArgs{
 			ColorScheme: args.CL.ColorScheme,
 		},
 		HeaderArgs: components.HeaderArgs{
