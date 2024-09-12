@@ -33,7 +33,7 @@ func Theme(args ThemeArgs) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if args.ColorScheme == apitypes.System {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n\t\t\tfunction setTheme(isDark) {\n\t\t\t\tif (isDark) {\n\t\t\t\t\tdocument.querySelector('#theme-container').setAttribute('color-scheme', 'dark');\n\t\t\t\t} else {\n\t\t\t\t\tdocument.querySelector('#theme-container').setAttribute('color-scheme', 'light');\n\t\t\t\t}\n\t\t\t};\n\n\t\t\t// initialize theme with current scheme\n\t\t\tdocument.addEventListener('DOMContentLoaded', () => \n\t\t\t\tsetTheme(window.matchMedia('(prefers-color-scheme: dark)').matches)\n\t\t\t);\n\t\t\t// listen to theme changes\n\t\t\twindow.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => setTheme(e.matches));\n\t\t</script>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n\t\t\tfunction setTheme(isDark) {\n\t\t\t\tif (isDark) {\n\t\t\t\t\tdocument.querySelector('#theme-container')?.setAttribute('color-scheme', 'dark');\n\t\t\t\t} else {\n\t\t\t\t\tdocument.querySelector('#theme-container')?.setAttribute('color-scheme', 'light');\n\t\t\t\t}\n\t\t\t};\n\n\t\t\t// initialize theme with current scheme\n\t\t\tdocument.addEventListener('DOMContentLoaded', () => \n\t\t\t\tsetTheme(window.matchMedia('(prefers-color-scheme: dark)').matches)\n\t\t\t);\n\n\t\t\t// if loaded throuhg ajax, DOMContentLoaded is not received. Try it manually.\n\t\t\tsetTheme(window.matchMedia('(prefers-color-scheme: dark)').matches)\n\n\t\t\t// listen to theme changes\n\t\t\twindow.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => setTheme(e.matches));\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -50,7 +50,7 @@ func Theme(args ThemeArgs) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(getColorSchemeString(args.ColorScheme))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/theme.templ`, Line: 32, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/theme.templ`, Line: 36, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {

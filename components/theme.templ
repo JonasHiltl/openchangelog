@@ -11,9 +11,9 @@ templ Theme(args ThemeArgs) {
 		<script>
 			function setTheme(isDark) {
 				if (isDark) {
-					document.querySelector('#theme-container').setAttribute('color-scheme', 'dark');
+					document.querySelector('#theme-container')?.setAttribute('color-scheme', 'dark');
 				} else {
-					document.querySelector('#theme-container').setAttribute('color-scheme', 'light');
+					document.querySelector('#theme-container')?.setAttribute('color-scheme', 'light');
 				}
 			};
 
@@ -21,6 +21,10 @@ templ Theme(args ThemeArgs) {
 			document.addEventListener('DOMContentLoaded', () => 
 				setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches)
 			);
+
+			// if loaded throuhg ajax, DOMContentLoaded is not received. Try it manually.
+			setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches)
+
 			// listen to theme changes
 			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => setTheme(e.matches));
 		</script>
