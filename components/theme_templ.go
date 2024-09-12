@@ -8,10 +8,10 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/jonashiltl/openchangelog/internal/store"
+import "github.com/jonashiltl/openchangelog/apitypes"
 
 type ThemeArgs struct {
-	ColorScheme store.ColorScheme
+	ColorScheme apitypes.ColorScheme
 }
 
 func Theme(args ThemeArgs) templ.Component {
@@ -32,7 +32,7 @@ func Theme(args ThemeArgs) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if args.ColorScheme == store.System {
+		if args.ColorScheme == apitypes.System {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n\t\t\tfunction setTheme(isDark) {\n\t\t\t\tif (isDark) {\n\t\t\t\t\tdocument.querySelector('#theme-container').setAttribute('color-scheme', 'dark');\n\t\t\t\t} else {\n\t\t\t\t\tdocument.querySelector('#theme-container').setAttribute('color-scheme', 'light');\n\t\t\t\t}\n\t\t\t};\n\n\t\t\t// initialize theme with current scheme\n\t\t\tdocument.addEventListener('DOMContentLoaded', () => \n\t\t\t\tsetTheme(window.matchMedia('(prefers-color-scheme: dark)').matches)\n\t\t\t);\n\t\t\t// listen to theme changes\n\t\t\twindow.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => setTheme(e.matches));\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -42,7 +42,7 @@ func Theme(args ThemeArgs) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if args.ColorScheme != store.System {
+		if args.ColorScheme != apitypes.System {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" color-scheme=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -77,11 +77,11 @@ func Theme(args ThemeArgs) templ.Component {
 	})
 }
 
-func getColorSchemeString(cs store.ColorScheme) string {
+func getColorSchemeString(cs apitypes.ColorScheme) string {
 	switch cs {
-	case store.Light:
+	case apitypes.Light:
 		return "light"
-	case store.Dark:
+	case apitypes.Dark:
 		return "dark"
 	default:
 		return ""

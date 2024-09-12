@@ -40,6 +40,18 @@ func (cs ColorScheme) String() string {
 	return "unkown"
 }
 
+func (cs ColorScheme) ToApiTypes() apitypes.ColorScheme {
+	switch cs {
+	case System:
+		return apitypes.System
+	case Dark:
+		return apitypes.Dark
+	case Light:
+		return apitypes.Light
+	}
+	return apitypes.System
+}
+
 func (cs *ColorScheme) Scan(value interface{}) error {
 	i, ok := value.(int64)
 	if !ok {

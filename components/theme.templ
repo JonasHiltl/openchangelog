@@ -1,13 +1,13 @@
 package components
 
-import "github.com/jonashiltl/openchangelog/internal/store"
+import "github.com/jonashiltl/openchangelog/apitypes"
 
 type ThemeArgs struct {
-	ColorScheme store.ColorScheme
+	ColorScheme apitypes.ColorScheme
 }
 
 templ Theme(args ThemeArgs) {
-	if args.ColorScheme == store.System {
+	if args.ColorScheme == apitypes.System {
 		<script>
 			function setTheme(isDark) {
 				if (isDark) {
@@ -28,7 +28,7 @@ templ Theme(args ThemeArgs) {
 	<div
 		id="theme-container"
 		class="flex flex-col bg-neutral-50 dark:bg-neutral-950"
-		if args.ColorScheme != store.System {
+		if args.ColorScheme != apitypes.System {
 			color-scheme={ getColorSchemeString(args.ColorScheme) }
 		}
 	>
@@ -36,11 +36,11 @@ templ Theme(args ThemeArgs) {
 	</div>
 }
 
-func getColorSchemeString(cs store.ColorScheme) string {
+func getColorSchemeString(cs apitypes.ColorScheme) string {
 	switch cs {
-	case store.Light:
+	case apitypes.Light:
 		return "light"
-	case store.Dark:
+	case apitypes.Dark:
 		return "dark"
 	default:
 		return ""

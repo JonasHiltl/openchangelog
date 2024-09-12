@@ -30,7 +30,7 @@ func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 			Height: cl.LogoHeight,
 			Width:  cl.LogoWidth,
 		},
-		ColorScheme: colorSchemeToApiType(cl.ColorScheme),
+		ColorScheme: cl.ColorScheme.ToApiTypes(),
 		CreatedAt:   cl.CreatedAt,
 	}
 
@@ -38,18 +38,6 @@ func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 		c.Source = ghToApiType(cl.GHSource.ValueOrZero())
 	}
 	return c
-}
-
-func colorSchemeToApiType(cs store.ColorScheme) apitypes.ColorScheme {
-	switch cs {
-	case store.System:
-		return apitypes.System
-	case store.Dark:
-		return apitypes.Dark
-	case store.Light:
-		return apitypes.Light
-	}
-	return apitypes.System
 }
 
 func encodeChangelog(w http.ResponseWriter, cl store.Changelog) error {
