@@ -7,6 +7,7 @@ import (
 
 type IndexArgs struct {
 	layout.MainArgs
+	components.ThemeArgs
 	components.RSSArgs
 	components.Logo
 	components.HeaderArgs
@@ -15,18 +16,20 @@ type IndexArgs struct {
 
 templ Index(arg IndexArgs) {
 	@layout.Main(arg.MainArgs) {
-		@components.Navbar() {
-			@components.LogoImg(arg.Logo)
-			@components.RSS(arg.RSSArgs)
-		}
-		@components.DefaultStyle() {
-			@components.ChangelogContainer() {
-				@components.HeaderContainer() {
-					@components.HeaderContent(arg.HeaderArgs)
-				}
-				@components.ArticleList(arg.ArticleListArgs)
+		@components.Theme(arg.ThemeArgs) {
+			@components.Navbar() {
+				@components.LogoImg(arg.Logo)
+				@components.RSS(arg.RSSArgs)
 			}
-			@components.Footer()
+			@components.TypographyStyle() {
+				@components.ChangelogContainer() {
+					@components.HeaderContainer() {
+						@components.HeaderContent(arg.HeaderArgs)
+					}
+					@components.ArticleList(arg.ArticleListArgs)
+				}
+				@components.Footer()
+			}
 		}
 	}
 }

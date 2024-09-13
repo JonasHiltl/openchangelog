@@ -36,8 +36,8 @@ LIMIT 1;
 
 -- name: createChangelog :one
 INSERT INTO changelogs (
-    workspace_id, id, subdomain, domain, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    workspace_id, id, subdomain, domain, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width, color_scheme
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 RETURNING *;
 
 -- name: deleteChangelog :exec
@@ -75,7 +75,8 @@ SET
    logo_link = CASE WHEN cast(@set_logo_link as bool) THEN @logo_link ELSE logo_link END,
    logo_alt = CASE WHEN cast(@set_logo_alt as bool) THEN @logo_alt ELSE logo_alt END,
    logo_height = CASE WHEN cast(@set_logo_height as bool) THEN @logo_height ELSE logo_height END,
-   logo_width = CASE WHEN cast(@set_logo_width as bool) THEN @logo_width ELSE logo_width END
+   logo_width = CASE WHEN cast(@set_logo_width as bool) THEN @logo_width ELSE logo_width END,
+   color_scheme = CASE WHEN cast(@set_color_scheme as bool) THEN @color_scheme ELSE color_scheme END
 WHERE workspace_id = sqlc.arg(workspace_id) AND id = sqlc.arg(id)
 RETURNING *;
 

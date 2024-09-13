@@ -17,6 +17,9 @@ sql:
             go_type:
               import: "github.com/jonashiltl/openchangelog/apitypes"
               type: "NullString"
+          - column: "changelogs.color_scheme"
+            go_type:
+              type: "ColorScheme"
 
         rename:
           workspace: "workspace"

@@ -27,17 +27,18 @@ func (cl changelog) toExported(source changelogSource) Changelog {
 		LogoAlt:     cl.LogoAlt,
 		LogoHeight:  cl.LogoHeight,
 		LogoWidth:   cl.LogoWidth,
+		ColorScheme: cl.ColorScheme,
 		CreatedAt:   time.Unix(cl.CreatedAt, 0),
 		GHSource:    null.NewValue(GHSource{}, false),
 	}
 
 	if !source.ID.IsNull() && source.ID.IsValid() && !source.WorkspaceID.IsNull() && source.WorkspaceID.IsValid() {
 		c.GHSource = null.NewValue(GHSource{
-			ID:             GHSourceID(source.ID.String()),
-			WorkspaceID:    WorkspaceID(source.WorkspaceID.String()),
-			Owner:          source.Owner.String(),
-			Repo:           source.Repo.String(),
-			Path:           source.Path.String(),
+			ID:             GHSourceID(source.ID.V()),
+			WorkspaceID:    WorkspaceID(source.WorkspaceID.V()),
+			Owner:          source.Owner.V(),
+			Repo:           source.Repo.V(),
+			Path:           source.Path.V(),
 			InstallationID: source.InstallationID.Int64,
 		}, true)
 	}
@@ -87,6 +88,7 @@ func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, 
 		LogoAlt:     cl.LogoAlt,
 		LogoHeight:  cl.LogoHeight,
 		LogoWidth:   cl.LogoWidth,
+		ColorScheme: cl.ColorScheme,
 	})
 	if err != nil {
 		return Changelog{}, formatUnqueConstraint(err)
@@ -147,25 +149,27 @@ func (s *sqlite) ListChangelogs(ctx context.Context, wID WorkspaceID) ([]Changel
 func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID ChangelogID, args UpdateChangelogArgs) (Changelog, error) {
 	// does not update string fields if they are zero value
 	c, err := s.q.updateChangelog(ctx, updateChangelogParams{
-		ID:            cID.String(),
-		WorkspaceID:   wID.String(),
-		Subdomain:     args.Subdomain,
-		Title:         args.Title,
-		SetTitle:      !args.Title.IsZero(),
-		Subtitle:      args.Subtitle,
-		SetSubtitle:   !args.Subtitle.IsZero(),
-		Domain:        args.Domain.NullString(),
-		SetDomain:     !args.Domain.NullString().IsZero(),
-		LogoSrc:       args.LogoSrc,
-		SetLogoSrc:    !args.LogoSrc.IsZero(),
-		LogoLink:      args.LogoLink,
-		SetLogoLink:   !args.LogoLink.IsZero(),
-		LogoAlt:       args.LogoAlt,
-		SetLogoAlt:    !args.LogoAlt.IsZero(),
-		LogoHeight:    args.LogoHeight,
-		SetLogoHeight: !args.LogoHeight.IsZero(),
-		LogoWidth:     args.LogoWidth,
-		SetLogoWidth:  !args.LogoWidth.IsZero(),
+		ID:             cID.String(),
+		WorkspaceID:    wID.String(),
+		Subdomain:      args.Subdomain,
+		ColorScheme:    args.ColorScheme,
+		SetColorScheme: int(args.ColorScheme) != 0,
+		Title:          args.Title,
+		SetTitle:       !args.Title.IsZero(),
+		Subtitle:       args.Subtitle,
+		SetSubtitle:    !args.Subtitle.IsZero(),
+		Domain:         args.Domain.NullString(),
+		SetDomain:      !args.Domain.NullString().IsZero(),
+		LogoSrc:        args.LogoSrc,
+		SetLogoSrc:     !args.LogoSrc.IsZero(),
+		LogoLink:       args.LogoLink,
+		SetLogoLink:    !args.LogoLink.IsZero(),
+		LogoAlt:        args.LogoAlt,
+		SetLogoAlt:     !args.LogoAlt.IsZero(),
+		LogoHeight:     args.LogoHeight,
+		SetLogoHeight:  !args.LogoHeight.IsZero(),
+		LogoWidth:      args.LogoWidth,
+		SetLogoWidth:   !args.LogoWidth.IsZero(),
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

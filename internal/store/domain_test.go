@@ -49,8 +49,8 @@ func TestParseDomain(t *testing.T) {
 			if table.expectErr && err == nil {
 				t.Error("expected to error but no error returned")
 			}
-			if d.String() != table.expected.String() {
-				t.Errorf("expected %s to equal %s", d.String(), table.expected.String())
+			if d.String() != table.expected.V() {
+				t.Errorf("expected %s to equal %s", d.String(), table.expected.V())
 			}
 		})
 	}

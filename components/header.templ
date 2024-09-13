@@ -14,10 +14,10 @@ type HeaderArgs struct {
 }
 
 templ HeaderContent(args HeaderArgs) {
-	if !args.Title.IsNull() && args.Title.IsValid() {
-		<h1>{ args.Title.String() }</h1>
+	if args.Title.IsValid() {
+		<h1>{ args.Title.V() }</h1>
 	}
-	if !args.Subtitle.IsNull() && args.Subtitle.IsValid() {
-		<p>{ args.Subtitle.String() }</p>
+	if args.Subtitle.IsValid() {
+		<p>{ args.Subtitle.V() }</p>
 	}
 }

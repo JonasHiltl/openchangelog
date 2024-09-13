@@ -15,7 +15,7 @@ import (
 type Domain apitypes.NullString
 
 func (d Domain) String() string {
-	return d.NullString().String()
+	return d.NullString().V()
 }
 
 func (d Domain) NullString() apitypes.NullString {
@@ -47,7 +47,7 @@ func ParseDomainNullString(ns apitypes.NullString) (Domain, error) {
 	if !ns.IsValid() {
 		return Domain(ns), nil
 	}
-	return ParseDomain(ns.String())
+	return ParseDomain(ns.V())
 }
 
 type Subdomain string

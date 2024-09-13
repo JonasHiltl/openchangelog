@@ -14,10 +14,19 @@ type Changelog struct {
 	Domain      NullString
 	Title       NullString
 	Subtitle    NullString
+	ColorScheme ColorScheme
 	Logo        Logo
 	Source      Source
 	CreatedAt   time.Time
 }
+
+type ColorScheme string
+
+const (
+	Dark   ColorScheme = "dark"
+	Light  ColorScheme = "light"
+	System ColorScheme = "system"
+)
 
 func (l Changelog) MarshalJSON() ([]byte, error) {
 	obj := struct {
@@ -27,6 +36,7 @@ func (l Changelog) MarshalJSON() ([]byte, error) {
 		Title       string     `json:"title,omitempty"`
 		Domain      string     `json:"domain,omitempty"`
 		Subtitle    string     `json:"subtitle,omitempty"`
+		ColorScheme string     `json:"colorScheme,omitempty"`
 		Logo        *Logo      `json:"logo,omitempty"`
 		Source      Source     `json:"source,omitempty"`
 		CreatedAt   *time.Time `json:"createdAt,omitempty"`
@@ -34,9 +44,10 @@ func (l Changelog) MarshalJSON() ([]byte, error) {
 		ID:          l.ID,
 		WorkspaceID: l.WorkspaceID,
 		Subdomain:   l.Subdomain,
-		Domain:      l.Domain.String(),
-		Title:       l.Title.String(),
-		Subtitle:    l.Subtitle.String(),
+		Domain:      l.Domain.V(),
+		Title:       l.Title.V(),
+		Subtitle:    l.Subtitle.V(),
+		ColorScheme: string(l.ColorScheme),
 		Source:      l.Source,
 	}
 
@@ -96,6 +107,13 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 
 	if subtitleRaw, ok := objMap["subtitle"]; ok {
 		err = json.Unmarshal(*subtitleRaw, &c.Subtitle)
+		if err != nil {
+			return err
+		}
+	}
+
+	if colorSchemeRaw, ok := objMap["colorScheme"]; ok {
+		err = json.Unmarshal(*colorSchemeRaw, &c.ColorScheme)
 		if err != nil {
 			return err
 		}
@@ -189,10 +207,11 @@ func (l Logo) IsValid() bool {
 }
 
 type CreateChangelogBody struct {
-	Title    NullString `json:"title"`
-	Subtitle NullString `json:"subtitle"`
-	Logo     Logo       `json:"logo"`
-	Domain   NullString `json:"domain"`
+	Title       NullString  `json:"title"`
+	Subtitle    NullString  `json:"subtitle"`
+	Logo        Logo        `json:"logo"`
+	Domain      NullString  `json:"domain"`
+	ColorScheme ColorScheme `json:"colorScheme"`
 }
 
 type UpdateChangelogBody struct {

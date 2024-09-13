@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/guregu/null/v5"
 	"github.com/jonashiltl/openchangelog/apitypes"
@@ -43,6 +44,16 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 	if s.cfg.Page != nil {
 		cl.Title = apitypes.NewString(s.cfg.Page.Title)
 		cl.Subtitle = apitypes.NewString(s.cfg.Page.Subtitle)
+		switch strings.ToLower(s.cfg.Page.ColorScheme) {
+		case System.String():
+			cl.ColorScheme = System
+		case Light.String():
+			cl.ColorScheme = Light
+		case Dark.String():
+			cl.ColorScheme = Dark
+		default:
+			cl.ColorScheme = System
+		}
 	}
 
 	if s.cfg.Page.Logo != nil {

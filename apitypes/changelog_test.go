@@ -38,7 +38,8 @@ func TestChangelogMarshaling(t *testing.T) {
 					Repo:        "openchangelog",
 					Path:        ".testdata",
 				},
-				CreatedAt: now,
+				ColorScheme: Dark,
+				CreatedAt:   now,
 			},
 			expect: fmt.Sprintf(`{
 				"id": "cl_xxxx",
@@ -62,6 +63,7 @@ func TestChangelogMarshaling(t *testing.T) {
 					"repo": "openchangelog",
 					"path": ".testdata"
 				},
+				"colorScheme": "dark",
 				"createdAt": "%s"
 			}`, nowStr),
 		},
@@ -70,12 +72,14 @@ func TestChangelogMarshaling(t *testing.T) {
 				ID:          "cl_xxxx",
 				WorkspaceID: "ws_xxxx",
 				Title:       NewString("Test Title"),
+				ColorScheme: System,
 				CreatedAt:   now,
 			},
 			expect: fmt.Sprintf(`{
 				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
 				"title": "Test Title",
+				"colorScheme": "system",
 				"createdAt": "%s"
 			}`, nowStr),
 		},
@@ -123,7 +127,8 @@ func TestChangelogUnmarshal(t *testing.T) {
 				Repo:        "openchangelog",
 				Path:        ".testdata",
 			},
-			CreatedAt: time.Unix(1715958564, 0).UTC(),
+			ColorScheme: Dark,
+			CreatedAt:   time.Unix(1715958564, 0).UTC(),
 		},
 		{
 			ID:          "cl_xxxx",
@@ -132,6 +137,7 @@ func TestChangelogUnmarshal(t *testing.T) {
 			Title:       NewString("Test Title"),
 			Subtitle:    NewString("Test Subtitle"),
 			CreatedAt:   time.Unix(1715958564, 0).UTC(),
+			ColorScheme: Light,
 		},
 	}
 
@@ -165,7 +171,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"subtitle": "",
 				"logo": {},
 				"domain": "",
-				"subdomain": ""
+				"subdomain": "",
+				"colorScheme": ""
 			}`,
 		},
 		{
@@ -180,7 +187,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"subtitle": "",
 				"logo": {},
 				"domain": "",
-				"subdomain": ""
+				"subdomain": "",
+				"colorScheme": ""
 			}`,
 		},
 		{
@@ -195,7 +203,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"subtitle": "",
 				"logo": {},
 				"domain": "",
-				"subdomain": ""
+				"subdomain": "",
+				"colorScheme": ""
 			}`,
 		},
 		{
@@ -214,7 +223,24 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 					"src": "test"
 				},
 				"domain": "",
-				"subdomain": ""
+				"subdomain": "",
+				"colorScheme": ""
+			}`,
+		},
+		{
+			name: "valid color scheme",
+			input: UpdateChangelogBody{
+				CreateChangelogBody: CreateChangelogBody{
+					ColorScheme: Dark,
+				},
+			},
+			expected: `{
+				"title": "",
+				"subtitle": "",
+				"logo": {},
+				"domain": "",
+				"subdomain": "",
+				"colorScheme": "dark"
 			}`,
 		},
 	}
@@ -231,7 +257,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 	}
 }
 
-func TestTestUpdateChangelogBodyUnmarshal(t *testing.T) {
+func TestUpdateChangelogBodyUnmarshal(t *testing.T) {
 	tests := []struct {
 		name  string
 		input UpdateChangelogBody
@@ -273,6 +299,14 @@ func TestTestUpdateChangelogBodyUnmarshal(t *testing.T) {
 					Logo: Logo{
 						Src: NewNullString(),
 					},
+				},
+			},
+		},
+		{
+			name: "valid color scheme",
+			input: UpdateChangelogBody{
+				CreateChangelogBody: CreateChangelogBody{
+					ColorScheme: Dark,
 				},
 			},
 		},

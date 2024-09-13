@@ -61,13 +61,18 @@ page:
 ```
 **subtitle**: The subtitle is displayed below the title.
 ```yaml
-# openchangelog.yml
 page:
   subtitle:
 ```
+
+**Color Scheme**: The color scheme can be set to `dark`, `light` or `system`
+```yaml
+page:
+  colorScheme: light
+```
+
 **Logo**: Your logo is displayed in the header.
 ```yaml
-# openchangelog.yml
 page:
   logo:
     src: # url to image

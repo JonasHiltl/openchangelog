@@ -7,90 +7,102 @@ import (
 	"fmt"
 )
 
-// Represents a nullable string.
-// Supports JSON un/marshaling and implements the Scanner interface.
-type NullString struct {
-	str string
-	// whether the value is null. JSON null value.
+// Represents a nullable value.
+// Supports JSON and SQL un/marshaling.
+type Null[T comparable] struct {
+	v      T
 	isNull bool
 }
 
-// Create a new NullString from a string value
-func NewString(str string) NullString {
-	return NullString{str: str}
-}
-
-// Creates a new null NullString
-func NewNullString() NullString {
-	return NullString{isNull: true}
-}
-
-// Returns "" if NullString is null, else the string value.
-func (ns NullString) String() string {
-	if ns.IsNull() {
-		return ""
+func NewValue[T comparable](v T) Null[T] {
+	return Null[T]{
+		v: v,
 	}
-
-	return ns.str
 }
 
-// Returns true if the string is it's zero value.
-// Returns false if ns is null or not "".
-func (ns NullString) IsZero() bool {
-	if ns.IsNull() {
+func NewNull[T comparable]() Null[T] {
+	return Null[T]{
+		isNull: true,
+	}
+}
+
+func (n Null[T]) IsZero() bool {
+	if n.IsNull() {
 		return false
 	}
-	return ns.str == ""
+	return n.v == *new(T)
 }
 
-// Returns true if the string is null, otherwiese false.
-func (ns NullString) IsNull() bool {
-	return ns.isNull
+func (n Null[T]) IsNull() bool {
+	return n.isNull
 }
 
-// Returns true if ns is neither null or zero value.
-func (ns NullString) IsValid() bool {
-	return !ns.IsNull() && !ns.IsZero()
+// Returns true if n is neither null or zero value.
+func (n Null[T]) IsValid() bool {
+	return !n.IsNull() && !n.IsZero()
 }
 
-func (ns *NullString) UnmarshalJSON(data []byte) error {
+// Returns zero value if n is null, else it's internal value.
+func (n Null[T]) V() T {
+	if n.IsNull() {
+		return *new(T)
+	}
+
+	return n.v
+}
+
+func (n *Null[T]) UnmarshalJSON(data []byte) error {
 	if len(data) > 0 && data[0] == 'n' {
-		ns.isNull = true
+		n.isNull = true
 		return nil
 	}
 
-	if err := json.Unmarshal(data, &ns.str); err != nil {
-		return fmt.Errorf("NullString: couldn't unmarshal JSON: %w", err)
+	if err := json.Unmarshal(data, &n.v); err != nil {
+		return fmt.Errorf("Null: couldn't unmarshal JSON: %w", err)
 	}
 
 	return nil
 }
 
-func (ns NullString) MarshalJSON() ([]byte, error) {
+func (ns Null[T]) MarshalJSON() ([]byte, error) {
 	if ns.IsNull() {
 		return []byte("null"), nil
 	}
-	return json.Marshal(ns.String())
+	return json.Marshal(ns.V())
 }
 
-func (n *NullString) Scan(value interface{}) error {
-	ns := sql.NullString{}
-	err := ns.Scan(value)
+func (n *Null[T]) Scan(value interface{}) error {
+	sn := sql.Null[T]{}
+	err := sn.Scan(value)
 	if err != nil {
 		return err
 	}
 
-	n.isNull = !ns.Valid // !valid means value is NULL in db
-	if ns.Valid {
-		n.str = ns.String
+	n.isNull = !sn.Valid // !valid means value is NULL in db
+	if sn.Valid {
+		n.v = sn.V
 	}
 	return nil
 }
 
-func (n NullString) Value() (driver.Value, error) {
-	ns := sql.NullString{
-		String: n.String(),
-		Valid:  n.IsValid(), // this way we also store zero values as NULL in db
+func (n Null[T]) Value() (driver.Value, error) {
+	sn := sql.Null[T]{
+		V:     n.V(),
+		Valid: n.IsValid(), // this way we also store zero values as NULL in db
 	}
-	return ns.Value()
+	return sn.Value()
 }
+
+type NullString = Null[string]
+
+// Create a new NullString from a string value
+func NewString(str string) NullString {
+	return NewValue(str)
+}
+
+// Creates a new null NullString
+func NewNullString() NullString {
+	return NewNull[string]()
+}
+
+type NullColorScheme = Null[ColorScheme]

@@ -1,0 +1,52 @@
+package components
+
+import "github.com/jonashiltl/openchangelog/apitypes"
+
+type ThemeArgs struct {
+	ColorScheme apitypes.ColorScheme
+}
+
+templ Theme(args ThemeArgs) {
+	if args.ColorScheme == apitypes.System {
+		<script>
+			function setTheme(isDark) {
+				if (isDark) {
+					document.querySelector('#theme-container')?.setAttribute('color-scheme', 'dark');
+				} else {
+					document.querySelector('#theme-container')?.setAttribute('color-scheme', 'light');
+				}
+			};
+
+			// initialize theme with current scheme
+			document.addEventListener('DOMContentLoaded', () => 
+				setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches)
+			);
+
+			// if loaded throuhg ajax, DOMContentLoaded is not received. Try it manually.
+			setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+			// listen to theme changes
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => setTheme(e.matches));
+		</script>
+	}
+	<div
+		id="theme-container"
+		class="flex flex-col bg-neutral-50 dark:bg-neutral-950"
+		if args.ColorScheme != apitypes.System {
+			color-scheme={ getColorSchemeString(args.ColorScheme) }
+		}
+	>
+		{ children... }
+	</div>
+}
+
+func getColorSchemeString(cs apitypes.ColorScheme) string {
+	switch cs {
+	case apitypes.Light:
+		return "light"
+	case apitypes.Dark:
+		return "dark"
+	default:
+		return ""
+	}
+}

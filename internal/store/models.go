@@ -24,6 +24,7 @@ type changelog struct {
 	LogoWidth   apitypes.NullString
 	CreatedAt   int64
 	Domain      apitypes.NullString
+	ColorScheme ColorScheme
 }
 
 type changelogSource struct {
