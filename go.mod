@@ -7,7 +7,7 @@ require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.10.0
 	github.com/google/go-github/v62 v62.0.0
 	github.com/guregu/null/v5 v5.0.0
-	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240911195339-487b65d402d3
+	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240913181521-3708ddadc4d2
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/naveensrinivasan/httpcache v1.2.1
 	github.com/peterbourgon/diskv v2.0.1+incompatible
@@ -42,7 +42,7 @@ require (
 	github.com/sqs/s3 v0.0.0-20150203110030-ee47412d98d9 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
