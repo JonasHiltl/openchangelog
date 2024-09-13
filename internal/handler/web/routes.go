@@ -1,7 +1,9 @@
 package web
 
 import (
+	"crypto/md5"
 	"embed"
+	"encoding/hex"
 	"errors"
 	"net/http"
 
@@ -27,16 +29,31 @@ func NewEnv(
 	render render.Renderer,
 ) *env {
 	return &env{
-		cfg:    cfg,
-		loader: loader,
-		render: render,
+		cfg:            cfg,
+		loader:         loader,
+		render:         render,
+		baseCSSVersion: calculateBaseCSSVersion(),
 	}
 }
 
+// Calculates the md5 hash of the static/base.css file.
+// Needed for cache busting if base.css changes.
+func calculateBaseCSSVersion() string {
+	fileContent, err := staticAssets.ReadFile("static/base.css")
+	if err != nil {
+		return ""
+	}
+
+	hash := md5.New()
+	hash.Write(fileContent)
+	return hex.EncodeToString(hash.Sum(nil))
+}
+
 type env struct {
-	loader *changelog.Loader
-	cfg    config.Config
-	render render.Renderer
+	loader         *changelog.Loader
+	cfg            config.Config
+	render         render.Renderer
+	baseCSSVersion string
 }
 
 func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) func(http.ResponseWriter, *http.Request) {

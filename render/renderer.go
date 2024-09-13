@@ -20,12 +20,13 @@ type Renderer interface {
 }
 
 type RenderIndexArgs struct {
-	CL       store.Changelog
-	Articles []changelog.ParsedArticle
-	HasMore  bool
-	NextPage int
-	PageSize int
-	FeedURL  string
+	CL             store.Changelog
+	Articles       []changelog.ParsedArticle
+	HasMore        bool
+	NextPage       int
+	PageSize       int
+	FeedURL        string
+	BaseCSSVersion string
 }
 
 type RenderArticleListArgs struct {
@@ -81,8 +82,9 @@ func (r *renderer) RenderIndex(ctx context.Context, w io.Writer, args RenderInde
 			FeedURL: args.FeedURL,
 		},
 		MainArgs: layout.MainArgs{
-			Title:       args.CL.Title.V(),
-			Description: args.CL.Subtitle.V(),
+			Title:          args.CL.Title.V(),
+			Description:    args.CL.Subtitle.V(),
+			BaseCSSVersion: args.BaseCSSVersion,
 		},
 		ThemeArgs: components.ThemeArgs{
 			ColorScheme: args.CL.ColorScheme.ToApiTypes(),
