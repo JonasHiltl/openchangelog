@@ -74,7 +74,12 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		LogoAlt:     req.Logo.Alt,
 		LogoHeight:  req.Logo.Height,
 		LogoWidth:   req.Logo.Width,
-		ColorScheme: store.NewColorScheme(req.ColorScheme),
+	}
+
+	if req.ColorScheme == "" {
+		cl.ColorScheme = store.System
+	} else {
+		cl.ColorScheme = store.NewColorScheme(req.ColorScheme)
 	}
 
 	d, err := store.ParseDomainNullString(req.Domain)
