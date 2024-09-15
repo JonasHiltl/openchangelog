@@ -17,15 +17,16 @@
 </p>
 
 Openchangelog takes your Markdown files, hosted on GitHub or locally and renders them as a beautiful Changelog Website.
+- Dark, Light and System themes
+- Automatic RSS feed
 - Easy to self-host, just a single config file
 - Written in Go → lightweight
 - Various integrations, open an issue to request a new integration
-- Automatic RSS feed
 
 ## Quickstart
 Create an `openchangelog.yml` config file, for more infos see the [configuration](#configuration) section.
 ```
-docker run -v ./openchangelog.yml:/etc/openchangelog.yml:ro -p 6001:6001 ghcr.io/jonashiltl/openchangelog:0.1.0
+docker run -v ./openchangelog.yml:/etc/openchangelog.yml:ro -p 6001:6001 ghcr.io/jonashiltl/openchangelog:0.1.8
 ```
 
 ## Writing Changelogs
