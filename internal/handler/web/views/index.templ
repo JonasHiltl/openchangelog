@@ -12,6 +12,7 @@ type IndexArgs struct {
 	components.Logo
 	components.HeaderArgs
 	components.ArticleListArgs
+	components.FooterArgs
 }
 
 templ Index(arg IndexArgs) {
@@ -28,7 +29,7 @@ templ Index(arg IndexArgs) {
 					}
 					@components.ArticleList(arg.ArticleListArgs)
 				}
-				@components.Footer()
+				@components.Footer(arg.FooterArgs)
 			}
 		}
 	}

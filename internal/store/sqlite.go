@@ -16,20 +16,21 @@ import (
 
 func (cl changelog) toExported(source changelogSource) Changelog {
 	c := Changelog{
-		WorkspaceID: WorkspaceID(cl.WorkspaceID),
-		ID:          ChangelogID(cl.ID),
-		Subdomain:   Subdomain(cl.Subdomain),
-		Domain:      Domain(cl.Domain),
-		Title:       cl.Title,
-		Subtitle:    cl.Subtitle,
-		LogoSrc:     cl.LogoSrc,
-		LogoLink:    cl.LogoLink,
-		LogoAlt:     cl.LogoAlt,
-		LogoHeight:  cl.LogoHeight,
-		LogoWidth:   cl.LogoWidth,
-		ColorScheme: cl.ColorScheme,
-		CreatedAt:   time.Unix(cl.CreatedAt, 0),
-		GHSource:    null.NewValue(GHSource{}, false),
+		WorkspaceID:   WorkspaceID(cl.WorkspaceID),
+		ID:            ChangelogID(cl.ID),
+		Subdomain:     Subdomain(cl.Subdomain),
+		Domain:        Domain(cl.Domain),
+		Title:         cl.Title,
+		Subtitle:      cl.Subtitle,
+		LogoSrc:       cl.LogoSrc,
+		LogoLink:      cl.LogoLink,
+		LogoAlt:       cl.LogoAlt,
+		LogoHeight:    cl.LogoHeight,
+		LogoWidth:     cl.LogoWidth,
+		ColorScheme:   cl.ColorScheme,
+		HidePoweredBy: cl.HidePoweredBy == 1,
+		CreatedAt:     time.Unix(cl.CreatedAt, 0),
+		GHSource:      null.NewValue(GHSource{}, false),
 	}
 
 	if !source.ID.IsNull() && source.ID.IsValid() && !source.WorkspaceID.IsNull() && source.WorkspaceID.IsValid() {
@@ -77,18 +78,19 @@ type sqlite struct {
 
 func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, error) {
 	c, err := s.q.createChangelog(ctx, createChangelogParams{
-		ID:          cl.ID.String(),
-		WorkspaceID: cl.WorkspaceID.String(),
-		Subdomain:   cl.Subdomain.String(),
-		Domain:      cl.Domain.NullString(),
-		Title:       cl.Title,
-		Subtitle:    cl.Subtitle,
-		LogoSrc:     cl.LogoSrc,
-		LogoLink:    cl.LogoLink,
-		LogoAlt:     cl.LogoAlt,
-		LogoHeight:  cl.LogoHeight,
-		LogoWidth:   cl.LogoWidth,
-		ColorScheme: cl.ColorScheme,
+		ID:            cl.ID.String(),
+		WorkspaceID:   cl.WorkspaceID.String(),
+		Subdomain:     cl.Subdomain.String(),
+		Domain:        cl.Domain.NullString(),
+		Title:         cl.Title,
+		Subtitle:      cl.Subtitle,
+		LogoSrc:       cl.LogoSrc,
+		LogoLink:      cl.LogoLink,
+		LogoAlt:       cl.LogoAlt,
+		LogoHeight:    cl.LogoHeight,
+		LogoWidth:     cl.LogoWidth,
+		ColorScheme:   cl.ColorScheme,
+		HidePoweredBy: boolToInt(cl.HidePoweredBy),
 	})
 	if err != nil {
 		return Changelog{}, formatUnqueConstraint(err)
@@ -146,12 +148,33 @@ func (s *sqlite) ListChangelogs(ctx context.Context, wID WorkspaceID) ([]Changel
 	return res, nil
 }
 
+// dereferences b to it's int representation
+func saveDerefToInt(b *bool) int64 {
+	if b != nil && *b {
+		return 1
+	}
+	return 0
+}
+
+// Returns 1 if b is true, otherwise 2
+func boolToInt(b bool) int64 {
+	var i int64
+	if b {
+		i = 1
+	}
+	return i
+}
+
 func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID ChangelogID, args UpdateChangelogArgs) (Changelog, error) {
 	// does not update string fields if they are zero value
 	c, err := s.q.updateChangelog(ctx, updateChangelogParams{
-		ID:             cID.String(),
-		WorkspaceID:    wID.String(),
-		Subdomain:      args.Subdomain,
+		ID:          cID.String(),
+		WorkspaceID: wID.String(),
+		Subdomain:   args.Subdomain,
+		HidePoweredBy: sql.NullInt64{ // update if value != nil
+			Int64: saveDerefToInt(args.HidePoweredBy),
+			Valid: args.HidePoweredBy != nil,
+		},
 		ColorScheme:    args.ColorScheme,
 		SetColorScheme: int(args.ColorScheme) != 0,
 		Title:          args.Title,

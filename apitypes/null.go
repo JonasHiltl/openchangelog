@@ -106,3 +106,13 @@ func NewNullString() NullString {
 }
 
 type NullColorScheme = Null[ColorScheme]
+
+type NullBool = Null[bool]
+
+func NewBool(b bool) NullBool {
+	return NewValue(b)
+}
+
+func NewNullBool() NullBool {
+	return NewNull[bool]()
+}

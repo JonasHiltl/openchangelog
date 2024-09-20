@@ -38,8 +38,9 @@ func TestChangelogMarshaling(t *testing.T) {
 					Repo:        "openchangelog",
 					Path:        ".testdata",
 				},
-				ColorScheme: Dark,
-				CreatedAt:   now,
+				ColorScheme:   Dark,
+				HidePoweredBy: true,
+				CreatedAt:     now,
 			},
 			expect: fmt.Sprintf(`{
 				"id": "cl_xxxx",
@@ -63,23 +64,26 @@ func TestChangelogMarshaling(t *testing.T) {
 					"repo": "openchangelog",
 					"path": ".testdata"
 				},
+				"hidePoweredBy": true,
 				"colorScheme": "dark",
 				"createdAt": "%s"
 			}`, nowStr),
 		},
 		{
 			input: Changelog{
-				ID:          "cl_xxxx",
-				WorkspaceID: "ws_xxxx",
-				Title:       NewString("Test Title"),
-				ColorScheme: System,
-				CreatedAt:   now,
+				ID:            "cl_xxxx",
+				WorkspaceID:   "ws_xxxx",
+				Title:         NewString("Test Title"),
+				ColorScheme:   System,
+				HidePoweredBy: false,
+				CreatedAt:     now,
 			},
 			expect: fmt.Sprintf(`{
 				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
 				"title": "Test Title",
 				"colorScheme": "system",
+				"hidePoweredBy": false,
 				"createdAt": "%s"
 			}`, nowStr),
 		},
@@ -94,6 +98,7 @@ func TestChangelogMarshaling(t *testing.T) {
 			expect: `{
 				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
+				"hidePoweredBy": false,
 				"logo": {
 					"alt": "test"
 				}
@@ -127,8 +132,9 @@ func TestChangelogUnmarshal(t *testing.T) {
 				Repo:        "openchangelog",
 				Path:        ".testdata",
 			},
-			ColorScheme: Dark,
-			CreatedAt:   time.Unix(1715958564, 0).UTC(),
+			HidePoweredBy: true,
+			ColorScheme:   Dark,
+			CreatedAt:     time.Unix(1715958564, 0).UTC(),
 		},
 		{
 			ID:          "cl_xxxx",
@@ -158,6 +164,7 @@ func TestChangelogUnmarshal(t *testing.T) {
 }
 
 func TestUpdateChangelogBodyMarshal(t *testing.T) {
+	hidePoweredBy := true
 	tests := []struct {
 		name     string
 		input    UpdateChangelogBody
@@ -178,9 +185,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 		{
 			name: "valid title",
 			input: UpdateChangelogBody{
-				CreateChangelogBody: CreateChangelogBody{
-					Title: NewString("test"),
-				},
+				Title: NewString("test"),
 			},
 			expected: `{
 				"title": "test",
@@ -194,9 +199,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 		{
 			name: "null title",
 			input: UpdateChangelogBody{
-				CreateChangelogBody: CreateChangelogBody{
-					Title: NewNullString(),
-				},
+				Title: NewNullString(),
 			},
 			expected: `{
 				"title": null,
@@ -210,10 +213,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 		{
 			name: "valid logo",
 			input: UpdateChangelogBody{
-				CreateChangelogBody: CreateChangelogBody{
-					Logo: Logo{
-						Src: NewString("test"),
-					},
+				Logo: Logo{
+					Src: NewString("test"),
 				},
 			},
 			expected: `{
@@ -230,9 +231,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 		{
 			name: "valid color scheme",
 			input: UpdateChangelogBody{
-				CreateChangelogBody: CreateChangelogBody{
-					ColorScheme: Dark,
-				},
+				ColorScheme: Dark,
 			},
 			expected: `{
 				"title": "",
@@ -241,6 +240,21 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"domain": "",
 				"subdomain": "",
 				"colorScheme": "dark"
+			}`,
+		},
+		{
+			name: "valid hide powered by",
+			input: UpdateChangelogBody{
+				HidePoweredBy: &hidePoweredBy,
+			},
+			expected: `{
+				"title": "",
+				"subtitle": "",
+				"logo": {},
+				"domain": "",
+				"subdomain": "",
+				"colorScheme": "",
+				"hidePoweredBy": true
 			}`,
 		},
 	}
@@ -258,6 +272,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 }
 
 func TestUpdateChangelogBodyUnmarshal(t *testing.T) {
+	hidePoweredBy := true
 	tests := []struct {
 		name  string
 		input UpdateChangelogBody
@@ -269,45 +284,41 @@ func TestUpdateChangelogBodyUnmarshal(t *testing.T) {
 		{
 			name: "valid title",
 			input: UpdateChangelogBody{
-				CreateChangelogBody: CreateChangelogBody{
-					Title: NewString("test"),
-				},
+				Title: NewString("test"),
 			},
 		},
 		{
 			name: "null title",
 			input: UpdateChangelogBody{
-				CreateChangelogBody: CreateChangelogBody{
-					Title: NewNullString(),
-				},
+				Title: NewNullString(),
 			},
 		},
 		{
 			name: "valid logo",
 			input: UpdateChangelogBody{
-				CreateChangelogBody: CreateChangelogBody{
-					Logo: Logo{
-						Src: NewString("test"),
-					},
+				Logo: Logo{
+					Src: NewString("test"),
 				},
 			},
 		},
 		{
 			name: "null logo src",
 			input: UpdateChangelogBody{
-				CreateChangelogBody: CreateChangelogBody{
-					Logo: Logo{
-						Src: NewNullString(),
-					},
+				Logo: Logo{
+					Src: NewNullString(),
 				},
 			},
 		},
 		{
 			name: "valid color scheme",
 			input: UpdateChangelogBody{
-				CreateChangelogBody: CreateChangelogBody{
-					ColorScheme: Dark,
-				},
+				ColorScheme: Dark,
+			},
+		},
+		{
+			name: "valid hide powered by",
+			input: UpdateChangelogBody{
+				HidePoweredBy: &hidePoweredBy,
 			},
 		},
 	}

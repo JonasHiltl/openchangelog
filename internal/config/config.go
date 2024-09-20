@@ -55,10 +55,11 @@ type LogoConfig struct {
 }
 
 type PageConfig struct {
-	Logo        *LogoConfig `mapstructure:"logo"`
-	Title       string      `mapstructure:"title"`
-	Subtitle    string      `mapstructure:"subtitle"`
-	ColorScheme string      `mapstructure:"colorScheme"`
+	Logo          *LogoConfig `mapstructure:"logo"`
+	Title         string      `mapstructure:"title"`
+	Subtitle      string      `mapstructure:"subtitle"`
+	ColorScheme   string      `mapstructure:"colorScheme"`
+	HidePoweredBy bool        `mapstructure:"hidePoweredBy"`
 }
 
 type Config struct {

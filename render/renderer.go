@@ -104,6 +104,9 @@ func (r *renderer) RenderIndex(ctx context.Context, w io.Writer, args RenderInde
 			Articles:    articles,
 			NextPageURL: nextPageURL,
 		},
+		FooterArgs: components.FooterArgs{
+			HidePoweredBy: args.CL.HidePoweredBy,
+		},
 	}).Render(ctx, w)
 }
 

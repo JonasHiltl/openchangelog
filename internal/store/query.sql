@@ -36,8 +36,8 @@ LIMIT 1;
 
 -- name: createChangelog :one
 INSERT INTO changelogs (
-    workspace_id, id, subdomain, domain, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width, color_scheme
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    workspace_id, id, subdomain, domain, title, subtitle, logo_src, logo_link, logo_alt, logo_height, logo_width, color_scheme, hide_powered_by
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 RETURNING *;
 
 -- name: deleteChangelog :exec
@@ -68,6 +68,7 @@ WHERE c.workspace_id = ?;
 UPDATE changelogs
 SET
    subdomain = coalesce(sqlc.narg(subdomain), subdomain),
+   hide_powered_by = coalesce(sqlc.narg(hide_powered_by), hide_powered_by),
    title = CASE WHEN cast(@set_title as bool) THEN @title ELSE title END,
    subtitle = CASE WHEN cast(@set_subtitle as bool) THEN @subtitle ELSE subtitle END,
    domain = CASE WHEN cast(@set_domain as bool) THEN @domain ELSE domain END,

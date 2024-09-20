@@ -15,6 +15,7 @@ page:
   title: Changelog
   subtitle: The latest product updates from Openchangelog
   colorScheme: system
+  hidePoweredBy: false
   logo:
     src: https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png
     width: 70px

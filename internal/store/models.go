@@ -11,20 +11,21 @@ import (
 )
 
 type changelog struct {
-	ID          string
-	WorkspaceID string
-	Subdomain   string
-	Title       apitypes.NullString
-	Subtitle    apitypes.NullString
-	SourceID    apitypes.NullString
-	LogoSrc     apitypes.NullString
-	LogoLink    apitypes.NullString
-	LogoAlt     apitypes.NullString
-	LogoHeight  apitypes.NullString
-	LogoWidth   apitypes.NullString
-	CreatedAt   int64
-	Domain      apitypes.NullString
-	ColorScheme ColorScheme
+	ID            string
+	WorkspaceID   string
+	Subdomain     string
+	Title         apitypes.NullString
+	Subtitle      apitypes.NullString
+	SourceID      apitypes.NullString
+	LogoSrc       apitypes.NullString
+	LogoLink      apitypes.NullString
+	LogoAlt       apitypes.NullString
+	LogoHeight    apitypes.NullString
+	LogoWidth     apitypes.NullString
+	CreatedAt     int64
+	Domain        apitypes.NullString
+	ColorScheme   ColorScheme
+	HidePoweredBy int64
 }
 
 type changelogSource struct {
