@@ -156,7 +156,7 @@ func saveDerefToInt(b *bool) int64 {
 	return 0
 }
 
-// Returns 1 if b is true, otherwise false
+// Returns 1 if b is true, otherwise 2
 func boolToInt(b bool) int64 {
 	var i int64
 	if b {
