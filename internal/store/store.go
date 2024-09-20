@@ -11,21 +11,22 @@ import (
 )
 
 type Changelog struct {
-	WorkspaceID WorkspaceID
-	ID          ChangelogID
-	Subdomain   Subdomain
-	Domain      Domain
-	Title       apitypes.NullString
-	Subtitle    apitypes.NullString
-	LogoSrc     apitypes.NullString
-	LogoLink    apitypes.NullString
-	LogoAlt     apitypes.NullString
-	LogoHeight  apitypes.NullString
-	LogoWidth   apitypes.NullString
-	ColorScheme ColorScheme
-	CreatedAt   time.Time
-	GHSource    null.Value[GHSource]
-	LocalSource null.Value[LocalSource]
+	WorkspaceID   WorkspaceID
+	ID            ChangelogID
+	Subdomain     Subdomain
+	Domain        Domain
+	Title         apitypes.NullString
+	Subtitle      apitypes.NullString
+	LogoSrc       apitypes.NullString
+	LogoLink      apitypes.NullString
+	LogoAlt       apitypes.NullString
+	LogoHeight    apitypes.NullString
+	LogoWidth     apitypes.NullString
+	ColorScheme   ColorScheme
+	HidePoweredBy bool
+	CreatedAt     time.Time
+	GHSource      null.Value[GHSource]
+	LocalSource   null.Value[LocalSource]
 }
 
 type Workspace struct {
@@ -48,16 +49,17 @@ type LocalSource struct {
 }
 
 type UpdateChangelogArgs struct {
-	Title       apitypes.NullString
-	Subdomain   apitypes.NullString
-	Domain      Domain
-	Subtitle    apitypes.NullString
-	LogoSrc     apitypes.NullString
-	LogoLink    apitypes.NullString
-	LogoAlt     apitypes.NullString
-	LogoHeight  apitypes.NullString
-	LogoWidth   apitypes.NullString
-	ColorScheme ColorScheme
+	Title         apitypes.NullString
+	Subdomain     apitypes.NullString
+	Domain        Domain
+	Subtitle      apitypes.NullString
+	LogoSrc       apitypes.NullString
+	LogoLink      apitypes.NullString
+	LogoAlt       apitypes.NullString
+	LogoHeight    apitypes.NullString
+	LogoWidth     apitypes.NullString
+	ColorScheme   ColorScheme
+	HidePoweredBy *bool
 }
 
 type Store interface {

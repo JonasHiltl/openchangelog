@@ -8,16 +8,17 @@ import (
 // Represents the Changelog returned by the API via json encoding.
 // Implements json un-/marshaling.
 type Changelog struct {
-	ID          string
-	WorkspaceID string
-	Subdomain   string
-	Domain      NullString
-	Title       NullString
-	Subtitle    NullString
-	ColorScheme ColorScheme
-	Logo        Logo
-	Source      Source
-	CreatedAt   time.Time
+	ID            string
+	WorkspaceID   string
+	Subdomain     string
+	Domain        NullString
+	Title         NullString
+	Subtitle      NullString
+	ColorScheme   ColorScheme
+	HidePoweredBy bool
+	Logo          Logo
+	Source        Source
+	CreatedAt     time.Time
 }
 
 type ColorScheme string
@@ -30,25 +31,27 @@ const (
 
 func (l Changelog) MarshalJSON() ([]byte, error) {
 	obj := struct {
-		ID          string     `json:"id"`
-		WorkspaceID string     `json:"workspaceId"`
-		Subdomain   string     `json:"subdomain,omitempty"`
-		Title       string     `json:"title,omitempty"`
-		Domain      string     `json:"domain,omitempty"`
-		Subtitle    string     `json:"subtitle,omitempty"`
-		ColorScheme string     `json:"colorScheme,omitempty"`
-		Logo        *Logo      `json:"logo,omitempty"`
-		Source      Source     `json:"source,omitempty"`
-		CreatedAt   *time.Time `json:"createdAt,omitempty"`
+		ID            string     `json:"id"`
+		WorkspaceID   string     `json:"workspaceId"`
+		Subdomain     string     `json:"subdomain,omitempty"`
+		Title         string     `json:"title,omitempty"`
+		Domain        string     `json:"domain,omitempty"`
+		Subtitle      string     `json:"subtitle,omitempty"`
+		ColorScheme   string     `json:"colorScheme,omitempty"`
+		HidePoweredBy bool       `json:"hidePoweredBy"`
+		Logo          *Logo      `json:"logo,omitempty"`
+		Source        Source     `json:"source,omitempty"`
+		CreatedAt     *time.Time `json:"createdAt,omitempty"`
 	}{
-		ID:          l.ID,
-		WorkspaceID: l.WorkspaceID,
-		Subdomain:   l.Subdomain,
-		Domain:      l.Domain.V(),
-		Title:       l.Title.V(),
-		Subtitle:    l.Subtitle.V(),
-		ColorScheme: string(l.ColorScheme),
-		Source:      l.Source,
+		ID:            l.ID,
+		WorkspaceID:   l.WorkspaceID,
+		Subdomain:     l.Subdomain,
+		Domain:        l.Domain.V(),
+		Title:         l.Title.V(),
+		Subtitle:      l.Subtitle.V(),
+		ColorScheme:   string(l.ColorScheme),
+		HidePoweredBy: l.HidePoweredBy,
+		Source:        l.Source,
 	}
 
 	if l.Logo.IsValid() {
@@ -114,6 +117,13 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 
 	if colorSchemeRaw, ok := objMap["colorScheme"]; ok {
 		err = json.Unmarshal(*colorSchemeRaw, &c.ColorScheme)
+		if err != nil {
+			return err
+		}
+	}
+
+	if hidePoweredByRaw, ok := objMap["hidePoweredBy"]; ok {
+		err = json.Unmarshal(*hidePoweredByRaw, &c.HidePoweredBy)
 		if err != nil {
 			return err
 		}
@@ -207,14 +217,20 @@ func (l Logo) IsValid() bool {
 }
 
 type CreateChangelogBody struct {
-	Title       NullString  `json:"title"`
-	Subtitle    NullString  `json:"subtitle"`
-	Logo        Logo        `json:"logo"`
-	Domain      NullString  `json:"domain"`
-	ColorScheme ColorScheme `json:"colorScheme"`
+	Title         NullString  `json:"title"`
+	Subtitle      NullString  `json:"subtitle"`
+	Logo          Logo        `json:"logo"`
+	Domain        NullString  `json:"domain"`
+	ColorScheme   ColorScheme `json:"colorScheme"`
+	HidePoweredBy bool        `json:"hidePoweredBy"`
 }
 
 type UpdateChangelogBody struct {
-	CreateChangelogBody
-	Subdomain NullString `json:"subdomain"`
+	Title         NullString  `json:"title"`
+	Subtitle      NullString  `json:"subtitle"`
+	Logo          Logo        `json:"logo"`
+	Domain        NullString  `json:"domain"`
+	ColorScheme   ColorScheme `json:"colorScheme"`
+	Subdomain     NullString  `json:"subdomain"`
+	HidePoweredBy *bool       `json:"hidePoweredBy,omitempty"`
 }

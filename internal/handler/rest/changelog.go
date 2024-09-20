@@ -30,8 +30,9 @@ func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 			Height: cl.LogoHeight,
 			Width:  cl.LogoWidth,
 		},
-		ColorScheme: cl.ColorScheme.ToApiTypes(),
-		CreatedAt:   cl.CreatedAt,
+		ColorScheme:   cl.ColorScheme.ToApiTypes(),
+		HidePoweredBy: cl.HidePoweredBy,
+		CreatedAt:     cl.CreatedAt,
 	}
 
 	if cl.GHSource.Valid {
@@ -64,16 +65,17 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	cl := store.Changelog{
-		WorkspaceID: t.WorkspaceID,
-		ID:          store.NewCID(),
-		Subdomain:   store.NewSubdomain(ws.Name),
-		Title:       req.Title,
-		Subtitle:    req.Subtitle,
-		LogoSrc:     req.Logo.Src,
-		LogoLink:    req.Logo.Link,
-		LogoAlt:     req.Logo.Alt,
-		LogoHeight:  req.Logo.Height,
-		LogoWidth:   req.Logo.Width,
+		WorkspaceID:   t.WorkspaceID,
+		ID:            store.NewCID(),
+		Subdomain:     store.NewSubdomain(ws.Name),
+		Title:         req.Title,
+		Subtitle:      req.Subtitle,
+		LogoSrc:       req.Logo.Src,
+		LogoLink:      req.Logo.Link,
+		LogoAlt:       req.Logo.Alt,
+		LogoHeight:    req.Logo.Height,
+		LogoWidth:     req.Logo.Width,
+		HidePoweredBy: req.HidePoweredBy,
 	}
 
 	if req.ColorScheme == "" {
@@ -118,16 +120,17 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	c, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, store.UpdateChangelogArgs{
-		Title:       req.Title,
-		Subdomain:   req.Subdomain,
-		Domain:      domain,
-		Subtitle:    req.Subtitle,
-		LogoSrc:     req.Logo.Src,
-		LogoLink:    req.Logo.Link,
-		LogoAlt:     req.Logo.Alt,
-		LogoHeight:  req.Logo.Height,
-		LogoWidth:   req.Logo.Width,
-		ColorScheme: store.NewColorScheme(req.ColorScheme),
+		Title:         req.Title,
+		Subdomain:     req.Subdomain,
+		Domain:        domain,
+		Subtitle:      req.Subtitle,
+		LogoSrc:       req.Logo.Src,
+		LogoLink:      req.Logo.Link,
+		LogoAlt:       req.Logo.Alt,
+		LogoHeight:    req.Logo.Height,
+		LogoWidth:     req.Logo.Width,
+		ColorScheme:   store.NewColorScheme(req.ColorScheme),
+		HidePoweredBy: req.HidePoweredBy,
 	})
 	if err != nil {
 		return err
