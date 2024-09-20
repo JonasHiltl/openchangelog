@@ -20,6 +20,7 @@ type IndexArgs struct {
 	components.Logo
 	components.HeaderArgs
 	components.ArticleListArgs
+	components.FooterArgs
 }
 
 func Index(arg IndexArgs) templ.Component {
@@ -162,7 +163,7 @@ func Index(arg IndexArgs) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.Footer().Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.Footer(arg.FooterArgs).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
