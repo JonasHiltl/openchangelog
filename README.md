@@ -8,6 +8,8 @@
   <br />
   <a href="https://openchangelog.com">Website</a>
   ·
+  <a href="https://openchangelog.com/docs/">Docs</a>
+  ·
   <a href="https://cloud.openchangelog.com">Get Started</a>
   ·
   <a href="https://twitter.com/jonasdevs">Twitter</a>
@@ -26,96 +28,19 @@ Openchangelog takes your Markdown files, hosted on GitHub or locally and renders
 ## Quickstart
 Create an `openchangelog.yml` config file, for more infos see the [configuration](#configuration) section.
 ```
-docker run -v ./openchangelog.yml:/etc/openchangelog.yml:ro -p 6001:6001 ghcr.io/jonashiltl/openchangelog:0.1.8
+docker run -v ./openchangelog.yml:/etc/openchangelog.yml:ro -v ./release-notes:/release-notes -p 6001:6001 ghcr.io/jonashiltl/openchangelog:0.1.9
 ```
-
-## Writing Changelogs
-Each new Changelog, e.g. from a new release, is written in a new Markdown file, this allows adding custom metadata for each article using the markdown Frontmatter.  
-All files are stored in the same directory, either local or in remote sources.
-
-### Filename Format
-The ordering of the changelog files is important.  
-The displayed Articles in the UI are ordered by their filename in descending order. We recommend prefixing the file with the release version.
-```
-{version}.{title}.md
-v0.0.1.darkmode.md
-v0.0.2.i81n.md
-```
-
-### Content Format
-Changelogs are written in Markdown, we are compliant with CommonMark 0.31.2 (thanks to [goldmark](https://github.com/yuin/goldmark)).  
-You can use the Frontmatter to specify additional info:
-- `title`: Displayed as a bold title at the top of the Changelog Article.
-- `description`: Displayed below the title.
-- `publishedAt`: An `ISO 8601` datetime that is diplayed next to the Changelog Article.
-  
-## Configuration
-You can configure your Changelog by adapting the `openchangelog.yml` file.
-It is typically in `/etc/openchangelog.yml`, but can be configured with the `-config` flag when running `openchangelog.`
-
-### Look & Feel
-**title**: The title is displayed above all Changelog articles.
+Or
 ```yaml
-# openchangelog.yml
-page:
-  title:
+services:
+  openchangelog:
+    image: "ghcr.io/jonashiltl/openchangelog:0.1.9"
+    ports:
+      - "6001:6001"
+    volumes:
+      - ./release-notes:/release-notes
+      - type: bind
+        source: openchangelog.yml
+        target: /etc/openchangelog.yml
 ```
-**subtitle**: The subtitle is displayed below the title.
-```yaml
-page:
-  subtitle:
-```
-
-**Color Scheme**: The color scheme can be set to `dark`, `light` or `system`
-```yaml
-page:
-  colorScheme: light
-```
-
-**Logo**: Your logo is displayed in the header.
-```yaml
-page:
-  logo:
-    src: # url to image
-    width: # width of logo as string e.g. 70px
-    height: # height of logo as string e.g 30px
-    link: # optional link that the logo points to
-```
-
-### Local Data Source
-You can specify a local file path to a directory containing your Changelog Markdown files.
-```yaml
-# openchangelog.yml
-local:
-  filesPath: .testdata
-```
-### Github Data Source
-You can specify your repository and path to a directory inside the repo containing your Changelog Markdown files.
-You can **authenticate** via a `Github App` or `Personal Access Token`.  
-```yaml
-# openchangelog.yml
-github:
-  owner: # gh username
-  repo:
-  path: # path inside repo
-  auth:
-    accessToken: # access token with a access to the specified repo
-    # or
-    appPrivateKey:
-    appInstallationId:
-```
-
-### Cache
-You can configure a cache to improve latency and avoid hitting rate limits from e.g. Github.  
-Internally [httpcache](https://github.com/gregjones/httpcache) is used to cache the request to Github.
-You can choose between a `memory`, `disk` and `s3`.
-```yaml
-# openchangelog.yml
-cache: 
-  type: # disk, memory, s3
-  disk: # used when type is disk
-    location: # the file system location of the disk cache
-    maxSize: # in bytes
-  s3: # used when type is s3
-    bucket: # the bucket url, env AWS_ACCESS_KEY_ID and AWS_SECRET_KEY are used as credentials
-```
+Once deployed, your changelog will be available at http://localhost:6001.
