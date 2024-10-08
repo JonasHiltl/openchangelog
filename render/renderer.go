@@ -124,6 +124,7 @@ func parsedArticlesToComponentArticles(parsed []changelog.ParsedArticle) []compo
 			Title:       a.Meta.Title,
 			Description: a.Meta.Description,
 			PublishedAt: a.Meta.PublishedAt.Format("02 Jan 2006"),
+			Tags:        a.Meta.Tags,
 			Content:     buf.String(),
 		}
 	}

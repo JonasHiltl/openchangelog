@@ -12,6 +12,7 @@ type Meta struct {
 	Title       string    `yaml:"title"`
 	Description string    `yaml:"description"`
 	PublishedAt time.Time `yaml:"publishedAt"`
+	Tags        []string  `yaml:"tags"`
 }
 
 type ParsedArticle struct {

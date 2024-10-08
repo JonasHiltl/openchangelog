@@ -1,6 +1,9 @@
 package components
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type ArticleListArgs struct {
 	Articles    []ArticleArgs
@@ -35,6 +38,7 @@ type ArticleArgs struct {
 	Title       string
 	Description string
 	PublishedAt string
+	Tags        []string
 	Content     string
 }
 
@@ -50,7 +54,52 @@ templ Article(a ArticleArgs) {
 			</a>
 		</h2>
 		<p class="text-caption">{ a.Description }</p>
-		<p class="text-caption lg:absolute lg:-left-40 lg:top-0 lg:!mt-1">{ a.PublishedAt }</p>
+		<div class="lg:absolute lg:-left-40 lg:max-w-40 lg:top-0 lg:mt-1 lg:mr-2 flex flex-row gap-2 lg:gap-0 items-center lg:items-start lg:flex-col">
+			<p class="text-caption">{ a.PublishedAt }</p>
+			<div class="flex flex-wrap gap-2">
+				<style>
+					#tag:where([color-scheme=dark] *) {
+						color: var(--tag-text-light);
+					}
+				</style>
+				for _, t := range a.Tags {
+					@Tag(t)
+				}
+			</div>
+		</div>
 		@templ.Raw(a.Content)
 	</article>
+}
+
+templ Tag(name string) {
+	<div id="tag" class={ "p-1 rounded border text-xs leading-3", tagStyle(name) }>{ name }</div>
+}
+
+css tagStyle(tag string) {
+	--tag-color: { templ.SafeCSSProperty(tagBaseColor(tag)) };
+	--tag-bg: color-mix(in srgb, var(--tag-color) 20%, transparent);
+	--tag-text-dark: color-mix(in srgb, var(--tag-color) 70%, black);
+	--tag-text-light: color-mix(in srgb, var(--tag-color) 80%, white);
+	background-color: var(--tag-bg);
+	border-color: var(--tag-bg);
+	color: var(--tag-text-dark);
+}
+
+func tagBaseColor(tag string) string {
+	h, s, l := stringToHSL(tag)
+	return fmt.Sprintf("hsl(%d %d%% %d%%)", h, s, l)
+}
+
+func stringToHSL(str string) (h int32, s int32, l int32) {
+	var hash int32
+	for _, char := range str {
+		hash = int32(char) + ((hash << 5) - hash)
+	}
+
+	hash = int32(math.Abs(float64(hash)))
+
+	h = hash % 360
+	s = 60 + (hash % 40) // 60-100%
+	l = 30 + (hash % 30) // 30-60%
+	return
 }
