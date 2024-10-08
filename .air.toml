@@ -1,13 +1,13 @@
 root = "."
-testdata_dir = "testdata"
+testdata_dir = ".testdata"
 tmp_dir = "tmp"
 
 [build]
   args_bin = []
   bin = "./tmp/server"
-  cmd = "go build -o ./tmp/server cmd/server.go"
+  cmd = "CGO_ENABLED=0 go build -o ./tmp/server cmd/server.go"
   delay = 1000
-  exclude_dir = ["assets", "tmp", "vendor", "testdata", "internal/handler/web/node_modules", ".cache"]
+  exclude_dir = ["assets", "tmp", "vendor", ".testdata", "internal/handler/web/node_modules", ".cache"]
   exclude_file = []
   exclude_regex = ["_test.go"]
   exclude_unchanged = false
@@ -44,3 +44,9 @@ tmp_dir = "tmp"
 [screen]
   clear_on_rebuild = false
   keep_scroll = true
+
+[proxy]
+  # Enable live-reloading on the browser.
+  enabled = true
+  proxy_port = 6000
+  app_port = 6001
