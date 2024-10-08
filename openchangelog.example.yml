@@ -1,4 +1,4 @@
-addr: 0.0.0.0:6001
+addr: localhost:6001
 #github:
 #  owner:
 #  repo:
@@ -6,7 +6,7 @@ addr: 0.0.0.0:6001
 #  auth:
 #    accessToken:
 local:
-  filesPath: .testdata
+  filesPath: /release-notes
 cache: 
   type: disk
   disk:
