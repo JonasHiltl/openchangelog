@@ -55,7 +55,7 @@ templ Article(a ArticleArgs) {
 		</h2>
 		<p class="text-caption">{ a.Description }</p>
 		<div class="lg:absolute lg:-left-40 lg:max-w-40 lg:top-0 lg:mt-1 lg:mr-2 flex flex-row gap-2 lg:gap-0 items-center lg:items-start lg:flex-col">
-			<p class="text-caption">{ a.PublishedAt }</p>
+			<p class="text-caption text-nowrap">{ a.PublishedAt }</p>
 			<div class="flex flex-wrap gap-2">
 				<style>
 					#tag:where([color-scheme=dark] *) {
@@ -72,7 +72,7 @@ templ Article(a ArticleArgs) {
 }
 
 templ Tag(name string) {
-	<div id="tag" class={ "p-1 rounded border text-xs leading-3", tagStyle(name) }>{ name }</div>
+	<div id="tag" class={ "p-1 rounded border text-xs text-nowrap leading-3", tagStyle(name) }>{ name }</div>
 }
 
 css tagStyle(tag string) {

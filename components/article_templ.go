@@ -140,14 +140,14 @@ func Article(a ArticleArgs) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><div class=\"lg:absolute lg:-left-40 lg:max-w-40 lg:top-0 lg:mt-1 lg:mr-2 flex flex-row gap-2 lg:gap-0 items-center lg:items-start lg:flex-col\"><p class=\"text-caption\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><div class=\"lg:absolute lg:-left-40 lg:max-w-40 lg:top-0 lg:mt-1 lg:mr-2 flex flex-row gap-2 lg:gap-0 items-center lg:items-start lg:flex-col\"><p class=\"text-caption text-nowrap\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(a.PublishedAt)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/article.templ`, Line: 58, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/article.templ`, Line: 58, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -197,7 +197,7 @@ func Tag(name string) templ.Component {
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var10 = []any{"p-1 rounded border text-xs leading-3", tagStyle(name)}
+		var templ_7745c5c3_Var10 = []any{"p-1 rounded border text-xs text-nowrap leading-3", tagStyle(name)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -222,7 +222,7 @@ func Tag(name string) templ.Component {
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/article.templ`, Line: 75, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/article.templ`, Line: 75, Col: 98}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
