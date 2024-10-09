@@ -4,8 +4,8 @@ tmp_dir = "tmp"
 
 [build]
   args_bin = []
-  bin = "./tmp/server"
-  cmd = "CGO_ENABLED=0 go build -o ./tmp/server cmd/server.go"
+  bin = "./tmp/openchangelog"
+  cmd = "go build -ldflags -w -o ./tmp/openchangelog cmd/server.go"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", ".testdata", "internal/handler/web/node_modules", ".cache"]
   exclude_file = []
