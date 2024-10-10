@@ -12,6 +12,9 @@
       <guid>{{ addFragment $.Link .Meta.ID }}</guid>
       <title>{{.Meta.Title}}</title>
       <link>{{ addFragment $.Link .Meta.ID }}</link>
+      {{range .Meta.Tags}}
+      <category>{{ . }}</category>
+      {{end}}
       <description>
         <![CDATA[
           <p>{{.Meta.Description }}</p>
