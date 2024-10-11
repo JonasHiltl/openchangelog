@@ -24,6 +24,8 @@ type Changelog struct {
 	LogoWidth     apitypes.NullString
 	ColorScheme   ColorScheme
 	HidePoweredBy bool
+	Protected     bool
+	Password      string
 	CreatedAt     time.Time
 	GHSource      null.Value[GHSource]
 	LocalSource   null.Value[LocalSource]

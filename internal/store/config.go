@@ -55,15 +55,20 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 		default:
 			cl.ColorScheme = System
 		}
-	}
 
-	if s.cfg.Page.Logo != nil {
-		l := s.cfg.Page.Logo
-		cl.LogoSrc = apitypes.NewString(l.Src)
-		cl.LogoLink = apitypes.NewString(l.Link)
-		cl.LogoAlt = apitypes.NewString(l.Alt)
-		cl.LogoHeight = apitypes.NewString(l.Height)
-		cl.LogoWidth = apitypes.NewString(l.Width)
+		if s.cfg.Page.Logo != nil {
+			l := s.cfg.Page.Logo
+			cl.LogoSrc = apitypes.NewString(l.Src)
+			cl.LogoLink = apitypes.NewString(l.Link)
+			cl.LogoAlt = apitypes.NewString(l.Alt)
+			cl.LogoHeight = apitypes.NewString(l.Height)
+			cl.LogoWidth = apitypes.NewString(l.Width)
+		}
+
+		if s.cfg.Page.Auth != nil {
+			cl.Protected = s.cfg.Page.Auth.Enabled
+			cl.Password = s.cfg.Page.Auth.Password
+		}
 	}
 
 	// parse local source from config

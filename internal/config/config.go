@@ -60,6 +60,12 @@ type PageConfig struct {
 	Subtitle      string      `mapstructure:"subtitle"`
 	ColorScheme   string      `mapstructure:"colorScheme"`
 	HidePoweredBy bool        `mapstructure:"hidePoweredBy"`
+	Auth          *AuthConfig `mapstructure:"auth"`
+}
+
+type AuthConfig struct {
+	Enabled  bool   `mapstructure:"enabled"`
+	Password string `mapstructure:"password"`
 }
 
 type Config struct {
