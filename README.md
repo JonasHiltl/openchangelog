@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://demo.openchangelog.com" target="_blank">
-    <img width="750" src="https://github.com/user-attachments/assets/64259c72-17b7-479e-8079-98d7e2b72593"/>
+    <img width="750" src="https://github.com/user-attachments/assets/41d11528-0445-4370-8196-33a3c3923f58"/>
   </a>
   <h1 align="center"><b>Openchangelog</b></h1>
 </p>
