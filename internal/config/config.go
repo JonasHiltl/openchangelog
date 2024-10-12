@@ -64,8 +64,8 @@ type PageConfig struct {
 }
 
 type AuthConfig struct {
-	Enabled  bool   `mapstructure:"enabled"`
-	Password string `mapstructure:"password"`
+	Enabled      bool   `mapstructure:"enabled"`
+	PasswordHash string `mapstructure:"passwordHash"`
 }
 
 type Config struct {

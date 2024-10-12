@@ -25,7 +25,7 @@ type Changelog struct {
 	ColorScheme   ColorScheme
 	HidePoweredBy bool
 	Protected     bool
-	Password      string
+	PasswordHash  string
 	CreatedAt     time.Time
 	GHSource      null.Value[GHSource]
 	LocalSource   null.Value[LocalSource]

@@ -67,7 +67,7 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 
 		if s.cfg.Page.Auth != nil {
 			cl.Protected = s.cfg.Page.Auth.Enabled
-			cl.Password = s.cfg.Page.Auth.Password
+			cl.PasswordHash = s.cfg.Page.Auth.PasswordHash
 		}
 	}
 

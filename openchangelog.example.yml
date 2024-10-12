@@ -23,4 +23,4 @@ page:
     link: https://www.openchangelog.com
   auth:
     enabled: false
-    # password: bcrypt encrypted hash of password
+    # passwordHash: bcrypt encrypted hash of password
