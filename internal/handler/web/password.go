@@ -127,10 +127,7 @@ func getHost(r *http.Request) string {
 }
 
 func createCookieKey(r *http.Request) string {
-	query := r.URL.Query()
-	wID := query.Get(handler.WS_ID_QUERY)
-	cID := query.Get(handler.CL_ID_QUERY)
-
+	wID, cID := getQueryIDs(r)
 	if wID != "" && cID != "" {
 		return fmt.Sprintf("protected-%s-%s", wID, cID)
 	}

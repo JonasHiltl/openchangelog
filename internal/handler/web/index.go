@@ -3,6 +3,7 @@ package web
 import (
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/internal/changelog"
@@ -84,10 +85,23 @@ func ensurePasswordProvided(r *http.Request, pwHash string) error {
 	return validatePassword(pwHash, authorize)
 }
 
-func loadChangelogDBMode(e *env, r *http.Request, page changelog.Pagination) (*changelog.LoadedChangelog, error) {
+func getQueryIDs(r *http.Request) (wID string, cID string) {
 	query := r.URL.Query()
-	wID := query.Get(handler.WS_ID_QUERY)
-	cID := query.Get(handler.CL_ID_QUERY)
+	wID = query.Get(handler.WS_ID_QUERY)
+	cID = query.Get(handler.CL_ID_QUERY)
+
+	if wID == "" && cID == "" {
+		u, err := url.Parse(r.Header.Get("HX-Current-URL"))
+		if err == nil {
+			query = u.Query()
+			return query.Get(handler.WS_ID_QUERY), query.Get(handler.CL_ID_QUERY)
+		}
+	}
+	return wID, cID
+}
+
+func loadChangelogDBMode(e *env, r *http.Request, page changelog.Pagination) (*changelog.LoadedChangelog, error) {
+	wID, cID := getQueryIDs(r)
 	if wID != "" && cID != "" {
 		return e.loader.FromWorkspace(r.Context(), wID, cID, page)
 	}
