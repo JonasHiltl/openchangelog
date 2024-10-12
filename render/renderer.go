@@ -15,11 +15,11 @@ import (
 )
 
 type Renderer interface {
-	RenderIndex(ctx context.Context, w io.Writer, args RenderIndexArgs) error
+	RenderChangelog(ctx context.Context, w io.Writer, args RenderChangelogArgs) error
 	RenderArticleList(ctx context.Context, w io.Writer, args RenderArticleListArgs) error
 }
 
-type RenderIndexArgs struct {
+type RenderChangelogArgs struct {
 	CL             store.Changelog
 	Articles       []changelog.ParsedArticle
 	HasMore        bool
@@ -66,7 +66,7 @@ func (r *renderer) RenderArticleList(ctx context.Context, w io.Writer, args Rend
 	}).Render(ctx, w)
 }
 
-func (r *renderer) RenderIndex(ctx context.Context, w io.Writer, args RenderIndexArgs) error {
+func (r *renderer) RenderChangelog(ctx context.Context, w io.Writer, args RenderChangelogArgs) error {
 	var nextPageURL string
 	if args.HasMore {
 		if r.cfg.IsDBMode() {

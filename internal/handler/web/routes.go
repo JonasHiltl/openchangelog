@@ -21,6 +21,7 @@ func RegisterWebHandler(mux *http.ServeMux, e *env) {
 	fs := http.FileServer(http.FS(staticAssets))
 	mux.Handle("GET /static/*", fs)
 	mux.HandleFunc("GET /", serveHTTP(e, index))
+	mux.HandleFunc("POST /password", serveHTTP(e, passwordSubmit))
 }
 
 func NewEnv(
