@@ -40,6 +40,7 @@ func TestChangelogMarshaling(t *testing.T) {
 				},
 				ColorScheme:   Dark,
 				HidePoweredBy: true,
+				HasPassword:   true,
 				CreatedAt:     now,
 			},
 			expect: fmt.Sprintf(`{
@@ -65,6 +66,8 @@ func TestChangelogMarshaling(t *testing.T) {
 					"path": ".testdata"
 				},
 				"hidePoweredBy": true,
+				"hasPassword": true,
+				"protected": false,
 				"colorScheme": "dark",
 				"createdAt": "%s"
 			}`, nowStr),
@@ -84,6 +87,8 @@ func TestChangelogMarshaling(t *testing.T) {
 				"title": "Test Title",
 				"colorScheme": "system",
 				"hidePoweredBy": false,
+				"hasPassword": false,
+				"protected": false,
 				"createdAt": "%s"
 			}`, nowStr),
 		},
@@ -99,6 +104,8 @@ func TestChangelogMarshaling(t *testing.T) {
 				"id": "cl_xxxx",
 				"workspaceId": "ws_xxxx",
 				"hidePoweredBy": false,
+				"hasPassword": false,
+				"protected": false,
 				"logo": {
 					"alt": "test"
 				}
@@ -179,7 +186,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"logo": {},
 				"domain": "",
 				"subdomain": "",
-				"colorScheme": ""
+				"colorScheme": "",
+				"passwordHash": ""
 			}`,
 		},
 		{
@@ -193,7 +201,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"logo": {},
 				"domain": "",
 				"subdomain": "",
-				"colorScheme": ""
+				"colorScheme": "",
+				"passwordHash": ""
 			}`,
 		},
 		{
@@ -207,7 +216,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"logo": {},
 				"domain": "",
 				"subdomain": "",
-				"colorScheme": ""
+				"colorScheme": "",
+				"passwordHash": ""
 			}`,
 		},
 		{
@@ -225,7 +235,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				},
 				"domain": "",
 				"subdomain": "",
-				"colorScheme": ""
+				"colorScheme": "",
+				"passwordHash": ""
 			}`,
 		},
 		{
@@ -239,7 +250,8 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"logo": {},
 				"domain": "",
 				"subdomain": "",
-				"colorScheme": "dark"
+				"colorScheme": "dark",
+				"passwordHash": ""
 			}`,
 		},
 		{
@@ -254,6 +266,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"domain": "",
 				"subdomain": "",
 				"colorScheme": "",
+				"passwordHash": "",
 				"hidePoweredBy": true
 			}`,
 		},

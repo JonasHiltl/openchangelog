@@ -37,7 +37,7 @@ func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 		HidePoweredBy: cl.HidePoweredBy,
 		CreatedAt:     cl.CreatedAt,
 		Protected:     cl.Protected,
-		Password:      cl.PasswordHash,
+		HasPassword:   cl.PasswordHash != "",
 	}
 
 	if cl.GHSource.Valid {

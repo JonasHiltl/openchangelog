@@ -17,7 +17,7 @@ type Changelog struct {
 	ColorScheme   ColorScheme
 	HidePoweredBy bool
 	Protected     bool
-	Password      string
+	HasPassword   bool
 	Logo          Logo
 	Source        Source
 	CreatedAt     time.Time
@@ -57,7 +57,7 @@ func (cl Changelog) MarshalJSON() ([]byte, error) {
 		ColorScheme   string     `json:"colorScheme,omitempty"`
 		HidePoweredBy bool       `json:"hidePoweredBy"`
 		Protected     bool       `json:"protected"`
-		Password      string     `json:"password,omitempty"`
+		HasPassword   bool       `json:"hasPassword"`
 		Logo          *Logo      `json:"logo,omitempty"`
 		Source        Source     `json:"source,omitempty"`
 		CreatedAt     *time.Time `json:"createdAt,omitempty"`
@@ -71,12 +71,8 @@ func (cl Changelog) MarshalJSON() ([]byte, error) {
 		ColorScheme:   string(cl.ColorScheme),
 		HidePoweredBy: cl.HidePoweredBy,
 		Protected:     cl.Protected,
+		HasPassword:   cl.HasPassword,
 		Source:        cl.Source,
-	}
-
-	// it might be usefull to know if the password is set, so return dummy text if password is set
-	if cl.Password != "" {
-		obj.Password = "*********"
 	}
 
 	if cl.Logo.IsValid() {
@@ -161,8 +157,8 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 		}
 	}
 
-	if passwordRaw, ok := objMap["password"]; ok {
-		err = json.Unmarshal(*passwordRaw, &c.Password)
+	if hasPasswordRaw, ok := objMap["hasPassword"]; ok {
+		err = json.Unmarshal(*hasPasswordRaw, &c.HasPassword)
 		if err != nil {
 			return err
 		}
