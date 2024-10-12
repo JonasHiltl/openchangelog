@@ -62,6 +62,8 @@ type UpdateChangelogArgs struct {
 	LogoWidth     apitypes.NullString
 	ColorScheme   ColorScheme
 	HidePoweredBy *bool
+	Protected     *bool
+	PasswordHash  apitypes.NullString
 }
 
 type Store interface {

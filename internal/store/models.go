@@ -26,6 +26,8 @@ type changelog struct {
 	Domain        apitypes.NullString
 	ColorScheme   ColorScheme
 	HidePoweredBy int64
+	Protected     int64
+	PasswordHash  apitypes.NullString
 }
 
 type changelogSource struct {

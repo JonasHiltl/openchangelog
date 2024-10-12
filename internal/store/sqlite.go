@@ -29,6 +29,8 @@ func (cl changelog) toExported(source changelogSource) Changelog {
 		LogoWidth:     cl.LogoWidth,
 		ColorScheme:   cl.ColorScheme,
 		HidePoweredBy: cl.HidePoweredBy == 1,
+		Protected:     cl.Protected == 1,
+		PasswordHash:  cl.PasswordHash.V(),
 		CreatedAt:     time.Unix(cl.CreatedAt, 0),
 		GHSource:      null.NewValue(GHSource{}, false),
 	}
@@ -91,6 +93,8 @@ func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, 
 		LogoWidth:     cl.LogoWidth,
 		ColorScheme:   cl.ColorScheme,
 		HidePoweredBy: boolToInt(cl.HidePoweredBy),
+		Protected:     boolToInt(cl.Protected),
+		PasswordHash:  apitypes.NewString(cl.PasswordHash),
 	})
 	if err != nil {
 		return Changelog{}, formatUnqueConstraint(err)
@@ -171,7 +175,7 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 		ID:          cID.String(),
 		WorkspaceID: wID.String(),
 		Subdomain:   args.Subdomain,
-		HidePoweredBy: sql.NullInt64{ // update if value != nil
+		HidePoweredBy: sql.NullInt64{ // update if HidePoweredBy != nil
 			Int64: saveDerefToInt(args.HidePoweredBy),
 			Valid: args.HidePoweredBy != nil,
 		},
@@ -193,6 +197,12 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 		SetLogoHeight:  !args.LogoHeight.IsZero(),
 		LogoWidth:      args.LogoWidth,
 		SetLogoWidth:   !args.LogoWidth.IsZero(),
+		Protected: sql.NullInt64{ // update if Protected != nil
+			Int64: saveDerefToInt(args.Protected),
+			Valid: args.Protected != nil,
+		},
+		PasswordHash:    args.PasswordHash,
+		SetPasswordHash: !args.PasswordHash.IsZero(),
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

@@ -36,6 +36,7 @@ func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 		ColorScheme:   cl.ColorScheme.ToApiTypes(),
 		HidePoweredBy: cl.HidePoweredBy,
 		CreatedAt:     cl.CreatedAt,
+		Protected:     cl.Protected,
 	}
 
 	if cl.GHSource.Valid {
@@ -79,6 +80,8 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		LogoHeight:    req.Logo.Height,
 		LogoWidth:     req.Logo.Width,
 		HidePoweredBy: req.HidePoweredBy,
+		Protected:     req.Protected,
+		PasswordHash:  req.PasswordHash,
 	}
 
 	if req.ColorScheme == "" {
@@ -134,6 +137,8 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		LogoWidth:     req.Logo.Width,
 		ColorScheme:   store.NewColorScheme(req.ColorScheme),
 		HidePoweredBy: req.HidePoweredBy,
+		Protected:     req.Protected,
+		PasswordHash:  req.PasswordHash,
 	})
 	if err != nil {
 		return err
