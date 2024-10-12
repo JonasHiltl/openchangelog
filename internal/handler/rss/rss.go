@@ -21,9 +21,9 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 	var l *changelog.LoadedChangelog
 	var err error
 	if e.cfg.IsDBMode() {
-		l, err = loadChangelogDBMode(e, r)
+		l, err = loadFullChangelogDBMode(e, r)
 	} else {
-		l, err = loadChangelogConfigMode(e, r)
+		l, err = loadFullChangelogConfigMode(e, r)
 	}
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func addFragment(u string, fragment string) string {
 	return parsed.String()
 }
 
-func loadChangelogDBMode(e *env, r *http.Request) (*changelog.LoadedChangelog, error) {
+func loadFullChangelogDBMode(e *env, r *http.Request) (*changelog.LoadedChangelog, error) {
 	query := r.URL.Query()
 	wID := query.Get(handler.WS_ID_QUERY)
 	cID := query.Get(handler.CL_ID_QUERY)
@@ -86,6 +86,6 @@ func loadChangelogDBMode(e *env, r *http.Request) (*changelog.LoadedChangelog, e
 	return e.loader.FromHost(r.Context(), host, changelog.NoPagination())
 }
 
-func loadChangelogConfigMode(e *env, r *http.Request) (*changelog.LoadedChangelog, error) {
+func loadFullChangelogConfigMode(e *env, r *http.Request) (*changelog.LoadedChangelog, error) {
 	return e.loader.FromConfig(r.Context(), changelog.NoPagination())
 }
