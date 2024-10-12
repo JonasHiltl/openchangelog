@@ -259,7 +259,7 @@ type CreateChangelogBody struct {
 	ColorScheme   ColorScheme `json:"colorScheme"`
 	HidePoweredBy bool        `json:"hidePoweredBy"`
 	Protected     bool        `json:"protected"`
-	PasswordHash  string      `json:"passwordHash"`
+	Password      string      `json:"password"` // actual password, no hash
 }
 
 type UpdateChangelogBody struct {
@@ -271,5 +271,5 @@ type UpdateChangelogBody struct {
 	Subdomain     NullString  `json:"subdomain"`
 	HidePoweredBy *bool       `json:"hidePoweredBy,omitempty"`
 	Protected     *bool       `json:"protected,omitempty"`
-	PasswordHash  NullString  `json:"passwordHash,omitempty"`
+	Password      NullString  `json:"password,omitempty"` // actual password, no hash
 }

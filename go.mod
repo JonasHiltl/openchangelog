@@ -17,6 +17,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/yuin/goldmark v1.7.1
 	go.abhg.dev/goldmark/frontmatter v0.2.0
+	golang.org/x/crypto v0.16.0
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	mvdan.cc/xurls/v2 v2.5.0
 )

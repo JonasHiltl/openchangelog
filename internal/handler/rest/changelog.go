@@ -12,6 +12,7 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -82,13 +83,20 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		LogoWidth:     req.Logo.Width,
 		HidePoweredBy: req.HidePoweredBy,
 		Protected:     req.Protected,
-		PasswordHash:  req.PasswordHash,
 	}
 
 	if req.ColorScheme == "" {
 		cl.ColorScheme = store.System
 	} else {
 		cl.ColorScheme = store.NewColorScheme(req.ColorScheme)
+	}
+
+	if req.Password != "" {
+		hash, err := hashPassword(req.Password)
+		if err != nil {
+			return errs.NewBadRequest(err)
+		}
+		cl.PasswordHash = hash
 	}
 
 	d, err := store.ParseDomainNullString(req.Domain)
@@ -126,6 +134,16 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	hashedPassword := req.Password
+	if req.Password.IsValid() {
+		// if password is actually defined, we hash it
+		hash, err := hashPassword(req.Password.V())
+		if err != nil {
+			return errs.NewBadRequest(err)
+		}
+		hashedPassword = apitypes.NewString(hash)
+	}
+
 	c, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, store.UpdateChangelogArgs{
 		Title:         req.Title,
 		Subdomain:     req.Subdomain,
@@ -139,7 +157,7 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		ColorScheme:   store.NewColorScheme(req.ColorScheme),
 		HidePoweredBy: req.HidePoweredBy,
 		Protected:     req.Protected,
-		PasswordHash:  req.PasswordHash,
+		PasswordHash:  hashedPassword,
 	})
 	if err != nil {
 		return err
@@ -293,4 +311,12 @@ func deleteChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	return nil
+}
+
+func hashPassword(pw string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(pw), 12)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), err
 }
