@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 const (
@@ -61,4 +62,18 @@ func FeedToChangelogURL(r *http.Request) string {
 	}
 
 	return newURL.String()
+}
+
+func ParsePagination(q url.Values) (page int, size int) {
+	const default_page, default_page_size = 1, 10
+	page, err := strconv.Atoi(q.Get("page"))
+	if err != nil {
+		page = default_page
+	}
+	pageSize, err := strconv.Atoi(q.Get("page-size"))
+	if err != nil {
+		pageSize = default_page_size
+	}
+
+	return page, pageSize
 }

@@ -7,7 +7,7 @@ require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.10.0
 	github.com/google/go-github/v62 v62.0.0
 	github.com/guregu/null/v5 v5.0.0
-	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20240920110319-6925911f7f64
+	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013123337-70a1f28d7750
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/naveensrinivasan/httpcache v1.2.1
 	github.com/peterbourgon/diskv v2.0.1+incompatible

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"testing"
@@ -79,6 +80,39 @@ func TestChangelogToFeedURL(t *testing.T) {
 		changelogURL := ChangelogToFeedURL(r)
 		if changelogURL != table.expected {
 			t.Fatalf("expected %s to equal %s", changelogURL, table.expected)
+		}
+	}
+}
+
+func TestParsePagination(t *testing.T) {
+	tables := []struct {
+		page     int
+		pageSize int
+	}{
+		{
+			page:     0,
+			pageSize: 0,
+		},
+		{
+			page:     1,
+			pageSize: 1,
+		},
+		{
+			page:     10,
+			pageSize: 10,
+		},
+	}
+
+	for _, table := range tables {
+		q := url.Values{}
+		q.Set("page", fmt.Sprint(table.page))
+		q.Set("page-size", fmt.Sprint(table.pageSize))
+		p, s := ParsePagination(q)
+		if table.page != p {
+			t.Errorf("expected %d to equal %d", p, table.page)
+		}
+		if table.pageSize != s {
+			t.Errorf("expected %d to equal %d", s, table.pageSize)
 		}
 	}
 }

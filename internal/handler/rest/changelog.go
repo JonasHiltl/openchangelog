@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/jonashiltl/openchangelog/apitypes"
+	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/errs"
+	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/store"
 )
 
@@ -200,6 +203,52 @@ func getChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	return encodeChangelog(w, c)
+}
+
+func getFullChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
+	t, err := bearerAuth(e, r)
+	if err != nil {
+		return err
+	}
+
+	cId := r.PathValue(changelog_id_param)
+	page, pageSize := handler.ParsePagination(r.URL.Query())
+
+	loader, err := e.loader.FromWorkspace(
+		r.Context(),
+		t.WorkspaceID.String(),
+		cId,
+		changelog.NewPagination(pageSize, page),
+	)
+	if err != nil {
+		return errs.NewBadRequest(err)
+	}
+
+	parsed, err := loader.Parse(r.Context())
+	if err != nil {
+		return errs.NewBadRequest(err)
+	}
+
+	articles := make([]apitypes.Article, len(parsed.Articles))
+	for i, a := range parsed.Articles {
+		content, _ := io.ReadAll(a.Content)
+
+		articles[i] = apitypes.Article{
+			Title:       a.Meta.Title,
+			Description: a.Meta.Description,
+			PublishedAt: a.Meta.PublishedAt,
+			Tags:        a.Meta.Tags,
+			HTMLContent: string(content),
+		}
+	}
+	res := apitypes.FullChangelog{
+		Changelog:       changelogToApiType(parsed.CL),
+		Articles:        articles,
+		HasMoreArticles: parsed.HasMore,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	return json.NewEncoder(w).Encode(res)
 }
 
 func listChangelogs(e *env, w http.ResponseWriter, r *http.Request) error {
