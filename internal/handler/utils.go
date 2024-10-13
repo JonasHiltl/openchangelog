@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -103,7 +102,7 @@ func LoadChangelog(loader *changelog.Loader, isDBMode bool, r *http.Request, pag
 	if isDBMode {
 		return loadChangelogDBMode(loader, r, page)
 	} else {
-		return loadChangelogConfigMode(loader, r.Context(), page)
+		return loader.FromConfig(r.Context(), page)
 	}
 }
 
@@ -119,8 +118,4 @@ func loadChangelogDBMode(loader *changelog.Loader, r *http.Request, page changel
 	}
 
 	return loader.FromHost(r.Context(), host, page)
-}
-
-func loadChangelogConfigMode(loader *changelog.Loader, ctx context.Context, page changelog.Pagination) (*changelog.LoadedChangelog, error) {
-	return loader.FromConfig(ctx, page)
 }
