@@ -30,7 +30,7 @@ func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 		return views.PasswordProtectionError(err.Error()).Render(r.Context(), w)
 	}
 
-	page, pageSize := parsePagination(u.Query())
+	page, pageSize := handler.ParsePagination(u.Query())
 
 	var l *changelog.LoadedChangelog
 	if e.cfg.IsDBMode() {
