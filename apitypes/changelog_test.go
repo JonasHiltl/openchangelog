@@ -187,7 +187,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"domain": "",
 				"subdomain": "",
 				"colorScheme": "",
-				"passwordHash": ""
+				"password": ""
 			}`,
 		},
 		{
@@ -202,7 +202,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"domain": "",
 				"subdomain": "",
 				"colorScheme": "",
-				"passwordHash": ""
+				"password": ""
 			}`,
 		},
 		{
@@ -217,7 +217,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"domain": "",
 				"subdomain": "",
 				"colorScheme": "",
-				"passwordHash": ""
+				"password": ""
 			}`,
 		},
 		{
@@ -236,7 +236,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"domain": "",
 				"subdomain": "",
 				"colorScheme": "",
-				"passwordHash": ""
+				"password": ""
 			}`,
 		},
 		{
@@ -251,7 +251,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"domain": "",
 				"subdomain": "",
 				"colorScheme": "dark",
-				"passwordHash": ""
+				"password": ""
 			}`,
 		},
 		{
@@ -266,7 +266,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"domain": "",
 				"subdomain": "",
 				"colorScheme": "",
-				"passwordHash": "",
+				"password": "",
 				"hidePoweredBy": true
 			}`,
 		},
