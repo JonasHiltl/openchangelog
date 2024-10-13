@@ -11,6 +11,7 @@ import (
 )
 
 type Changelog = apitypes.Changelog
+type FullChangelog = apitypes.FullChangelog
 
 func (c *Client) GetChangelog(ctx context.Context, changelogID string) (Changelog, error) {
 	req, err := c.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/changelogs/%s", changelogID), nil)
@@ -25,6 +26,23 @@ func (c *Client) GetChangelog(ctx context.Context, changelogID string) (Changelo
 	defer resp.Body.Close()
 
 	var cl Changelog
+	err = resp.DecodeJSON(&cl)
+	return cl, err
+}
+
+func (c *Client) GetFullChangelog(ctx context.Context, changelogID string) (FullChangelog, error) {
+	req, err := c.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/changelogs/%s/full", changelogID), nil)
+	if err != nil {
+		return FullChangelog{}, err
+	}
+
+	resp, err := c.rawRequestWithContext(req)
+	if err != nil {
+		return FullChangelog{}, fmt.Errorf("error while getting full changelog %s: %w", changelogID, err)
+	}
+	defer resp.Body.Close()
+
+	var cl FullChangelog
 	err = resp.DecodeJSON(&cl)
 	return cl, err
 }
