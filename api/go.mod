@@ -4,7 +4,7 @@ go 1.22.2
 
 require (
 	github.com/hashicorp/go-cleanhttp v0.5.2
-	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013123337-70a1f28d7750
+	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013130747-1099f37debc2
 	golang.org/x/net v0.25.0
 )
 
