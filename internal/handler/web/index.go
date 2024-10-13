@@ -3,7 +3,6 @@ package web
 import (
 	"log"
 	"net/http"
-	"net/url"
 
 	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/internal/changelog"
@@ -14,14 +13,7 @@ import (
 
 func index(e *env, w http.ResponseWriter, r *http.Request) error {
 	page, pageSize := handler.ParsePagination(r.URL.Query())
-
-	var err error
-	var l *changelog.LoadedChangelog
-	if e.cfg.IsDBMode() {
-		l, err = loadChangelogDBMode(e, r, changelog.NewPagination(pageSize, page))
-	} else {
-		l, err = loadChangelogConfigMode(e, r, changelog.NewPagination(pageSize, page))
-	}
+	l, err := handler.LoadChangelog(e.loader, e.cfg.IsDBMode(), r, changelog.NewPagination(pageSize, page))
 	if err != nil {
 		return err
 	}
@@ -83,37 +75,4 @@ func ensurePasswordProvided(r *http.Request, pwHash string) error {
 
 	authorize := r.URL.Query().Get("authorize")
 	return validatePassword(pwHash, authorize)
-}
-
-func getQueryIDs(r *http.Request) (wID string, cID string) {
-	query := r.URL.Query()
-	wID = query.Get(handler.WS_ID_QUERY)
-	cID = query.Get(handler.CL_ID_QUERY)
-
-	if wID == "" && cID == "" {
-		u, err := url.Parse(r.Header.Get("HX-Current-URL"))
-		if err == nil {
-			query = u.Query()
-			return query.Get(handler.WS_ID_QUERY), query.Get(handler.CL_ID_QUERY)
-		}
-	}
-	return wID, cID
-}
-
-func loadChangelogDBMode(e *env, r *http.Request, page changelog.Pagination) (*changelog.LoadedChangelog, error) {
-	wID, cID := getQueryIDs(r)
-	if wID != "" && cID != "" {
-		return e.loader.FromWorkspace(r.Context(), wID, cID, page)
-	}
-
-	host := r.Host
-	if r.Header.Get("X-Forwarded-Host") != "" {
-		host = r.Header.Get("X-Forwarded-Host")
-	}
-
-	return e.loader.FromHost(r.Context(), host, changelog.NoPagination())
-}
-
-func loadChangelogConfigMode(e *env, r *http.Request, page changelog.Pagination) (*changelog.LoadedChangelog, error) {
-	return e.loader.FromConfig(r.Context(), page)
 }

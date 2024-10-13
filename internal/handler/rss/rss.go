@@ -18,13 +18,7 @@ import (
 var feedTemplate string
 
 func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
-	var l *changelog.LoadedChangelog
-	var err error
-	if e.cfg.IsDBMode() {
-		l, err = loadFullChangelogDBMode(e, r)
-	} else {
-		l, err = loadFullChangelogConfigMode(e, r)
-	}
+	l, err := handler.LoadChangelog(e.loader, e.cfg.IsDBMode(), r, changelog.NoPagination())
 	if err != nil {
 		return err
 	}
@@ -68,24 +62,4 @@ func addFragment(u string, fragment string) string {
 	}
 	parsed.Fragment = fragment
 	return parsed.String()
-}
-
-func loadFullChangelogDBMode(e *env, r *http.Request) (*changelog.LoadedChangelog, error) {
-	query := r.URL.Query()
-	wID := query.Get(handler.WS_ID_QUERY)
-	cID := query.Get(handler.CL_ID_QUERY)
-	if wID != "" && cID != "" {
-		return e.loader.FromWorkspace(r.Context(), wID, cID, changelog.NoPagination())
-	}
-
-	host := r.Host
-	if r.Header.Get("X-Forwarded-Host") != "" {
-		host = r.Header.Get("X-Forwarded-Host")
-	}
-
-	return e.loader.FromHost(r.Context(), host, changelog.NoPagination())
-}
-
-func loadFullChangelogConfigMode(e *env, r *http.Request) (*changelog.LoadedChangelog, error) {
-	return e.loader.FromConfig(r.Context(), changelog.NoPagination())
 }

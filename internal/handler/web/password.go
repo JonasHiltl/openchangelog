@@ -32,12 +32,7 @@ func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 
 	page, pageSize := handler.ParsePagination(u.Query())
 
-	var l *changelog.LoadedChangelog
-	if e.cfg.IsDBMode() {
-		l, err = loadChangelogDBMode(e, r, changelog.NewPagination(pageSize, page))
-	} else {
-		l, err = loadChangelogConfigMode(e, r, changelog.NewPagination(pageSize, page))
-	}
+	l, err := handler.LoadChangelog(e.loader, e.cfg.IsDBMode(), r, changelog.NewPagination(pageSize, page))
 	if err != nil {
 		return err
 	}
@@ -127,7 +122,7 @@ func getHost(r *http.Request) string {
 }
 
 func createCookieKey(r *http.Request) string {
-	wID, cID := getQueryIDs(r)
+	wID, cID := handler.GetQueryIDs(r)
 	if wID != "" && cID != "" {
 		return fmt.Sprintf("protected-%s-%s", wID, cID)
 	}
