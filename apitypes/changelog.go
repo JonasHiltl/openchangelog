@@ -29,6 +29,20 @@ const (
 	System ColorScheme = "system"
 )
 
+type FullChangelog struct {
+	Changelog       Changelog `json:"changelog"`
+	Articles        []Article `json:"articles"`
+	HasMoreArticles bool      `json:"hasMoreArticles"`
+}
+
+type Article struct {
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	PublishedAt time.Time `json:"publishedAt"`
+	Tags        []string  `json:"tags"`
+	HTMLContent string    `json:"htmlContent"`
+}
+
 func (l Changelog) MarshalJSON() ([]byte, error) {
 	obj := struct {
 		ID            string     `json:"id"`

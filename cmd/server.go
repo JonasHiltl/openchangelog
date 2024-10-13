@@ -42,7 +42,7 @@ func main() {
 
 	loader := changelog.NewLoader(cfg, st, cache)
 
-	rest.RegisterRestHandler(mux, rest.NewEnv(st))
+	rest.RegisterRestHandler(mux, rest.NewEnv(st, loader))
 	web.RegisterWebHandler(mux, web.NewEnv(cfg, loader, render.New(cfg)))
 	rss.RegisterRSSHandler(mux, rss.NewEnv(cfg, loader))
 

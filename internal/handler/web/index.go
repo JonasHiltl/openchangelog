@@ -2,29 +2,16 @@ package web
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/render"
 )
 
-const (
-	default_page      = 1
-	default_page_size = 10
-)
-
 func index(e *env, w http.ResponseWriter, r *http.Request) error {
-	q := r.URL.Query()
-	page, err := strconv.Atoi(q.Get("page"))
-	if err != nil {
-		page = default_page
-	}
-	pageSize, err := strconv.Atoi(q.Get("page-size"))
-	if err != nil {
-		pageSize = default_page_size
-	}
+	page, pageSize := handler.ParsePagination(r.URL.Query())
 
+	var err error
 	var l *changelog.LoadedChangelog
 	if e.cfg.IsDBMode() {
 		l, err = loadChangelogDBMode(e, r, changelog.NewPagination(pageSize, page))
