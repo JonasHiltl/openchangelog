@@ -26,8 +26,7 @@ Openchangelog takes your Markdown files, hosted on GitHub or locally and renders
 - Dark, Light and System themes
 - Colorful Tags
 - Automatic RSS feed
-- Easy to self-host, just a single config file
-- Written in Go → lightweight
+- Password Protection
 - Various integrations, open an issue to request a new integration
 
 ## Quickstart
