@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/jonashiltl/openchangelog/apitypes"
 )
@@ -30,15 +31,31 @@ func (c *Client) GetChangelog(ctx context.Context, changelogID string) (Changelo
 	return cl, err
 }
 
-func (c *Client) GetFullChangelog(ctx context.Context, changelogID string) (FullChangelog, error) {
-	req, err := c.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/changelogs/%s/full", changelogID), nil)
+type GetFullChangelogParams struct {
+	ChangelogID string
+	Page        int
+	PageSize    int
+}
+
+func (c *Client) GetFullChangelog(ctx context.Context, args GetFullChangelogParams) (FullChangelog, error) {
+	q := url.Values{}
+	if args.Page != 0 {
+		q.Set("page", fmt.Sprint(args.Page))
+	}
+	if args.PageSize != 0 {
+		q.Set("page-size", fmt.Sprint(args.PageSize))
+	}
+
+	url := fmt.Sprintf("/changelogs/%s/full?%s", args.ChangelogID, q.Encode())
+
+	req, err := c.NewRequest(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return FullChangelog{}, err
 	}
 
 	resp, err := c.rawRequestWithContext(req)
 	if err != nil {
-		return FullChangelog{}, fmt.Errorf("error while getting full changelog %s: %w", changelogID, err)
+		return FullChangelog{}, fmt.Errorf("error while getting full changelog %s: %w", args.ChangelogID, err)
 	}
 	defer resp.Body.Close()
 
