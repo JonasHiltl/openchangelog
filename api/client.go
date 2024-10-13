@@ -82,11 +82,17 @@ func NewClient(c *Config) (*Client, error) {
 }
 
 func (c *Client) NewRequest(ctx context.Context, method, requestPath string, body io.Reader) (*http.Request, error) {
+	p, err := url.Parse(requestPath)
+	if err != nil {
+		return nil, err
+	}
+
 	url := &url.URL{
-		User:   c.addr.User,
-		Scheme: c.addr.Scheme,
-		Host:   c.addr.Host,
-		Path:   path.Join(c.addr.Path, requestPath),
+		User:     c.addr.User,
+		Scheme:   c.addr.Scheme,
+		Host:     c.addr.Host,
+		Path:     path.Join(c.addr.Path, p.Path),
+		RawQuery: p.RawQuery,
 	}
 
 	req, err := http.NewRequestWithContext(ctx, method, url.String(), body)
