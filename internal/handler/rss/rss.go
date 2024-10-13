@@ -18,13 +18,7 @@ import (
 var feedTemplate string
 
 func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
-	var l *changelog.LoadedChangelog
-	var err error
-	if e.cfg.IsDBMode() {
-		l, err = loadChangelogDBMode(e, r)
-	} else {
-		l, err = loadChangelogConfigMode(e, r)
-	}
+	l, err := handler.LoadChangelog(e.loader, e.cfg.IsDBMode(), r, changelog.NoPagination())
 	if err != nil {
 		return err
 	}
@@ -32,6 +26,18 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 	parsed, err := l.Parse(r.Context())
 	if err != nil {
 		return err
+	}
+
+	if parsed.CL.Protected {
+		authorize := r.URL.Query().Get(handler.AUTHORIZE_QUERY)
+		if authorize == "" {
+			return errs.NewBadRequest(errors.New("can't load rss feed of protected changelog, specify \"authorize\" query param to subscribe"))
+		}
+
+		err = handler.ValidatePassword(parsed.CL.PasswordHash, authorize)
+		if err != nil {
+			return errs.NewBadRequest(err)
+		}
 	}
 
 	tmpl, err := template.
@@ -68,24 +74,4 @@ func addFragment(u string, fragment string) string {
 	}
 	parsed.Fragment = fragment
 	return parsed.String()
-}
-
-func loadChangelogDBMode(e *env, r *http.Request) (*changelog.LoadedChangelog, error) {
-	query := r.URL.Query()
-	wID := query.Get(handler.WS_ID_QUERY)
-	cID := query.Get(handler.CL_ID_QUERY)
-	if wID != "" && cID != "" {
-		return e.loader.FromWorkspace(r.Context(), wID, cID, changelog.NoPagination())
-	}
-
-	host := r.Host
-	if r.Header.Get("X-Forwarded-Host") != "" {
-		host = r.Header.Get("X-Forwarded-Host")
-	}
-
-	return e.loader.FromHost(r.Context(), host, changelog.NoPagination())
-}
-
-func loadChangelogConfigMode(e *env, r *http.Request) (*changelog.LoadedChangelog, error) {
-	return e.loader.FromConfig(r.Context(), changelog.NoPagination())
 }

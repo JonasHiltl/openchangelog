@@ -21,3 +21,6 @@ page:
     width: 70px
     height: 25px
     link: https://www.openchangelog.com
+  auth:
+    enabled: false
+    # passwordHash: bcrypt encrypted hash of password

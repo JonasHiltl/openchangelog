@@ -116,3 +116,79 @@ func TestParsePagination(t *testing.T) {
 		}
 	}
 }
+
+func TestGetQueryIDs(t *testing.T) {
+	tables := []struct {
+		url   string
+		hxURL string
+		wID   string
+		cID   string
+	}{
+		{
+			url: "/?wid=ws_1&cid=cl_1",
+			wID: "ws_1",
+			cID: "cl_1",
+		},
+		{
+			url: "/",
+			wID: "",
+			cID: "",
+		},
+		{
+			hxURL: "http://localhost:6001/?wid=ws_2&cid=cl_2",
+			wID:   "ws_2",
+			cID:   "cl_2",
+		},
+	}
+
+	for _, table := range tables {
+		u, err := url.Parse(table.url)
+		if err != nil {
+			t.Error(err)
+		}
+
+		r := &http.Request{URL: u, Header: http.Header{}}
+		if table.hxURL != "" {
+			r.Header.Set("HX-Current-URL", table.hxURL)
+		}
+
+		wID, cID := GetQueryIDs(r)
+		if wID != table.wID {
+			t.Errorf("Expected %s to equals %s", wID, table.wID)
+		}
+		if cID != table.cID {
+			t.Errorf("Expected %s to equals %s", cID, table.cID)
+		}
+	}
+}
+
+func TestValidatePassword(t *testing.T) {
+	tables := []struct {
+		password string
+		hash     string
+		isValid  bool
+	}{
+		{
+			password: "password",
+			hash:     "$2a$12$tlMf1uwAtIYLKjrDeEpQlORscaoxSiMeQ0eHbigRVk/UlVkRMUe9G",
+			isValid:  true,
+		},
+		{
+			password: "password2",
+			hash:     "$2a$12$tlMf1uwAtIYLKjrDeEpQlORscaoxSiMeQ0eHbigRVk/UlVkRMUe9G",
+			isValid:  false,
+		},
+		{
+			password: "",
+			hash:     "",
+			isValid:  false,
+		},
+	}
+
+	for _, table := range tables {
+		err := ValidatePassword(table.hash, table.password)
+		if table.isValid != (err == nil) {
+			t.Errorf("Expected valid password but got error: %s", err)
+		}
+	}
+}

@@ -37,8 +37,8 @@ github.com/guregu/null/v5 v5.0.0/go.mod h1:SjupzNy+sCPtwQTKWhUCqjhVCO69hpsl2QsZr
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013130747-1099f37debc2 h1:SDiIwDfK0EljoXQfXmKtCa7pOn4sOZe7VTf5TJwThOc=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013130747-1099f37debc2/go.mod h1:xnbFN3Wrw2B1F/D7pvjjwoeXSt+njRI31ccPFno0BM0=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013173330-bcd3f2463da1 h1:N0AEMmpzWHJGeXVVdKqk1F+tRZGdWFyLYBdinJ5zyGc=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013173330-bcd3f2463da1/go.mod h1:xnbFN3Wrw2B1F/D7pvjjwoeXSt+njRI31ccPFno0BM0=
 github.com/kr/http v0.0.0-20150505212737-77bd98b60462 h1:b07ir+udaggBgCywmX2B8jIvNJJaEYXLjnLzIHm/uVg=
 github.com/kr/http v0.0.0-20150505212737-77bd98b60462/go.mod h1:cM5SqzKqF3qr2a/EhVFFGK1+3Co6d40ogrTacbrLzvA=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
@@ -107,6 +107,8 @@ go.abhg.dev/goldmark/frontmatter v0.2.0 h1:P8kPG0YkL12+aYk2yU3xHv4tcXzeVnN+gU0tJ
 go.abhg.dev/goldmark/frontmatter v0.2.0/go.mod h1:XqrEkZuM57djk7zrlRUB02x8I5J0px76YjkOzhB4YlU=
 go.uber.org/multierr v1.11.0 h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=
 go.uber.org/multierr v1.11.0/go.mod h1:20+QtiLqy0Nd6FdQB9TLXag12DsQkrbs3htMFfDN80Y=
+golang.org/x/crypto v0.16.0 h1:mMMrFzRSCF0GvB7Ne27XVtVAaXLrPmgPC7/v0tkwHaY=
+golang.org/x/crypto v0.16.0/go.mod h1:gCAAfMLgwOJRpTjQ2zCCt2OcSfYMTeZVSRtQlPC7Nq4=
 golang.org/x/exp v0.0.0-20230905200255-921286631fa9 h1:GoHiUyI/Tp2nVkLI2mCxVkOjsbSXD66ic0XW0js0R9g=
 golang.org/x/exp v0.0.0-20230905200255-921286631fa9/go.mod h1:S2oDrQGGwySpoQPVqRShND87VCbxmc6bL1Yd2oYrm6k=
 golang.org/x/net v0.0.0-20180906233101-161cd47e91fd/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=

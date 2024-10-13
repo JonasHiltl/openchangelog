@@ -11,7 +11,6 @@ module.exports = {
       },
       colors: (theme) => ({
         "primary": theme.colors.blue[500],
-        "primary-highlight": theme.colors.blue[600],
         "caption": theme.colors.gray[400]
       })
     },

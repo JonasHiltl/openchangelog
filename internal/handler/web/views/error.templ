@@ -18,7 +18,7 @@ templ Error(args ErrorArgs) {
 		<main class="max-w-2xl mx-auto my-8 text-center">
 			<h1 class="dark:text-white">{ fmt.Sprintf("%d", args.Status) }</h1>
 			<p class="mb-4 dark:text-white">{ args.Message }</p>
-			<button class="dark:text-white" hx-get={ args.Path } hx-target="_top">Try Again</button>
+			<a class="btn btn-primary" href={ templ.URL(args.Path) }>Try Again</a>
 		</main>
 	}
 }

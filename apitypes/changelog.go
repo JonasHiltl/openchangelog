@@ -16,6 +16,8 @@ type Changelog struct {
 	Subtitle      NullString
 	ColorScheme   ColorScheme
 	HidePoweredBy bool
+	Protected     bool
+	HasPassword   bool
 	Logo          Logo
 	Source        Source
 	CreatedAt     time.Time
@@ -44,7 +46,7 @@ type Article struct {
 	HTMLContent string    `json:"htmlContent"`
 }
 
-func (l Changelog) MarshalJSON() ([]byte, error) {
+func (cl Changelog) MarshalJSON() ([]byte, error) {
 	obj := struct {
 		ID            string     `json:"id"`
 		WorkspaceID   string     `json:"workspaceId"`
@@ -54,27 +56,31 @@ func (l Changelog) MarshalJSON() ([]byte, error) {
 		Subtitle      string     `json:"subtitle,omitempty"`
 		ColorScheme   string     `json:"colorScheme,omitempty"`
 		HidePoweredBy bool       `json:"hidePoweredBy"`
+		Protected     bool       `json:"protected"`
+		HasPassword   bool       `json:"hasPassword"`
 		Logo          *Logo      `json:"logo,omitempty"`
 		Source        Source     `json:"source,omitempty"`
 		CreatedAt     *time.Time `json:"createdAt,omitempty"`
 	}{
-		ID:            l.ID,
-		WorkspaceID:   l.WorkspaceID,
-		Subdomain:     l.Subdomain,
-		Domain:        l.Domain.V(),
-		Title:         l.Title.V(),
-		Subtitle:      l.Subtitle.V(),
-		ColorScheme:   string(l.ColorScheme),
-		HidePoweredBy: l.HidePoweredBy,
-		Source:        l.Source,
+		ID:            cl.ID,
+		WorkspaceID:   cl.WorkspaceID,
+		Subdomain:     cl.Subdomain,
+		Domain:        cl.Domain.V(),
+		Title:         cl.Title.V(),
+		Subtitle:      cl.Subtitle.V(),
+		ColorScheme:   string(cl.ColorScheme),
+		HidePoweredBy: cl.HidePoweredBy,
+		Protected:     cl.Protected,
+		HasPassword:   cl.HasPassword,
+		Source:        cl.Source,
 	}
 
-	if l.Logo.IsValid() {
-		obj.Logo = &l.Logo
+	if cl.Logo.IsValid() {
+		obj.Logo = &cl.Logo
 	}
 
-	if !l.CreatedAt.IsZero() {
-		obj.CreatedAt = &l.CreatedAt
+	if !cl.CreatedAt.IsZero() {
+		obj.CreatedAt = &cl.CreatedAt
 	}
 
 	return json.Marshal(obj)
@@ -139,6 +145,20 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 
 	if hidePoweredByRaw, ok := objMap["hidePoweredBy"]; ok {
 		err = json.Unmarshal(*hidePoweredByRaw, &c.HidePoweredBy)
+		if err != nil {
+			return err
+		}
+	}
+
+	if protectedRaw, ok := objMap["protected"]; ok {
+		err = json.Unmarshal(*protectedRaw, &c.Protected)
+		if err != nil {
+			return err
+		}
+	}
+
+	if hasPasswordRaw, ok := objMap["hasPassword"]; ok {
+		err = json.Unmarshal(*hasPasswordRaw, &c.HasPassword)
 		if err != nil {
 			return err
 		}
@@ -238,6 +258,8 @@ type CreateChangelogBody struct {
 	Domain        NullString  `json:"domain"`
 	ColorScheme   ColorScheme `json:"colorScheme"`
 	HidePoweredBy bool        `json:"hidePoweredBy"`
+	Protected     bool        `json:"protected"`
+	Password      string      `json:"password"` // actual password, no hash
 }
 
 type UpdateChangelogBody struct {
@@ -248,4 +270,6 @@ type UpdateChangelogBody struct {
 	ColorScheme   ColorScheme `json:"colorScheme"`
 	Subdomain     NullString  `json:"subdomain"`
 	HidePoweredBy *bool       `json:"hidePoweredBy,omitempty"`
+	Protected     *bool       `json:"protected,omitempty"`
+	Password      NullString  `json:"password,omitempty"` // actual password, no hash
 }

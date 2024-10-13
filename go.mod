@@ -7,7 +7,7 @@ require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.10.0
 	github.com/google/go-github/v62 v62.0.0
 	github.com/guregu/null/v5 v5.0.0
-	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013130747-1099f37debc2
+	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013173330-bcd3f2463da1
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/naveensrinivasan/httpcache v1.2.1
 	github.com/peterbourgon/diskv v2.0.1+incompatible
@@ -17,6 +17,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/yuin/goldmark v1.7.1
 	go.abhg.dev/goldmark/frontmatter v0.2.0
+	golang.org/x/crypto v0.16.0
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	mvdan.cc/xurls/v2 v2.5.0
 )

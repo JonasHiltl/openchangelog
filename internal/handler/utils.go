@@ -1,14 +1,19 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/jonashiltl/openchangelog/internal/changelog"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
-	WS_ID_QUERY = "wid"
-	CL_ID_QUERY = "cid"
+	WS_ID_QUERY     = "wid"
+	CL_ID_QUERY     = "cid"
+	AUTHORIZE_QUERY = "authorize"
 )
 
 func ChangelogToFeedURL(r *http.Request) string {
@@ -20,6 +25,9 @@ func ChangelogToFeedURL(r *http.Request) string {
 	}
 	if len(rq.Get(CL_ID_QUERY)) > 0 {
 		q.Add(CL_ID_QUERY, rq.Get(CL_ID_QUERY))
+	}
+	if len(rq.Get(AUTHORIZE_QUERY)) > 0 {
+		q.Add(AUTHORIZE_QUERY, rq.Get(AUTHORIZE_QUERY))
 	}
 
 	newURL := &url.URL{
@@ -76,4 +84,62 @@ func ParsePagination(q url.Values) (page int, size int) {
 	}
 
 	return page, pageSize
+}
+
+func GetQueryIDs(r *http.Request) (wID string, cID string) {
+	query := r.URL.Query()
+	wID = query.Get(WS_ID_QUERY)
+	cID = query.Get(CL_ID_QUERY)
+
+	if wID == "" && cID == "" {
+		u, err := url.Parse(r.Header.Get("HX-Current-URL"))
+		if err == nil {
+			query = u.Query()
+			return query.Get(WS_ID_QUERY), query.Get(CL_ID_QUERY)
+		}
+	}
+	return wID, cID
+}
+
+// If in db-mode => load changelog by query ids or host.
+//
+// If in config mode => load changelog from config.
+func LoadChangelog(loader *changelog.Loader, isDBMode bool, r *http.Request, page changelog.Pagination) (*changelog.LoadedChangelog, error) {
+	if isDBMode {
+		return loadChangelogDBMode(loader, r, page)
+	} else {
+		return loader.FromConfig(r.Context(), page)
+	}
+}
+
+func loadChangelogDBMode(loader *changelog.Loader, r *http.Request, page changelog.Pagination) (*changelog.LoadedChangelog, error) {
+	wID, cID := GetQueryIDs(r)
+	if wID != "" && cID != "" {
+		return loader.FromWorkspace(r.Context(), wID, cID, page)
+	}
+
+	host := r.Host
+	if r.Header.Get("X-Forwarded-Host") != "" {
+		host = r.Header.Get("X-Forwarded-Host")
+	}
+
+	return loader.FromHost(r.Context(), host, page)
+}
+
+func ValidatePassword(hash, plaintext string) error {
+	if hash == "" {
+		return errors.New("protection is enabled, please configure the password")
+	}
+	if plaintext == "" {
+		return errors.New("missing password")
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(plaintext))
+	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+		return errors.New("invalid password")
+	}
+	if err != nil {
+		return err
+	}
+	return nil
 }
