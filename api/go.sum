@@ -2,8 +2,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/hashicorp/go-cleanhttp v0.5.2 h1:035FKYIWjmULyFRBKPs8TBQoi0x6d9G4xc9neXJWAZQ=
 github.com/hashicorp/go-cleanhttp v0.5.2/go.mod h1:kO/YDlP8L1346E6Sodw+PrpBSV4/SoxCXGY6BqNFT48=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013130747-1099f37debc2 h1:SDiIwDfK0EljoXQfXmKtCa7pOn4sOZe7VTf5TJwThOc=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013130747-1099f37debc2/go.mod h1:xnbFN3Wrw2B1F/D7pvjjwoeXSt+njRI31ccPFno0BM0=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013200840-98b510d4c198 h1:YZfwqDUZX191LR891bJ27xN8Fqna3hs0biPnzAfvjyY=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013200840-98b510d4c198/go.mod h1:xnbFN3Wrw2B1F/D7pvjjwoeXSt+njRI31ccPFno0BM0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
