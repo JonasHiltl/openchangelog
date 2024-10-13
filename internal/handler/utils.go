@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -88,7 +87,6 @@ func GetQueryIDs(r *http.Request) (wID string, cID string) {
 	cID = query.Get(CL_ID_QUERY)
 
 	if wID == "" && cID == "" {
-		log.Println(r.Header.Get("HX-Current-URL"))
 		u, err := url.Parse(r.Header.Get("HX-Current-URL"))
 		if err == nil {
 			query = u.Query()
