@@ -73,6 +73,6 @@ func ensurePasswordProvided(r *http.Request, pwHash string) error {
 		return nil
 	}
 
-	authorize := r.URL.Query().Get("authorize")
-	return validatePassword(pwHash, authorize)
+	authorize := r.URL.Query().Get(handler.AUTHORIZE_QUERY)
+	return handler.ValidatePassword(pwHash, authorize)
 }

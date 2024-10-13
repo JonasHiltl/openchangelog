@@ -1,16 +1,19 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/jonashiltl/openchangelog/internal/changelog"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
-	WS_ID_QUERY = "wid"
-	CL_ID_QUERY = "cid"
+	WS_ID_QUERY     = "wid"
+	CL_ID_QUERY     = "cid"
+	AUTHORIZE_QUERY = "authorize"
 )
 
 func ChangelogToFeedURL(r *http.Request) string {
@@ -22,6 +25,9 @@ func ChangelogToFeedURL(r *http.Request) string {
 	}
 	if len(rq.Get(CL_ID_QUERY)) > 0 {
 		q.Add(CL_ID_QUERY, rq.Get(CL_ID_QUERY))
+	}
+	if len(rq.Get(AUTHORIZE_QUERY)) > 0 {
+		q.Add(AUTHORIZE_QUERY, rq.Get(AUTHORIZE_QUERY))
 	}
 
 	newURL := &url.URL{
@@ -118,4 +124,22 @@ func loadChangelogDBMode(loader *changelog.Loader, r *http.Request, page changel
 	}
 
 	return loader.FromHost(r.Context(), host, page)
+}
+
+func ValidatePassword(hash, plaintext string) error {
+	if hash == "" {
+		return errors.New("protection is enabled, please configure the password")
+	}
+	if plaintext == "" {
+		return errors.New("missing password")
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(plaintext))
+	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+		return errors.New("invalid password")
+	}
+	if err != nil {
+		return err
+	}
+	return nil
 }

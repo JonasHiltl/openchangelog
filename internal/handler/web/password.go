@@ -1,7 +1,6 @@
 package web
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -11,7 +10,6 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
 	"github.com/jonashiltl/openchangelog/render"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
@@ -42,7 +40,7 @@ func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	err = validatePassword(parsed.CL.PasswordHash, pw)
+	err = handler.ValidatePassword(parsed.CL.PasswordHash, pw)
 	if err != nil {
 		return views.PasswordProtectionError(err.Error()).Render(r.Context(), w)
 	}
@@ -61,24 +59,6 @@ func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 		NextPage:       page + 1,
 		BaseCSSVersion: e.baseCSSVersion,
 	})
-}
-
-func validatePassword(hash, plaintext string) error {
-	if hash == "" {
-		return errors.New("protection is enabled, please configure the password")
-	}
-	if plaintext == "" {
-		return errors.New("missing password")
-	}
-
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(plaintext))
-	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-		return errors.New("invalid password")
-	}
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func setProtectedCookie(r *http.Request, w http.ResponseWriter, pwHash string) {

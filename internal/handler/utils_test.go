@@ -161,3 +161,34 @@ func TestGetQueryIDs(t *testing.T) {
 		}
 	}
 }
+
+func TestValidatePassword(t *testing.T) {
+	tables := []struct {
+		password string
+		hash     string
+		isValid  bool
+	}{
+		{
+			password: "password",
+			hash:     "$2a$12$tlMf1uwAtIYLKjrDeEpQlORscaoxSiMeQ0eHbigRVk/UlVkRMUe9G",
+			isValid:  true,
+		},
+		{
+			password: "password2",
+			hash:     "$2a$12$tlMf1uwAtIYLKjrDeEpQlORscaoxSiMeQ0eHbigRVk/UlVkRMUe9G",
+			isValid:  false,
+		},
+		{
+			password: "",
+			hash:     "",
+			isValid:  false,
+		},
+	}
+
+	for _, table := range tables {
+		err := ValidatePassword(table.hash, table.password)
+		if table.isValid != (err == nil) {
+			t.Errorf("Expected valid password but got error: %s", err)
+		}
+	}
+}

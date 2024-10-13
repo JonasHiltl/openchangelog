@@ -28,6 +28,18 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	if parsed.CL.Protected {
+		authorize := r.URL.Query().Get(handler.AUTHORIZE_QUERY)
+		if authorize == "" {
+			return errs.NewBadRequest(errors.New("can't load rss feed of protected changelog, specify \"authorize\" query param to subscribe"))
+		}
+
+		err = handler.ValidatePassword(parsed.CL.PasswordHash, authorize)
+		if err != nil {
+			return errs.NewBadRequest(err)
+		}
+	}
+
 	tmpl, err := template.
 		New("feed").
 		Funcs(template.FuncMap{
