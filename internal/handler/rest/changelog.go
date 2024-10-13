@@ -234,6 +234,7 @@ func getFullChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		content, _ := io.ReadAll(a.Content)
 
 		articles[i] = apitypes.Article{
+			ID:          a.Meta.ID,
 			Title:       a.Meta.Title,
 			Description: a.Meta.Description,
 			PublishedAt: a.Meta.PublishedAt,
