@@ -24,7 +24,7 @@ func NewLoader(cfg config.Config, store store.Store, cache httpcache.Cache) *Loa
 		cfg:    cfg,
 		store:  store,
 		cache:  cache,
-		parser: NewParser(),
+		parser: NewOGParser(),
 	}
 }
 

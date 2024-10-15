@@ -20,6 +20,10 @@ type ParsedArticle struct {
 	Content io.Reader
 }
 
+func (a *ParsedArticle) AddTag(t string) {
+	a.Meta.Tags = append(a.Meta.Tags, t)
+}
+
 type Parser interface {
 	Parse(ctx context.Context, raw []RawArticle) ([]ParsedArticle, error)
 }

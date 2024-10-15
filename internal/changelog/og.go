@@ -17,35 +17,42 @@ import (
 	"mvdan.cc/xurls/v2"
 )
 
-type gmark struct {
+// This is the original parser that expects one markdown file per release note.
+// All the meta information should be defined with Frontmatter.
+type og struct {
 	gm goldmark.Markdown
 }
 
-func NewParser() Parser {
-	return &gmark{
-		gm: goldmark.New(
-			goldmark.WithRendererOptions(
-				html.WithUnsafe(),
-			),
-			goldmark.WithExtensions(
-				extension.GFM,
-				enclave.New(&enclave.Config{}),
-				&frontmatter.Extender{},
-				extension.NewLinkify(
-					extension.WithLinkifyAllowedProtocols([]string{
-						"http:",
-						"https:",
-					}),
-					extension.WithLinkifyURLRegexp(
-						xurls.Strict(),
-					),
+// Creates a new goldmark instance, used to parse Markdown to HTML.
+func createGoldmark() goldmark.Markdown {
+	return goldmark.New(
+		goldmark.WithRendererOptions(
+			html.WithUnsafe(),
+		),
+		goldmark.WithExtensions(
+			extension.GFM,
+			enclave.New(&enclave.Config{}),
+			&frontmatter.Extender{},
+			extension.NewLinkify(
+				extension.WithLinkifyAllowedProtocols([]string{
+					"http:",
+					"https:",
+				}),
+				extension.WithLinkifyURLRegexp(
+					xurls.Strict(),
 				),
 			),
 		),
+	)
+}
+
+func NewOGParser() Parser {
+	return &og{
+		gm: createGoldmark(),
 	}
 }
 
-func (g *gmark) Parse(ctx context.Context, raw []RawArticle) ([]ParsedArticle, error) {
+func (g *og) Parse(ctx context.Context, raw []RawArticle) ([]ParsedArticle, error) {
 	var wg sync.WaitGroup
 	result := make([]ParsedArticle, 0, len(raw))
 	mutex := &sync.Mutex{}
@@ -72,7 +79,7 @@ func (g *gmark) Parse(ctx context.Context, raw []RawArticle) ([]ParsedArticle, e
 	return result, nil
 }
 
-func (g *gmark) parseArticle(raw RawArticle) (ParsedArticle, error) {
+func (g *og) parseArticle(raw RawArticle) (ParsedArticle, error) {
 	ctx := parser.NewContext()
 
 	defer raw.Content.Close()
