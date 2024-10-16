@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"math"
+	"time"
 )
 
 type ArticleListArgs struct {
@@ -37,7 +38,7 @@ type ArticleArgs struct {
 	ID          string
 	Title       string
 	Description string
-	PublishedAt string
+	PublishedAt time.Time
 	Tags        []string
 	Content     string
 }
@@ -55,7 +56,9 @@ templ Article(a ArticleArgs) {
 		</h2>
 		<p class="text-caption">{ a.Description }</p>
 		<div class="lg:absolute lg:-left-40 lg:max-w-40 lg:top-0 lg:mt-1 lg:mr-2 flex flex-row gap-2 lg:gap-0 items-center lg:items-start lg:flex-col">
-			<p class="text-caption text-nowrap">{ a.PublishedAt }</p>
+			if !a.PublishedAt.IsZero() {
+				<p class="text-caption text-nowrap">{ a.PublishedAt.Format("02 Jan 2006") }</p>
+			}
 			<div class="flex flex-wrap gap-2">
 				<style>
 					#tag:where([color-scheme=dark] *) {

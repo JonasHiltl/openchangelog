@@ -123,7 +123,7 @@ func parsedArticlesToComponentArticles(parsed []changelog.ParsedArticle) []compo
 			ID:          a.Meta.ID,
 			Title:       a.Meta.Title,
 			Description: a.Meta.Description,
-			PublishedAt: a.Meta.PublishedAt.Format("02 Jan 2006"),
+			PublishedAt: a.Meta.PublishedAt,
 			Tags:        a.Meta.Tags,
 			Content:     buf.String(),
 		}
