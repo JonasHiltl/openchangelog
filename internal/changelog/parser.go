@@ -3,6 +3,7 @@ package changelog
 import (
 	"context"
 	"io"
+	"slices"
 	"time"
 )
 
@@ -21,7 +22,9 @@ type ParsedArticle struct {
 }
 
 func (a *ParsedArticle) AddTag(t string) {
-	a.Meta.Tags = append(a.Meta.Tags, t)
+	if !slices.Contains(a.Meta.Tags, t) {
+		a.Meta.Tags = append(a.Meta.Tags, t)
+	}
 }
 
 type Parser interface {
