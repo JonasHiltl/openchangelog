@@ -2,7 +2,6 @@ package changelog
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -29,11 +28,7 @@ type ghSource struct {
 func newGHSourceFromStore(cfg config.Config, gh store.GHSource, cache httpcache.Cache) (Source, error) {
 	tr := http.DefaultTransport
 
-	if !cfg.HasGithubAuth() {
-		return nil, errors.New("missing github auth in config")
-	}
-
-	if cfg.Github.Auth.AppPrivateKey != "" && gh.InstallationID != 0 {
+	if cfg.HasGithubAuth() && cfg.Github.Auth.AppPrivateKey != "" && gh.InstallationID != 0 {
 		// Wrap the shared transport for use with the app ID 1 authenticating with installation ID 99.
 		itr, err := ghinstallation.NewKeyFromFile(tr, cfg.Github.Auth.AppID, gh.InstallationID, cfg.Github.Auth.AppPrivateKey)
 		if err != nil {
@@ -49,7 +44,7 @@ func newGHSourceFromStore(cfg config.Config, gh store.GHSource, cache httpcache.
 	}
 
 	client := github.NewClient(&http.Client{Transport: tr})
-	if cfg.Github.Auth.AccessToken != "" {
+	if cfg.HasGithubAuth() && cfg.Github.Auth.AccessToken != "" {
 		client = client.WithAuthToken(cfg.Github.Auth.AccessToken)
 	}
 
