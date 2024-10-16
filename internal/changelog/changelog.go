@@ -135,13 +135,18 @@ var ogParser = NewOGParser()
 var kParser = NewKeepAChangelogParser()
 
 func (c *LoadedChangelog) Parse(ctx context.Context) (ParsedChangelog, error) {
-	var parsed []ParsedArticle
-	var err error
+	// TODO: better way would be to detect the correct parser based on the file content,
+	// but for now let's just have this convention.
 	if len(c.res.Articles) == 1 {
-		parsed, err = kParser.Parse(ctx, c.res.Articles[0], c.page)
-	} else {
-		parsed, err = ogParser.Parse(ctx, c.res.Articles)
+		parsed, hasMore := kParser.Parse(ctx, c.res.Articles[0], c.page)
+		return ParsedChangelog{
+			CL:       c.cl,
+			Articles: parsed,
+			HasMore:  hasMore,
+		}, nil
 	}
+
+	parsed, err := ogParser.Parse(ctx, c.res.Articles)
 	if err != nil {
 		return ParsedChangelog{}, err
 	}

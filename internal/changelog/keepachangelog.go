@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"errors"
 	"strings"
 	"time"
 
@@ -21,71 +22,66 @@ func NewKeepAChangelogParser() *kparser {
 }
 
 // Parses a a markdown file in the https://keepachangelog.com/en/1.1.0/ format to multiple articles to be displayed by Openchangelog.
-func (g *kparser) Parse(ctx context.Context, raw RawArticle, page Pagination) ([]ParsedArticle, error) {
+func (g *kparser) Parse(ctx context.Context, raw RawArticle, page Pagination) ([]ParsedArticle, bool) {
 	defer raw.Content.Close()
 
 	// sanitize pagination
 	if page.IsDefined() && page.PageSize() < 1 {
-		return make([]ParsedArticle, 0), nil
+		return make([]ParsedArticle, 0), false
 	}
 
-	parsed, err := g.parseChangelog(raw, page)
-	if err != nil {
-		return nil, err
-	}
-	return parsed, nil
+	return g.parseChangelog(raw, page)
 }
 
-// 1. Split by ##
-//  1. section is ignored
-//  1. section is an optional unreleased section
-//     ... each section is it's own article
-func (g *kparser) parseChangelog(raw RawArticle, page Pagination) ([]ParsedArticle, error) {
+// Returns the parsed articles and true if there are more articles to parse, else false.
+func (g *kparser) parseChangelog(raw RawArticle, page Pagination) ([]ParsedArticle, bool) {
 	sc := bufio.NewScanner(raw.Content)
+	sc.Split(splitNewRelease)
 
 	var articles []ParsedArticle
-	// required since g.parseArticle() returns the first line of the next article
-	var line string
-	var currentArticleIdx int = 0
+	var currentIdx = 0
+	var hasMore = false
 
-	// scans line per line
-	for sc.Scan() || line != "" {
-		if line == "" {
-			line = sc.Text()
+	for sc.Scan() {
+		section := sc.Text()
+
+		if strings.HasPrefix(section, "# ") {
+			// ignore the section with the changelog title
+			continue
 		}
 
-		// start of new release
-		if strings.HasPrefix(line, "## ") {
-			if !page.IsDefined() || (currentArticleIdx >= page.StartIdx() && currentArticleIdx <= page.EndIdx()) {
-				a, nextLine, err := g.parseArticle(line, sc)
-				if err == nil {
-					articles = append(articles, a)
-				}
-				line = nextLine
-			} else {
-				line = ""
+		if !page.IsDefined() || (currentIdx >= page.StartIdx() && currentIdx <= page.EndIdx()) {
+			a, err := g.parseArticle(section)
+			if err == nil {
+				articles = append(articles, a)
 			}
-
-			currentArticleIdx++
-		} else {
-			line = ""
 		}
+
+		// check if we have one more article
+		if page.IsDefined() && currentIdx == page.EndIdx()+1 {
+			hasMore = true
+			break
+		}
+
+		currentIdx++
 	}
 
-	if err := sc.Err(); err != nil {
-		return nil, err
-	}
-
-	return articles, nil
+	return articles, hasMore
 }
 
 // Called on each new ## section of the changelog file.
 // Returns the currently parsed article and the new line of the next article if another article exists.
-func (g *kparser) parseArticle(firstLine string, sc *bufio.Scanner) (ParsedArticle, string, error) {
+func (g *kparser) parseArticle(article string) (ParsedArticle, error) {
+	firstLineIdx := strings.Index(article, "\n")
+	if firstLineIdx == -1 {
+		return ParsedArticle{}, errors.New("no new line character found")
+	}
+	firstLine := article[:firstLineIdx]
+	content := article[firstLineIdx+1:]
+
 	h2Parts := strings.SplitN(strings.TrimPrefix(firstLine, "## "), " - ", 2)
 	title := cleanTitle(h2Parts[0])
 
-	var content bytes.Buffer
 	a := ParsedArticle{
 		Meta: Meta{
 			Title: title,
@@ -100,44 +96,47 @@ func (g *kparser) parseArticle(firstLine string, sc *bufio.Scanner) (ParsedArtic
 		}
 	}
 
-	var line string
+	sc := bufio.NewScanner(strings.NewReader(content))
 	for sc.Scan() {
-		line = sc.Text()
-
-		if strings.HasPrefix(line, "## ") {
-			// begin of new article
-			break
-		} else if strings.HasPrefix(line, "### ") {
-			// type of change
-			parts := strings.Split(line, " ")
-			if len(parts) > 1 {
-				a.AddTag(parts[1])
-			}
-
-			content.WriteString(line + "\n")
-		} else {
-			// content line
-			content.WriteString(line + "\n")
+		line := sc.Text()
+		if strings.HasPrefix(line, "### ") {
+			changeType := strings.TrimPrefix(line, "### ")
+			a.AddTag(changeType)
 		}
 	}
 
-	if err := sc.Err(); err != nil {
-		return ParsedArticle{}, line, err
-	}
-
 	var htmlContent bytes.Buffer
-	err := g.gm.Convert(content.Bytes(), &htmlContent)
+	err := g.gm.Convert([]byte(content), &htmlContent)
 	if err != nil {
-		return ParsedArticle{}, line, err
+		return ParsedArticle{}, err
 	}
 
 	a.Content = &htmlContent
 
-	return a, line, nil
+	return a, nil
 }
 
 func cleanTitle(title string) string {
 	title = strings.TrimSpace(title)
 	title = strings.Replace(title, "[", "", 1)
 	return strings.Replace(title, "]", "", 1)
+}
+
+func splitNewRelease(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+
+	// try to find index of the new release section
+	if i := bytes.Index(data, []byte("\n## ")); i >= 0 {
+		return i + 1, data[:i], nil
+	}
+
+	// If we're at EOF, we have a final, non-terminated line. Return it.
+	if atEOF {
+		return len(data), data, nil
+	}
+
+	// Request more data.
+	return 0, nil, nil
 }

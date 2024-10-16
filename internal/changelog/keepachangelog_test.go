@@ -17,9 +17,9 @@ func TestKParseMinimal(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	parsed, err := p.Parse(ctx, RawArticle{Content: file}, NoPagination())
-	if err != nil {
-		t.Fatal(err)
+	parsed, hasMore := p.Parse(ctx, RawArticle{Content: file}, NoPagination())
+	if hasMore == true {
+		t.Error("hasMore should be false")
 	}
 
 	if len(parsed) != 1 {
@@ -53,9 +53,9 @@ func TestKParseUnreleased(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	parsed, err := p.Parse(ctx, RawArticle{Content: file}, NoPagination())
-	if err != nil {
-		t.Fatal(err)
+	parsed, hasMore := p.Parse(ctx, RawArticle{Content: file}, NoPagination())
+	if hasMore == true {
+		t.Error("hasMore should be false")
 	}
 
 	if len(parsed) != 1 {
@@ -89,9 +89,9 @@ func TestKParseFull(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	parsed, err := p.Parse(ctx, RawArticle{Content: file}, NoPagination())
-	if err != nil {
-		t.Fatal(err)
+	parsed, hasMore := p.Parse(ctx, RawArticle{Content: file}, NoPagination())
+	if hasMore == true {
+		t.Error("hasMore should be false")
 	}
 
 	if len(parsed) != 15 {
@@ -104,24 +104,43 @@ func TestKParsePagination(t *testing.T) {
 	p := NewKeepAChangelogParser()
 
 	tables := []struct {
-		size int
-		page int
+		size            int
+		expectedSize    int
+		page            int
+		expectedHasMore bool
 	}{
 		{
-			size: 3,
-			page: 2,
+			size:            3,
+			page:            2,
+			expectedSize:    3,
+			expectedHasMore: true,
 		},
 		{
-			size: 1,
-			page: 1,
+			size:            1,
+			page:            1,
+			expectedSize:    1,
+			expectedHasMore: true,
 		},
 		{
-			size: 15,
-			page: 1,
+			size:         15,
+			page:         1,
+			expectedSize: 15,
 		},
 		{
-			size: 6,
-			page: 2,
+			size:            6,
+			page:            2,
+			expectedSize:    6,
+			expectedHasMore: true,
+		},
+		{
+			size:         8,
+			page:         2,
+			expectedSize: 7,
+		},
+		{
+			size:         14,
+			page:         2,
+			expectedSize: 1,
 		},
 	}
 
@@ -134,13 +153,14 @@ func TestKParsePagination(t *testing.T) {
 		}
 
 		page := NewPagination(table.size, table.page)
-		parsed, err := p.Parse(ctx, RawArticle{Content: file}, NewPagination(table.size, table.page))
-		if err != nil {
-			t.Fatal(err)
+		parsed, hasMore := p.Parse(ctx, RawArticle{Content: file}, NewPagination(table.size, table.page))
+
+		if hasMore != table.expectedHasMore {
+			t.Errorf("Expected hasMore %t but got %t", table.expectedHasMore, hasMore)
 		}
 
-		if len(parsed) != table.size {
-			t.Errorf("Expected %d parsed article but got %d", table.size, len(parsed))
+		if len(parsed) != table.expectedSize {
+			t.Errorf("Expected %d parsed article but got %d", table.expectedSize, len(parsed))
 		}
 
 		for i, a := range parsed {
