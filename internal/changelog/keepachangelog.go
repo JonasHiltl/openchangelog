@@ -34,6 +34,7 @@ func (g *kparser) Parse(ctx context.Context, raw RawArticle, page Pagination) ([
 }
 
 // Returns the parsed articles and true if there are more articles to parse, else false.
+// Skips the raw article if it couldn't get parsed.
 func (g *kparser) parseChangelog(raw RawArticle, page Pagination) ([]ParsedArticle, bool) {
 	sc := bufio.NewScanner(raw.Content)
 	sc.Split(splitNewRelease)
