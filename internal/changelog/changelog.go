@@ -39,8 +39,9 @@ func (l *Loader) FromConfig(ctx context.Context, page Pagination) (*LoadedChange
 	}
 
 	return &LoadedChangelog{
-		cl:  cl,
-		res: res,
+		cl:   cl,
+		res:  res,
+		page: page,
 	}, nil
 }
 
@@ -63,8 +64,9 @@ func (l *Loader) FromHost(ctx context.Context, host string, page Pagination) (*L
 	}
 
 	return &LoadedChangelog{
-		cl:  cl,
-		res: res,
+		cl:   cl,
+		res:  res,
+		page: page,
 	}, nil
 }
 
@@ -89,8 +91,9 @@ func (l *Loader) FromWorkspace(ctx context.Context, wID, cID string, page Pagina
 	}
 
 	return &LoadedChangelog{
-		cl:  cl,
-		res: res,
+		cl:   cl,
+		res:  res,
+		page: page,
 	}, nil
 }
 
@@ -117,8 +120,9 @@ func (l *Loader) load(ctx context.Context, cl store.Changelog, page Pagination) 
 }
 
 type LoadedChangelog struct {
-	cl  store.Changelog
-	res LoadResult
+	cl   store.Changelog
+	page Pagination
+	res  LoadResult
 }
 
 type ParsedChangelog struct {
@@ -127,15 +131,17 @@ type ParsedChangelog struct {
 	HasMore  bool
 }
 
-func (c *LoadedChangelog) Parse(ctx context.Context) (ParsedChangelog, error) {
-	var parser Parser
-	if len(c.res.Articles) == 1 {
-		parser = NewKeepAChangelogParser()
-	} else {
-		parser = NewOGParser()
-	}
+var ogParser = NewOGParser()
+var kParser = NewKeepAChangelogParser()
 
-	parsed, err := parser.Parse(ctx, c.res.Articles)
+func (c *LoadedChangelog) Parse(ctx context.Context) (ParsedChangelog, error) {
+	var parsed []ParsedArticle
+	var err error
+	if len(c.res.Articles) == 1 {
+		parsed, err = kParser.Parse(ctx, c.res.Articles[0], c.page)
+	} else {
+		parsed, err = ogParser.Parse(ctx, c.res.Articles)
+	}
 	if err != nil {
 		return ParsedChangelog{}, err
 	}

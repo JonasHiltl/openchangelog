@@ -4,49 +4,49 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"errors"
 	"strings"
 	"time"
 
 	"github.com/yuin/goldmark"
 )
 
-// A parser that parses changelogs using the https://keepachangelog.com/en/1.1.0/ format.
-type keepachangelog struct {
+type kparser struct {
 	gm goldmark.Markdown
 }
 
-func NewKeepAChangelogParser() Parser {
-	return &keepachangelog{
+func NewKeepAChangelogParser() *kparser {
+	return &kparser{
 		gm: createGoldmark(),
 	}
 }
 
-func (g *keepachangelog) Parse(ctx context.Context, raw []RawArticle) ([]ParsedArticle, error) {
-	// optimize for this, since it's the most common case. Just asingle CHANGELOG.md file.
-	if len(raw) == 1 {
-		parsed, err := g.parseChangelog(raw[0])
-		if err != nil {
-			return nil, err
-		}
-		return parsed, nil
+// Parses a a markdown file in the https://keepachangelog.com/en/1.1.0/ format to multiple articles to be displayed by Openchangelog.
+func (g *kparser) Parse(ctx context.Context, raw RawArticle, page Pagination) ([]ParsedArticle, error) {
+	defer raw.Content.Close()
+
+	// sanitize pagination
+	if page.IsDefined() && page.PageSize() < 1 {
+		return make([]ParsedArticle, 0), nil
 	}
 
-	return nil, errors.New("keep a changelog format expects one raw article")
+	parsed, err := g.parseChangelog(raw, page)
+	if err != nil {
+		return nil, err
+	}
+	return parsed, nil
 }
 
 // 1. Split by ##
 //  1. section is ignored
 //  1. section is an optional unreleased section
 //     ... each section is it's own article
-func (g *keepachangelog) parseChangelog(raw RawArticle) ([]ParsedArticle, error) {
-	defer raw.Content.Close()
-
+func (g *kparser) parseChangelog(raw RawArticle, page Pagination) ([]ParsedArticle, error) {
 	sc := bufio.NewScanner(raw.Content)
 
 	var articles []ParsedArticle
 	// required since g.parseArticle() returns the first line of the next article
 	var line string
+	var currentArticleIdx int = 0
 
 	// scans line per line
 	for sc.Scan() || line != "" {
@@ -54,12 +54,19 @@ func (g *keepachangelog) parseChangelog(raw RawArticle) ([]ParsedArticle, error)
 			line = sc.Text()
 		}
 
+		// start of new release
 		if strings.HasPrefix(line, "## ") {
-			a, nextLine, err := g.parseArticle(line, sc)
-			if err == nil {
-				articles = append(articles, a)
+			if !page.IsDefined() || (currentArticleIdx >= page.StartIdx() && currentArticleIdx <= page.EndIdx()) {
+				a, nextLine, err := g.parseArticle(line, sc)
+				if err == nil {
+					articles = append(articles, a)
+				}
+				line = nextLine
+			} else {
+				line = ""
 			}
-			line = nextLine
+
+			currentArticleIdx++
 		} else {
 			line = ""
 		}
@@ -74,7 +81,7 @@ func (g *keepachangelog) parseChangelog(raw RawArticle) ([]ParsedArticle, error)
 
 // Called on each new ## section of the changelog file.
 // Returns the currently parsed article and the new line of the next article if another article exists.
-func (g *keepachangelog) parseArticle(firstLine string, sc *bufio.Scanner) (ParsedArticle, string, error) {
+func (g *kparser) parseArticle(firstLine string, sc *bufio.Scanner) (ParsedArticle, string, error) {
 	h2Parts := strings.SplitN(strings.TrimPrefix(firstLine, "## "), " - ", 2)
 	title := cleanTitle(h2Parts[0])
 
