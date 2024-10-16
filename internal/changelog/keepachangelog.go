@@ -40,6 +40,8 @@ func (g *keepachangelog) Parse(ctx context.Context, raw []RawArticle) ([]ParsedA
 //  1. section is an optional unreleased section
 //     ... each section is it's own article
 func (g *keepachangelog) parseChangelog(raw RawArticle) ([]ParsedArticle, error) {
+	defer raw.Content.Close()
+
 	sc := bufio.NewScanner(raw.Content)
 
 	var articles []ParsedArticle
@@ -53,7 +55,7 @@ func (g *keepachangelog) parseChangelog(raw RawArticle) ([]ParsedArticle, error)
 		}
 
 		if strings.HasPrefix(line, "## ") {
-			a, nextLine, err := g.parseArticle(sc)
+			a, nextLine, err := g.parseArticle(line, sc)
 			if err == nil {
 				articles = append(articles, a)
 			}
@@ -72,15 +74,16 @@ func (g *keepachangelog) parseChangelog(raw RawArticle) ([]ParsedArticle, error)
 
 // Called on each new ## section of the changelog file.
 // Returns the currently parsed article and the new line of the next article if another article exists.
-func (g *keepachangelog) parseArticle(sc *bufio.Scanner) (ParsedArticle, string, error) {
-	h2Parts := strings.SplitN(strings.TrimPrefix(sc.Text(), "## "), " - ", 2)
+func (g *keepachangelog) parseArticle(firstLine string, sc *bufio.Scanner) (ParsedArticle, string, error) {
+	h2Parts := strings.SplitN(strings.TrimPrefix(firstLine, "## "), " - ", 2)
+	title := cleanTitle(h2Parts[0])
 
-	b := new(bytes.Buffer)
+	var content bytes.Buffer
 	a := ParsedArticle{
 		Meta: Meta{
-			Title: cleanTitle(h2Parts[0]),
+			Title: title,
+			ID:    strings.ToLower(title),
 		},
-		Content: b,
 	}
 
 	if len(h2Parts) > 1 {
@@ -90,12 +93,13 @@ func (g *keepachangelog) parseArticle(sc *bufio.Scanner) (ParsedArticle, string,
 		}
 	}
 
+	var line string
 	for sc.Scan() {
-		line := sc.Text()
+		line = sc.Text()
 
 		if strings.HasPrefix(line, "## ") {
 			// begin of new article
-			return a, line, nil
+			break
 		} else if strings.HasPrefix(line, "### ") {
 			// type of change
 			parts := strings.Split(line, " ")
@@ -103,18 +107,26 @@ func (g *keepachangelog) parseArticle(sc *bufio.Scanner) (ParsedArticle, string,
 				a.AddTag(parts[1])
 			}
 
-			b.WriteString(line + "\n")
+			content.WriteString(line + "\n")
 		} else {
 			// content line
-			b.WriteString(line + "\n")
+			content.WriteString(line + "\n")
 		}
 	}
 
 	if err := sc.Err(); err != nil {
-		return ParsedArticle{}, "", err
+		return ParsedArticle{}, line, err
 	}
 
-	return a, "", nil
+	var htmlContent bytes.Buffer
+	err := g.gm.Convert(content.Bytes(), &htmlContent)
+	if err != nil {
+		return ParsedArticle{}, line, err
+	}
+
+	a.Content = &htmlContent
+
+	return a, line, nil
 }
 
 func cleanTitle(title string) string {

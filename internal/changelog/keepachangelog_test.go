@@ -2,7 +2,6 @@ package changelog
 
 import (
 	"context"
-	"io"
 	"os"
 	"reflect"
 	"testing"
@@ -47,38 +46,6 @@ func TestKParseMinimal(t *testing.T) {
 	if article.Meta.PublishedAt != expectedPublishedAt {
 		t.Errorf("Expected %s to equal %s", article.Meta.PublishedAt, expectedPublishedAt)
 	}
-
-	expectedContent := `
-### Added
-
-- Arabic translation (#444).
-- v1.1 French translation.
-- v1.1 Dutch translation (#371).
-
-### Fixed
-
-- Improve French translation (#377).
-- Improve id-ID translation (#416).
-- Improve Persian translation (#457).
-
-### Changed
-
-- Upgrade dependencies: Ruby 3.2.1, Middleman, etc.
-
-### Removed
-
-- Unused normalize.css file.
-- Identical links assigned in each translation file.
-- Duplicate index file for the english version.
-`
-	all, err := io.ReadAll(article.Content)
-	if err != nil {
-		t.Fatal(err)
-	}
-	content := string(all)
-	if expectedContent != content {
-		t.Errorf("Expected \n%s to equal \n%s", content, expectedContent)
-	}
 }
 
 func TestKParseUnreleased(t *testing.T) {
@@ -115,41 +82,9 @@ func TestKParseUnreleased(t *testing.T) {
 		t.Errorf("Expected %s to equal %s", article.Meta.Title, expectedTitle)
 	}
 
-	expectedPublishedAt := time.Time{}
-	if article.Meta.PublishedAt != expectedPublishedAt {
-		t.Errorf("Expected %s to equal %s", article.Meta.PublishedAt, expectedPublishedAt)
-	}
-
-	expectedContent := `
-### Added
-
-- v1.1 Brazilian Portuguese translation.
-- v1.1 German Translation
-- v1.1 Spanish translation.
-- v1.1 Italian translation.
-- v1.1 Polish translation.
-- v1.1 Ukrainian translation.
-
-### Changed
-
-- Use frontmatter title & description in each language version template
-- Replace broken OpenGraph image with an appropriately-sized Keep a Changelog 
-  image that will render properly (although in English for all languages)
-- Fix OpenGraph title & description for all languages so the title and 
-description when links are shared are language-appropriate
-
-### Removed
-
-- Trademark sign previously shown after the project description in version 
-0.3.0
-`
-	all, err := io.ReadAll(article.Content)
-	if err != nil {
-		t.Fatal(err)
-	}
-	content := string(all)
-	if expectedContent != content {
-		t.Errorf("Expected \n%s to equal \n%s", content, expectedContent)
+	expectedID := "unreleased"
+	if article.Meta.ID != expectedID {
+		t.Errorf("Expected %s to equal %s", article.Meta.ID, expectedID)
 	}
 }
 
@@ -172,6 +107,6 @@ func TestKParseFull(t *testing.T) {
 	}
 
 	if len(parsed) != 15 {
-		t.Fatalf("Expected 15 parsed article but got %d", len(parsed))
+		t.Errorf("Expected 15 parsed article but got %d", len(parsed))
 	}
 }

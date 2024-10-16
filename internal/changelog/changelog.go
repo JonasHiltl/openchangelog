@@ -13,18 +13,16 @@ import (
 // Groups multiple ways of loading a changelog. Either from the config, by it's subdomain or workspace.
 // After loading the changelog it can easily be parsed.
 type Loader struct {
-	cfg    config.Config
-	store  store.Store
-	cache  httpcache.Cache
-	parser Parser
+	cfg   config.Config
+	store store.Store
+	cache httpcache.Cache
 }
 
 func NewLoader(cfg config.Config, store store.Store, cache httpcache.Cache) *Loader {
 	return &Loader{
-		cfg:    cfg,
-		store:  store,
-		cache:  cache,
-		parser: NewOGParser(),
+		cfg:   cfg,
+		store: store,
+		cache: cache,
 	}
 }
 
@@ -41,9 +39,8 @@ func (l *Loader) FromConfig(ctx context.Context, page Pagination) (*LoadedChange
 	}
 
 	return &LoadedChangelog{
-		cl:     cl,
-		res:    res,
-		parser: l.parser,
+		cl:  cl,
+		res: res,
 	}, nil
 }
 
@@ -66,9 +63,8 @@ func (l *Loader) FromHost(ctx context.Context, host string, page Pagination) (*L
 	}
 
 	return &LoadedChangelog{
-		cl:     cl,
-		res:    res,
-		parser: l.parser,
+		cl:  cl,
+		res: res,
 	}, nil
 }
 
@@ -93,9 +89,8 @@ func (l *Loader) FromWorkspace(ctx context.Context, wID, cID string, page Pagina
 	}
 
 	return &LoadedChangelog{
-		cl:     cl,
-		res:    res,
-		parser: l.parser,
+		cl:  cl,
+		res: res,
 	}, nil
 }
 
@@ -122,9 +117,8 @@ func (l *Loader) load(ctx context.Context, cl store.Changelog, page Pagination) 
 }
 
 type LoadedChangelog struct {
-	cl     store.Changelog
-	res    LoadResult
-	parser Parser
+	cl  store.Changelog
+	res LoadResult
 }
 
 type ParsedChangelog struct {
@@ -134,7 +128,14 @@ type ParsedChangelog struct {
 }
 
 func (c *LoadedChangelog) Parse(ctx context.Context) (ParsedChangelog, error) {
-	parsed, err := c.parser.Parse(ctx, c.res.Articles)
+	var parser Parser
+	if len(c.res.Articles) == 1 {
+		parser = NewKeepAChangelogParser()
+	} else {
+		parser = NewOGParser()
+	}
+
+	parsed, err := parser.Parse(ctx, c.res.Articles)
 	if err != nil {
 		return ParsedChangelog{}, err
 	}
