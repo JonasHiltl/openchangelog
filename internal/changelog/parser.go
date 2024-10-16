@@ -3,6 +3,7 @@ package changelog
 import (
 	"context"
 	"io"
+	"slices"
 	"time"
 )
 
@@ -18,6 +19,12 @@ type Meta struct {
 type ParsedArticle struct {
 	Meta    Meta
 	Content io.Reader
+}
+
+func (a *ParsedArticle) AddTag(t string) {
+	if !slices.Contains(a.Meta.Tags, t) {
+		a.Meta.Tags = append(a.Meta.Tags, t)
+	}
 }
 
 type Parser interface {

@@ -13,18 +13,16 @@ import (
 // Groups multiple ways of loading a changelog. Either from the config, by it's subdomain or workspace.
 // After loading the changelog it can easily be parsed.
 type Loader struct {
-	cfg    config.Config
-	store  store.Store
-	cache  httpcache.Cache
-	parser Parser
+	cfg   config.Config
+	store store.Store
+	cache httpcache.Cache
 }
 
 func NewLoader(cfg config.Config, store store.Store, cache httpcache.Cache) *Loader {
 	return &Loader{
-		cfg:    cfg,
-		store:  store,
-		cache:  cache,
-		parser: NewParser(),
+		cfg:   cfg,
+		store: store,
+		cache: cache,
 	}
 }
 
@@ -41,9 +39,9 @@ func (l *Loader) FromConfig(ctx context.Context, page Pagination) (*LoadedChange
 	}
 
 	return &LoadedChangelog{
-		cl:     cl,
-		res:    res,
-		parser: l.parser,
+		cl:   cl,
+		res:  res,
+		page: page,
 	}, nil
 }
 
@@ -66,9 +64,9 @@ func (l *Loader) FromHost(ctx context.Context, host string, page Pagination) (*L
 	}
 
 	return &LoadedChangelog{
-		cl:     cl,
-		res:    res,
-		parser: l.parser,
+		cl:   cl,
+		res:  res,
+		page: page,
 	}, nil
 }
 
@@ -93,9 +91,9 @@ func (l *Loader) FromWorkspace(ctx context.Context, wID, cID string, page Pagina
 	}
 
 	return &LoadedChangelog{
-		cl:     cl,
-		res:    res,
-		parser: l.parser,
+		cl:   cl,
+		res:  res,
+		page: page,
 	}, nil
 }
 
@@ -122,9 +120,9 @@ func (l *Loader) load(ctx context.Context, cl store.Changelog, page Pagination) 
 }
 
 type LoadedChangelog struct {
-	cl     store.Changelog
-	res    LoadResult
-	parser Parser
+	cl   store.Changelog
+	page Pagination
+	res  LoadResult
 }
 
 type ParsedChangelog struct {
@@ -133,8 +131,22 @@ type ParsedChangelog struct {
 	HasMore  bool
 }
 
+var ogParser = NewOGParser()
+var kParser = NewKeepAChangelogParser()
+
 func (c *LoadedChangelog) Parse(ctx context.Context) (ParsedChangelog, error) {
-	parsed, err := c.parser.Parse(ctx, c.res.Articles)
+	// TODO: better way would be to detect the correct parser based on the file content,
+	// but for now let's just have this convention.
+	if len(c.res.Articles) == 1 {
+		parsed, hasMore := kParser.Parse(ctx, c.res.Articles[0], c.page)
+		return ParsedChangelog{
+			CL:       c.cl,
+			Articles: parsed,
+			HasMore:  hasMore,
+		}, nil
+	}
+
+	parsed, err := ogParser.Parse(ctx, c.res.Articles)
 	if err != nil {
 		return ParsedChangelog{}, err
 	}

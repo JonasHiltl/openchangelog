@@ -22,11 +22,12 @@
 <br />
 </p>
 
-Openchangelog takes your Markdown files, hosted on GitHub or locally and renders them as a beautiful Changelog Website.
+Openchangelog takes your Changelog, hosted on GitHub or locally and renders it as a beautiful Changelog Website.
 - Dark, Light and System themes
 - Colorful Tags
 - Automatic RSS feed
 - Password Protection
+- Supports [keep a changelog](https://keepachangelog.com/en/1.1.0/) format or 1 Markdown file per release
 - Various integrations, open an issue to request a new integration
 
 ## Quickstart
