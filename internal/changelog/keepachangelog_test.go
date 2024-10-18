@@ -1,36 +1,51 @@
 package changelog
 
 import (
-	"context"
+	"fmt"
 	"os"
 	"reflect"
 	"testing"
 	"time"
 )
 
-func TestKParseMinimal(t *testing.T) {
-	ctx := context.Background()
-	p := NewKeepAChangelogParser()
+func openKTestData(name string) (*os.File, error) {
+	file, err := os.Open(fmt.Sprintf("../../.testdata/keepachangelog/%s.md", name))
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
+}
 
-	file, err := os.Open("../../.testdata/keepachangelog/minimal.md")
+func openKTestDataAndDetect(name string) (*os.File, string, error) {
+	file, err := openKTestData(name)
+	if err != nil {
+		return nil, "", err
+	}
+	_, read := detectFileFormat(file)
+	return file, read, nil
+}
+
+func TestKParseMinimal(t *testing.T) {
+	p := newKeepAChangelogParser()
+	file, read, err := openKTestDataAndDetect("minimal")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	parsed, hasMore := p.Parse(ctx, RawArticle{Content: file}, NoPagination())
-	if hasMore == true {
+	parsed := p.parse(read, file, NoPagination())
+	if parsed.HasMore == true {
 		t.Error("hasMore should be false")
 	}
 
-	if len(parsed) != 1 {
-		t.Fatalf("Expected 1 parsed article but got %d", len(parsed))
+	if len(parsed.Articles) != 1 {
+		t.Fatalf("Expected 1 parsed article but got %d", len(parsed.Articles))
 	}
 
-	article := parsed[0]
+	article := parsed.Articles[0]
 
 	expectedTags := []string{"Added", "Fixed", "Changed", "Removed"}
 	if !reflect.DeepEqual(article.Meta.Tags, expectedTags) {
-		t.Errorf("Expected %s to equal %s", article.Meta.Title, expectedTags)
+		t.Errorf("Expected %s to equal %s", article.Meta.Tags, expectedTags)
 	}
 
 	expectedTitle := "1.1.1"
@@ -45,28 +60,26 @@ func TestKParseMinimal(t *testing.T) {
 }
 
 func TestKParseUnreleased(t *testing.T) {
-	ctx := context.Background()
-	p := NewKeepAChangelogParser()
-
-	file, err := os.Open("../../.testdata/keepachangelog/unreleased.md")
+	p := newKeepAChangelogParser()
+	file, read, err := openKTestDataAndDetect("unreleased")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	parsed, hasMore := p.Parse(ctx, RawArticle{Content: file}, NoPagination())
-	if hasMore == true {
+	parsed := p.parse(read, file, NoPagination())
+	if parsed.HasMore == true {
 		t.Error("hasMore should be false")
 	}
 
-	if len(parsed) != 1 {
-		t.Fatalf("Expected 1 parsed article but got %d", len(parsed))
+	if len(parsed.Articles) != 1 {
+		t.Fatalf("Expected 1 parsed article but got %d", len(parsed.Articles))
 	}
 
-	article := parsed[0]
+	article := parsed.Articles[0]
 
 	expectedTags := []string{"Added", "Changed", "Removed"}
 	if !reflect.DeepEqual(article.Meta.Tags, expectedTags) {
-		t.Errorf("Expected %s to equal %s", article.Meta.Title, expectedTags)
+		t.Errorf("Expected %s to equal %s", article.Meta.Tags, expectedTags)
 	}
 
 	expectedTitle := "Unreleased"
@@ -81,27 +94,24 @@ func TestKParseUnreleased(t *testing.T) {
 }
 
 func TestKParseFull(t *testing.T) {
-	ctx := context.Background()
-	p := NewKeepAChangelogParser()
-
-	file, err := os.Open("../../.testdata/keepachangelog/full.md")
+	p := newKeepAChangelogParser()
+	file, read, err := openKTestDataAndDetect("full")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	parsed, hasMore := p.Parse(ctx, RawArticle{Content: file}, NoPagination())
-	if hasMore == true {
+	parsed := p.parse(read, file, NoPagination())
+	if parsed.HasMore == true {
 		t.Error("hasMore should be false")
 	}
 
-	if len(parsed) != 15 {
-		t.Errorf("Expected 15 parsed article but got %d", len(parsed))
+	if len(parsed.Articles) != 15 {
+		t.Errorf("Expected 15 parsed article but got %d", len(parsed.Articles))
 	}
 }
 
 func TestKParsePagination(t *testing.T) {
-	ctx := context.Background()
-	p := NewKeepAChangelogParser()
+	p := newKeepAChangelogParser()
 
 	tables := []struct {
 		size            int
@@ -147,23 +157,24 @@ func TestKParsePagination(t *testing.T) {
 	expectedTitle := []string{"Unreleased", "1.1.1", "1.1.0", "1.0.0", "0.3.0", "0.2.0", "0.1.0", "0.0.8", "0.0.7", "0.0.6", "0.0.5", "0.0.4", "0.0.3", "0.0.2", "0.0.1"}
 
 	for _, table := range tables {
-		file, err := os.Open("../../.testdata/keepachangelog/full.md")
+		file, read, err := openKTestDataAndDetect("full")
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		page := NewPagination(table.size, table.page)
-		parsed, hasMore := p.Parse(ctx, RawArticle{Content: file}, NewPagination(table.size, table.page))
 
-		if hasMore != table.expectedHasMore {
-			t.Errorf("Expected hasMore %t but got %t", table.expectedHasMore, hasMore)
+		parsed := p.parse(read, file, NewPagination(table.size, table.page))
+
+		if parsed.HasMore != table.expectedHasMore {
+			t.Errorf("Expected hasMore %t but got %t", table.expectedHasMore, parsed.HasMore)
 		}
 
-		if len(parsed) != table.expectedSize {
-			t.Errorf("Expected %d parsed article but got %d", table.expectedSize, len(parsed))
+		if len(parsed.Articles) != table.expectedSize {
+			t.Errorf("Expected %d parsed article but got %d", table.expectedSize, len(parsed.Articles))
 		}
 
-		for i, a := range parsed {
+		for i, a := range parsed.Articles {
 			idx := page.StartIdx() + i
 			if a.Meta.Title != expectedTitle[idx] {
 				t.Errorf("Expected %s to equal %s", a.Meta.Title, expectedTitle[i])

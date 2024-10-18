@@ -35,10 +35,7 @@ func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	parsed, err := l.Parse(r.Context())
-	if err != nil {
-		return err
-	}
+	parsed := l.Parse(r.Context())
 
 	err = handler.ValidatePassword(parsed.CL.PasswordHash, pw)
 	if err != nil {
