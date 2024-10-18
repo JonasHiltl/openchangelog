@@ -131,29 +131,15 @@ type ParsedChangelog struct {
 	HasMore  bool
 }
 
-var ogParser = NewOGParser()
-var kParser = NewKeepAChangelogParser()
+var p = NewParser()
 
-func (c *LoadedChangelog) Parse(ctx context.Context) (ParsedChangelog, error) {
-	// TODO: better way would be to detect the correct parser based on the file content,
-	// but for now let's just have this convention.
-	if len(c.res.Articles) == 1 {
-		parsed, hasMore := kParser.Parse(ctx, c.res.Articles[0], c.page)
-		return ParsedChangelog{
-			CL:       c.cl,
-			Articles: parsed,
-			HasMore:  hasMore,
-		}, nil
-	}
-
-	parsed, err := ogParser.Parse(ctx, c.res.Articles)
-	if err != nil {
-		return ParsedChangelog{}, err
-	}
+func (c *LoadedChangelog) Parse(ctx context.Context) ParsedChangelog {
+	parsed := p.Parse(ctx, c.res.Articles, c.page)
 
 	return ParsedChangelog{
 		CL:       c.cl,
-		Articles: parsed,
-		HasMore:  c.res.HasMore,
-	}, nil
+		Articles: parsed.Articles,
+		// parsed.HasMore might be true if keep-a-changelog parser finds more releases
+		HasMore: c.res.HasMore || parsed.HasMore,
+	}
 }

@@ -248,10 +248,7 @@ func getFullChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return errs.NewBadRequest(err)
 	}
 
-	parsed, err := loader.Parse(r.Context())
-	if err != nil {
-		return errs.NewBadRequest(err)
-	}
+	parsed := loader.Parse(r.Context())
 
 	articles := make([]apitypes.Article, len(parsed.Articles))
 	for i, a := range parsed.Articles {

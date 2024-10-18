@@ -23,10 +23,7 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	parsed, err := l.Parse(r.Context())
-	if err != nil {
-		return err
-	}
+	parsed := l.Parse(r.Context())
 
 	if parsed.CL.Protected {
 		authorize := r.URL.Query().Get(handler.AUTHORIZE_QUERY)

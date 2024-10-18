@@ -3,8 +3,8 @@ package changelog
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"errors"
+	"io"
 	"strings"
 	"time"
 
@@ -15,36 +15,38 @@ type kparser struct {
 	gm goldmark.Markdown
 }
 
-func NewKeepAChangelogParser() *kparser {
+func newKeepAChangelogParser() *kparser {
 	return &kparser{
 		gm: createGoldmark(),
 	}
 }
 
 // Parses a a markdown file in the https://keepachangelog.com/en/1.1.0/ format to multiple articles to be displayed by Openchangelog.
-func (g *kparser) Parse(ctx context.Context, raw RawArticle, page Pagination) ([]ParsedArticle, bool) {
-	defer raw.Content.Close()
+// Also returns whether the markdown file has any more releases to parse.
+// Skips any release that failed to be parsed.
+// The already read part (detect file format) needs to be provided independently.
+func (g *kparser) parse(read string, rest io.ReadCloser, page Pagination) ParseResult {
+	defer rest.Close()
 
 	// sanitize pagination
 	if page.IsDefined() && page.PageSize() < 1 {
-		return make([]ParsedArticle, 0), false
+		return ParseResult{}
 	}
 
-	return g.parseChangelog(raw, page)
-}
-
-// Returns the parsed articles and true if there are more articles to parse, else false.
-// Skips the raw article if it couldn't get parsed.
-func (g *kparser) parseChangelog(raw RawArticle, page Pagination) ([]ParsedArticle, bool) {
-	sc := bufio.NewScanner(raw.Content)
-	sc.Split(splitNewRelease)
+	sc := bufio.NewScanner(rest)
+	sc.Split(splitOnRelease)
 
 	var articles []ParsedArticle
 	var currentIdx = 0
 	var hasMore = false
 
-	for sc.Scan() {
+	for sc.Scan() || read != "" {
 		section := sc.Text()
+		if read != "" {
+			// only add read once to the first section
+			section = read + section
+			read = ""
+		}
 
 		if strings.HasPrefix(section, "# ") {
 			// ignore the section with the changelog title
@@ -52,13 +54,13 @@ func (g *kparser) parseChangelog(raw RawArticle, page Pagination) ([]ParsedArtic
 		}
 
 		if !page.IsDefined() || (currentIdx >= page.StartIdx() && currentIdx <= page.EndIdx()) {
-			a, err := g.parseArticle(section)
+			a, err := g.parseRelease(section)
 			if err == nil {
 				articles = append(articles, a)
 			}
 		}
 
-		// check if we have one more article
+		// check if we have one more release
 		if page.IsDefined() && currentIdx == page.EndIdx()+1 {
 			hasMore = true
 			break
@@ -67,18 +69,21 @@ func (g *kparser) parseChangelog(raw RawArticle, page Pagination) ([]ParsedArtic
 		currentIdx++
 	}
 
-	return articles, hasMore
+	return ParseResult{
+		Articles: articles,
+		HasMore:  hasMore,
+	}
 }
 
-// Called on each new ## section of the changelog file.
-// Returns the currently parsed article and the new line of the next article if another article exists.
-func (g *kparser) parseArticle(article string) (ParsedArticle, error) {
-	firstLineIdx := strings.Index(article, "\n")
+// Should be called for each new ## section of the changelog file.
+// Returns the currently parsed article and the new line of the next release if another article exists.
+func (g *kparser) parseRelease(release string) (ParsedArticle, error) {
+	firstLineIdx := strings.Index(release, "\n")
 	if firstLineIdx == -1 {
 		return ParsedArticle{}, errors.New("no new line character found")
 	}
-	firstLine := article[:firstLineIdx]
-	content := article[firstLineIdx+1:]
+	firstLine := release[:firstLineIdx]
+	content := release[firstLineIdx+1:]
 
 	h2Parts := strings.SplitN(strings.TrimPrefix(firstLine, "## "), " - ", 2)
 	title := cleanTitle(h2Parts[0])
@@ -123,7 +128,7 @@ func cleanTitle(title string) string {
 	return strings.Replace(title, "]", "", 1)
 }
 
-func splitNewRelease(data []byte, atEOF bool) (advance int, token []byte, err error) {
+func splitOnRelease(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	if atEOF && len(data) == 0 {
 		return 0, nil, nil
 	}
