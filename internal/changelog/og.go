@@ -8,7 +8,7 @@ import (
 	enclave "github.com/quail-ink/goldmark-enclave"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/parser"
+	gmparser "github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 	"go.abhg.dev/goldmark/frontmatter"
 	"mvdan.cc/xurls/v2"
@@ -75,10 +75,10 @@ func (g *ogparser) parseArticleRead(read string, rest io.ReadCloser) (ParsedArti
 
 // Don't use diretly, use parseArticle() and parseArticleRead() instead.
 func (g *ogparser) parseArticleBytes(content []byte) (ParsedArticle, error) {
-	ctx := parser.NewContext()
+	ctx := gmparser.NewContext()
 
 	var target bytes.Buffer
-	err := g.gm.Convert(content, &target, parser.WithContext(ctx))
+	err := g.gm.Convert(content, &target, gmparser.WithContext(ctx))
 	if err != nil {
 		return ParsedArticle{}, err
 	}

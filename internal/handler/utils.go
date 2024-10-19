@@ -104,7 +104,7 @@ func GetQueryIDs(r *http.Request) (wID string, cID string) {
 // If in db-mode => load changelog by query ids or host.
 //
 // If in config mode => load changelog from config.
-func LoadChangelog(loader *changelog.Loader, isDBMode bool, r *http.Request, page changelog.Pagination) (*changelog.LoadedChangelog, error) {
+func LoadChangelog(loader *changelog.Loader, isDBMode bool, r *http.Request, page changelog.Pagination) (changelog.LoadedChangelog, error) {
 	if isDBMode {
 		return loadChangelogDBMode(loader, r, page)
 	} else {
@@ -112,7 +112,7 @@ func LoadChangelog(loader *changelog.Loader, isDBMode bool, r *http.Request, pag
 	}
 }
 
-func loadChangelogDBMode(loader *changelog.Loader, r *http.Request, page changelog.Pagination) (*changelog.LoadedChangelog, error) {
+func loadChangelogDBMode(loader *changelog.Loader, r *http.Request, page changelog.Pagination) (changelog.LoadedChangelog, error) {
 	wID, cID := GetQueryIDs(r)
 	if wID != "" && cID != "" {
 		return loader.FromWorkspace(r.Context(), wID, cID, page)
