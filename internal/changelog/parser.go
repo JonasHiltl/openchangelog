@@ -50,7 +50,7 @@ type Parser struct {
 
 // Parses all the raw articles, uses either the keep-a-changelog parser or our og parser.
 // Uses the keep-a-changelog parser if only a single article in the keep-a-changelog format is provided.
-// Pagination is only applied when using the keep-a-changelog parser
+// Pagination is only applied when using the keep-a-changelog parser.
 // Else parses using the original parser.
 func (p *Parser) Parse(ctx context.Context, raw []RawArticle, kPage Pagination) ParseResult {
 
