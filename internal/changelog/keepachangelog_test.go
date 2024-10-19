@@ -26,7 +26,7 @@ func openKTestDataAndDetect(name string) (*os.File, string, error) {
 }
 
 func TestKParseMinimal(t *testing.T) {
-	p := newKeepAChangelogParser()
+	p := NewKeepAChangelogParser(createGoldmark())
 	file, read, err := openKTestDataAndDetect("minimal")
 	if err != nil {
 		t.Fatal(err)
@@ -60,7 +60,7 @@ func TestKParseMinimal(t *testing.T) {
 }
 
 func TestKParseUnreleased(t *testing.T) {
-	p := newKeepAChangelogParser()
+	p := NewKeepAChangelogParser(createGoldmark())
 	file, read, err := openKTestDataAndDetect("unreleased")
 	if err != nil {
 		t.Fatal(err)
@@ -94,7 +94,7 @@ func TestKParseUnreleased(t *testing.T) {
 }
 
 func TestKParseFull(t *testing.T) {
-	p := newKeepAChangelogParser()
+	p := NewKeepAChangelogParser(createGoldmark())
 	file, read, err := openKTestDataAndDetect("full")
 	if err != nil {
 		t.Fatal(err)
@@ -111,7 +111,7 @@ func TestKParseFull(t *testing.T) {
 }
 
 func TestKParsePagination(t *testing.T) {
-	p := newKeepAChangelogParser()
+	p := NewKeepAChangelogParser(createGoldmark())
 
 	tables := []struct {
 		size            int

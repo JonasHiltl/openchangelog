@@ -12,7 +12,7 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	p := NewParser()
+	p := NewParser(createGoldmark())
 	tables := []struct {
 		name                  string
 		files                 []string

@@ -15,9 +15,9 @@ type kparser struct {
 	gm goldmark.Markdown
 }
 
-func newKeepAChangelogParser() *kparser {
+func NewKeepAChangelogParser(gm goldmark.Markdown) *kparser {
 	return &kparser{
-		gm: createGoldmark(),
+		gm: gm,
 	}
 }
 

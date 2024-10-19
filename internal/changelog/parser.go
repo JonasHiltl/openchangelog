@@ -7,6 +7,8 @@ import (
 	"slices"
 	"sync"
 	"time"
+
+	"github.com/yuin/goldmark"
 )
 
 type Meta struct {
@@ -34,10 +36,10 @@ type ParseResult struct {
 	HasMore  bool
 }
 
-func NewParser() Parser {
+func NewParser(gm goldmark.Markdown) Parser {
 	return Parser{
-		og: newOGParser(),
-		k:  newKeepAChangelogParser(),
+		og: NewOGParser(gm),
+		k:  NewKeepAChangelogParser(gm),
 	}
 }
 

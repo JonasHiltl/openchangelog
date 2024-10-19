@@ -43,9 +43,9 @@ func createGoldmark() goldmark.Markdown {
 	)
 }
 
-func newOGParser() *ogparser {
+func NewOGParser(gm goldmark.Markdown) *ogparser {
 	return &ogparser{
-		gm: createGoldmark(),
+		gm: gm,
 	}
 }
 

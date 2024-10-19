@@ -131,7 +131,7 @@ type ParsedChangelog struct {
 	HasMore  bool
 }
 
-var p = NewParser()
+var p = NewParser(createGoldmark())
 
 func (c *LoadedChangelog) Parse(ctx context.Context) ParsedChangelog {
 	parsed := p.Parse(ctx, c.res.Articles, c.page)

@@ -17,7 +17,7 @@ func openOGTestData(name string) (*os.File, error) {
 }
 
 func TestOGParseArticle(t *testing.T) {
-	p := newOGParser()
+	p := NewOGParser(createGoldmark())
 	file, err := openOGTestData("v0.0.1-commonmark")
 	if err != nil {
 		t.Fatal(err)
@@ -45,7 +45,7 @@ func TestOGParseArticle(t *testing.T) {
 }
 
 func TestOGParseArticleRead(t *testing.T) {
-	p := newOGParser()
+	p := NewOGParser(createGoldmark())
 	file, err := openOGTestData("v0.0.5-beta")
 	if err != nil {
 		t.Fatal(err)
