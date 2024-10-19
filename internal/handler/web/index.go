@@ -18,10 +18,7 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	parsed, err := l.Parse(r.Context())
-	if err != nil {
-		return err
-	}
+	parsed := l.Parse(r.Context())
 
 	if parsed.CL.Protected {
 		err = ensurePasswordProvided(r, parsed.CL.PasswordHash)

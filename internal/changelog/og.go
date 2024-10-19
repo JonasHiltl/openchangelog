@@ -2,16 +2,13 @@ package changelog
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"io"
-	"sort"
-	"sync"
 
 	enclave "github.com/quail-ink/goldmark-enclave"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/parser"
+	gmparser "github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 	"go.abhg.dev/goldmark/frontmatter"
 	"mvdan.cc/xurls/v2"
@@ -19,7 +16,7 @@ import (
 
 // This is the original parser that expects one markdown file per release note.
 // All the meta information should be defined with Frontmatter.
-type og struct {
+type ogparser struct {
 	gm goldmark.Markdown
 }
 
@@ -46,50 +43,42 @@ func createGoldmark() goldmark.Markdown {
 	)
 }
 
-func NewOGParser() Parser {
-	return &og{
-		gm: createGoldmark(),
+func NewOGParser(gm goldmark.Markdown) *ogparser {
+	return &ogparser{
+		gm: gm,
 	}
 }
 
-func (g *og) Parse(ctx context.Context, raw []RawArticle) ([]ParsedArticle, error) {
-	var wg sync.WaitGroup
-	result := make([]ParsedArticle, 0, len(raw))
-	mutex := &sync.Mutex{}
-
-	for _, a := range raw {
-		wg.Add(1)
-		go func(a RawArticle) {
-			defer wg.Done()
-			parsed, err := g.parseArticle(a)
-			if err != nil {
-				return
-			}
-			mutex.Lock()
-			result = append(result, parsed)
-			mutex.Unlock()
-		}(a)
-	}
-	wg.Wait()
-
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].Meta.PublishedAt.After(result[j].Meta.PublishedAt)
-	})
-
-	return result, nil
-}
-
-func (g *og) parseArticle(raw RawArticle) (ParsedArticle, error) {
-	ctx := parser.NewContext()
-
-	defer raw.Content.Close()
-	source, err := io.ReadAll(raw.Content)
+// Takes a raw article in our original markdown format and parses it.
+func (g *ogparser) parseArticle(article io.ReadCloser) (ParsedArticle, error) {
+	defer article.Close()
+	source, err := io.ReadAll(article)
 	if err != nil {
 		return ParsedArticle{}, err
 	}
 
+	return g.parseArticleBytes(source)
+}
+
+// Parses the raw article content, but expects a part of the content to be already read (to detect the file format).
+func (g *ogparser) parseArticleRead(read string, rest io.ReadCloser) (ParsedArticle, error) {
+	defer rest.Close()
+	source, err := io.ReadAll(rest)
+	if err != nil {
+		return ParsedArticle{}, err
+	}
+
+	full := append([]byte(read), source...)
+
+	return g.parseArticleBytes(full)
+}
+
+// Don't use diretly, use parseArticle() and parseArticleRead() instead.
+func (g *ogparser) parseArticleBytes(content []byte) (ParsedArticle, error) {
+	ctx := gmparser.NewContext()
+
 	var target bytes.Buffer
-	err = g.gm.Convert(source, &target, parser.WithContext(ctx))
+	err := g.gm.Convert(content, &target, gmparser.WithContext(ctx))
 	if err != nil {
 		return ParsedArticle{}, err
 	}

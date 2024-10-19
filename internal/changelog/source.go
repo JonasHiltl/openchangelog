@@ -14,7 +14,7 @@ type LoadResult struct {
 	HasMore  bool
 }
 
-// A source is used to download the changelog articles from a targe
+// A source is used to download the changelog articles from a target
 type Source interface {
 	Load(ctx context.Context, page Pagination) (LoadResult, error)
 }
