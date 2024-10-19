@@ -35,6 +35,13 @@ func TestParse(t *testing.T) {
 			expectedArticleLength: 3,
 		},
 		{
+			name:                  "OG pagination not used",
+			files:                 []string{"v0.0.1-commonmark.md", "v0.0.2-open-source.md", "v0.0.5-beta.md"},
+			page:                  NewPagination(2, 1),
+			expectedHasMore:       false,
+			expectedArticleLength: 3,
+		},
+		{
 			name:                  "Keepachangelog no pagination",
 			files:                 []string{"keepachangelog/minimal.md"},
 			page:                  NoPagination(),
