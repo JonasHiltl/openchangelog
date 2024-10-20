@@ -6,6 +6,7 @@ require (
 	github.com/a-h/templ v0.2.771
 	github.com/bradleyfalzon/ghinstallation/v2 v2.10.0
 	github.com/google/go-github/v62 v62.0.0
+	github.com/gosimple/slug v1.14.0
 	github.com/guregu/null/v5 v5.0.0
 	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013200840-98b510d4c198
 	github.com/mattn/go-sqlite3 v1.14.16
@@ -13,6 +14,7 @@ require (
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/quail-ink/goldmark-enclave v0.0.8
 	github.com/rs/xid v1.5.0
+	github.com/sio/coolname v0.1.0
 	github.com/sourcegraph/s3cache v0.0.0-20141202193749-4150cc6b0465
 	github.com/spf13/viper v1.18.2
 	github.com/yuin/goldmark v1.7.1
@@ -29,6 +31,7 @@ require (
 	github.com/google/btree v1.0.0 // indirect
 	github.com/google/go-github/v60 v60.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/kr/http v0.0.0-20150505212737-77bd98b60462 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect

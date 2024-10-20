@@ -7,8 +7,10 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gosimple/slug"
 	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal/errs"
+	"github.com/sio/coolname"
 	"golang.org/x/exp/rand"
 )
 
@@ -61,10 +63,13 @@ func (s Subdomain) NullString() apitypes.NullString {
 }
 
 func NewSubdomain(workspaceName string) Subdomain {
-	wsName := strings.ReplaceAll(strings.ToLower(workspaceName), " ", "-")
-	rnd := rand.Intn(100000)
+	suffix, err := coolname.SlugN(2)
+	if err != nil {
+		suffix = fmt.Sprint(rand.Intn(100000))
+	}
 
-	return Subdomain(fmt.Sprintf("%s-%d", wsName, rnd))
+	subdomain := slug.Make(fmt.Sprintf("%s %s", workspaceName, suffix))
+	return Subdomain(subdomain)
 }
 
 var subdomainRegex = regexp.MustCompile("^[a-z0-9-]*$")
