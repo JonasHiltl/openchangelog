@@ -20,12 +20,12 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	_, widget := q["widget"]
+	_, isWidget := q["widget"]
 
 	parsed := l.Parse(r.Context())
 
 	if parsed.CL.Protected {
-		if widget {
+		if isWidget {
 			return errs.NewBadRequest(errors.New("can't display protected changelog in widget"))
 		}
 		err = ensurePasswordProvided(r, parsed.CL.PasswordHash)
@@ -75,7 +75,7 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 		NextPage:   page + 1,
 	}
 
-	if widget {
+	if isWidget {
 		return e.render.RenderWidget(r.Context(), w, args)
 	}
 	return e.render.RenderChangelog(r.Context(), w, args)
