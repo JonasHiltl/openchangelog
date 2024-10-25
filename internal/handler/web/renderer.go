@@ -24,8 +24,6 @@ type RenderChangelogArgs struct {
 	Articles   []changelog.ParsedArticle
 	HasMore    bool
 	CurrentURL string
-	NextPage   int
-	PageSize   int
 	FeedURL    string
 }
 

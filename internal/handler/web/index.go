@@ -71,8 +71,6 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 		CL:         parsed.CL,
 		Articles:   parsed.Articles,
 		HasMore:    parsed.HasMore,
-		PageSize:   pageSize,
-		NextPage:   page + 1,
 	}
 
 	if isWidget {
