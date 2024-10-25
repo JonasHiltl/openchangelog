@@ -59,6 +59,12 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
+	if parsed.CL.Protected {
+		w.Header().Set("Cache-Control", "private,max-age=300")
+	} else {
+		w.Header().Set("Cache-Control", "public,max-age=300")
+	}
+
 	args := RenderChangelogArgs{
 		FeedURL:    handler.GetFeedURL(r),
 		CurrentURL: handler.GetFullURL(r),
