@@ -1,14 +1,21 @@
-type ChangelogProps = {
-    // specify if using openchangelog cloud
-    changelogID?: string
-    // specify if using openchangelog cloud
-    workspaceID?: string
+type BaseChangelogProps = {
     page?: number
     pageSize?: number
-    // your own hosted openchangelog instance, defaults to https://openchangelog.com
     baseUrl?: string
     theme?: "dark" | "light"
 }
+
+type LocalChangelogProps = BaseChangelogProps & {
+    changelogID?: never
+    workspaceID?: never
+}
+
+type CloudChangelogProps = BaseChangelogProps & {
+    changelogID: string
+    workspaceID: string
+}
+
+type ChangelogProps = LocalChangelogProps | CloudChangelogProps
 
 async function fetchChangelog(args: ChangelogProps): Promise<string> {
     const baseURL = args.baseUrl || "https://openchangelog.com"
