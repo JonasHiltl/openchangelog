@@ -1,19 +1,18 @@
 {
   "name": "@openchangelog/next",
   "version": "0.1.0",
-  "private": true,
+  "homepage": "https://github.com/JonasHiltl/openchangelog",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "description": "Embed your Openchangelog Changelog into your Next.js app.",
+  "license": "MIT",
   "files": [
-    "dist",
-    "views"
+    "dist"
   ],
   "scripts": {
-    "next:lint": "next lint",
+    "lint": "eslint --fix",
     "build": "tsup",
     "dev": "tsup --watch"
-  },
-  "dependencies": {
-    "liquidjs": "^10.18.0"
   },
   "peerDependencies": {
     "next": "14.2.15",
