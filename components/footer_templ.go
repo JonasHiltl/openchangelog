@@ -30,12 +30,12 @@ func Footer(args FooterArgs) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<footer class=\"border-t border-t-gray-200 dark:border-t-gray-800 mt-10 pt-10 pb-20\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<footer class=\"o-border-t o-border-t-gray-200 dark:o-border-t-gray-800 o-mt-10 o-pt-10 o-pb-20\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if !args.HidePoweredBy {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"text-caption px-4 sm:px-0\">Powered by <a href=\"https://openchangelog.com\" target=\"_blank\">Openchangelog</a></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"o-text-caption o-px-4 sm:o-px-0\">Powered by <a href=\"https://openchangelog.com\" target=\"_blank\">Openchangelog</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -38,7 +38,7 @@ func Theme(args ThemeArgs) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"theme-container\" class=\"min-h-full flex flex-col bg-white dark:bg-neutral-950\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"theme-container\" class=\"o-min-h-full o-flex o-flex-col o-bg-white dark:o-bg-neutral-950\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

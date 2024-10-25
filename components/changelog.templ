@@ -9,13 +9,13 @@ type ChangelogContainerArgs struct {
 
 // Contains the article list and footer
 templ ChangelogContainer(args ChangelogContainerArgs) {
-	<main id="ocl-changelog-container" class="mx-4 sm:mx-0">
+	<main id="changelog-container" class="o-mx-4 sm:o-mx-0">
 		{ children... }
-		<div id="ocl-skeleton" class="hidden">
-			<div class="animate-pulse w-full space-y-4 mt-12">
-				<div class="w-3/4 h-9 rounded bg-black/10 dark:bg-white/10"></div>
-				<div class="w-full h-5 rounded bg-black/10 dark:bg-white/10"></div>
-				<div class="w-full h-32 rounded bg-black/10 dark:bg-white/10"></div>
+		<div id="skeleton" class="o-hidden">
+			<div class="o-animate-pulse o-w-full o-space-y-4 o-mt-12">
+				<div class="o-w-3/4 o-h-9 o-rounded o-bg-black/10 dark:o-bg-white/10"></div>
+				<div class="o-w-full o-h-5 o-rounded o-bg-black/10 dark:o-bg-white/10"></div>
+				<div class="o-w-full o-h-32 o-rounded o-bg-black/10 dark:o-bg-white/10"></div>
 			</div>
 		</div>
 	</main>
@@ -26,8 +26,8 @@ templ ChangelogContainer(args ChangelogContainerArgs) {
 
 var infiniteScrollTemplate = template.Must(template.New("infiniteScrollTemplate").Parse(`
 <script>
-	const skeleton = document.getElementById("ocl-skeleton")
-	const container = document.getElementById("ocl-changelog-container")
+	const skeleton = document.getElementById("skeleton")
+	const container = document.getElementById("changelog-container")
 	const currentPageURL = new URL("{{ . }}")
 	const params = currentPageURL.searchParams;
 	let isLoadingNextPage = false

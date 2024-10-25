@@ -27,7 +27,7 @@ func Prose() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mx-auto w-full flex-1 flex flex-col justify-between prose prose-sm sm:prose-base prose-p:my-2 prose-p:leading-6 prose-h1:mb-3 prose-h2:mb-2 prose-h3:mb-2 prose-a:no-underline hover:prose-a:underline prose-a:underline-offset-4 prose-a:text-primary hover:prose-a:text-primary-highlight prose-img:rounded dark:prose-invert\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"o-mx-auto o-w-full o-flex-1 o-flex o-flex-col o-justify-between o-prose o-prose-sm \n\tsm:o-prose-base prose-p:o-my-2 prose-p:o-leading-6 prose-h1:o-mb-3 prose-h2:o-mb-2 prose-h3:o-mb-2 \n\tprose-a:o-no-underline hover:prose-a:o-underline prose-a:o-underline-offset-4 prose-a:o-text-primary \n\thover:prose-a:o-text-primary/90 prose-img:o-rounded dark:o-prose-invert\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

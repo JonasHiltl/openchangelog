@@ -75,7 +75,7 @@ func PasswordProtection(args PasswordProtectionArgs) templ.Component {
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-1 justify-center items-center\"><div class=\"my-auto text-center rounded-lg border dark:border-white/10 p-8\"><h1>Protected Page</h1><p>Enter the password to access this changelog.</p><form hx-post=\"/password\" hx-trigger=\"submit\" hx-target=\"#password-error\" hx-disabled-elt=\"find button\" method=\"post\" class=\"space-y-3\"><div><label class=\"input flex items-center gap-2\">")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"o-flex o-flex-1 o-justify-center o-items-center\"><div class=\"o-my-auto o-text-center o-rounded-lg o-border dark:o-border-white/10 o-p-8\"><h1>Protected Page</h1><p>Enter the password to access this changelog.</p><form hx-post=\"/password\" hx-trigger=\"submit\" hx-target=\"#password-error\" hx-disabled-elt=\"find button\" method=\"post\" class=\"o-space-y-3\"><div><label class=\"input o-flex o-items-center o-gap-2\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -83,7 +83,7 @@ func PasswordProtection(args PasswordProtectionArgs) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input name=\"password\" type=\"password\" class=\"w-full\" placeholder=\"Password\"></label>")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input name=\"password\" type=\"password\" class=\"o-w-full\" placeholder=\"Password\"></label>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -91,7 +91,7 @@ func PasswordProtection(args PasswordProtectionArgs) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><button class=\"btn btn-primary w-full\" type=\"submit\">Submit</button></form></div></div>")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><button class=\"btn btn-primary o-w-full\" type=\"submit\">Submit</button></form></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -144,7 +144,7 @@ func PasswordProtectionError(msg string) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p id=\"password-error\" class=\"text-xs !m-0 font-medium text-red-700\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p id=\"password-error\" class=\"o-text-xs !o-m-0 o-font-medium o-text-red-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

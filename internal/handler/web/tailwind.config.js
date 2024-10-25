@@ -15,6 +15,7 @@ module.exports = {
       })
     },
   },
+  prefix: "o-",
   safelist: ["quail-image-wrapper"],
   plugins: [
     require('@tailwindcss/typography'),

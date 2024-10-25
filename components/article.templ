@@ -26,22 +26,22 @@ type ArticleArgs struct {
 }
 
 templ Article(a ArticleArgs) {
-	<article class="relative">
-		<h2 id={ a.ID } class="group">
+	<article class="o-relative">
+		<h2 id={ a.ID } class="o-group">
 			{ a.Title }
 			<a
-				class="opacity-0 group-hover:opacity-100 transition-opacity"
+				class="o-opacity-0 group-hover:o-opacity-100 o-transition-opacity"
 				href={ templ.URL(fmt.Sprintf("#%s", a.ID)) }
 			>
 				#
 			</a>
 		</h2>
-		<p class="text-caption">{ a.Description }</p>
-		<div class="lg:absolute lg:-left-40 lg:max-w-40 lg:top-0 lg:mt-1 lg:mr-2 flex flex-row gap-2 lg:gap-0 items-center lg:items-start lg:flex-col">
+		<p class="o-text-caption">{ a.Description }</p>
+		<div class="lg:o-absolute lg:o--left-40 lg:o-max-w-40 lg:o-top-0 lg:o-mt-1 lg:o-mr-2 o-flex o-flex-row o-gap-2 lg:o-gap-0 o-items-center lg:o-items-start lg:o-flex-col">
 			if !a.PublishedAt.IsZero() {
-				<p class="text-caption text-nowrap">{ a.PublishedAt.Format("02 Jan 2006") }</p>
+				<p class="o-text-caption o-text-nowrap">{ a.PublishedAt.Format("02 Jan 2006") }</p>
 			}
-			<div class="flex flex-wrap gap-2">
+			<div class="o-flex o-flex-wrap o-gap-2">
 				<style>
 					#tag:where([color-scheme=dark] *) {
 						color: var(--tag-text-light);
@@ -57,7 +57,7 @@ templ Article(a ArticleArgs) {
 }
 
 templ Tag(name string) {
-	<div id="tag" class={ "p-1 rounded border text-xs text-nowrap leading-3", tagStyle(name) }>{ name }</div>
+	<div id="tag" class={ "o-p-1 o-rounded o-border o-text-xs o-text-nowrap o-leading-3", tagStyle(name) }>{ name }</div>
 }
 
 css tagStyle(tag string) {
