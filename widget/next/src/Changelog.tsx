@@ -7,6 +7,7 @@ type ChangelogProps = {
     pageSize?: number
     // your own hosted openchangelog instance, defaults to https://openchangelog.com
     baseUrl?: string
+    theme?: "dark" | "light"
 }
 
 async function fetchChangelog(args: ChangelogProps): Promise<string> {
@@ -37,6 +38,10 @@ export async function Changelog(props: ChangelogProps) {
     const html = await fetchChangelog(props)
 
     return (
-        <div dangerouslySetInnerHTML={{ __html: html }}></div>
-    );
+        <>
+            <div color-scheme={props.theme}>
+                <div dangerouslySetInnerHTML={{ __html: html }}></div>
+            </div>
+        </>
+    )
 }
