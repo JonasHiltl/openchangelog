@@ -64,7 +64,7 @@ func (l *Loader) FromHost(ctx context.Context, host string, page Pagination) (Lo
 	subdomain, serr := store.SubdomainFromHost(host)
 	domain, derr := store.ParseDomain(host)
 	if derr != nil && serr != nil {
-		return LoadedChangelog{}, errs.NewBadRequest(errors.New("host is not a valid url"))
+		return LoadedChangelog{}, errs.NewBadRequest(errors.New("host & subdomain is not a valid url"))
 	}
 
 	cl, err := l.store.GetChangelogByDomainOrSubdomain(ctx, domain, subdomain)
