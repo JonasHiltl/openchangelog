@@ -1,6 +1,6 @@
 {
   "name": "@openchangelog/next",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "homepage": "https://github.com/JonasHiltl/openchangelog",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
