@@ -10,18 +10,18 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/jonashiltl/openchangelog/components"
-	"github.com/jonashiltl/openchangelog/internal/handler/web/icons"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
 )
 
-type PasswordProtectionArgs struct {
-	Error string
-	CSS   string
-	components.ThemeArgs
+type WidgetArgs struct {
+	CSS string
+	components.ChangelogContainerArgs
+	components.HeaderArgs
+	components.ArticleListArgs
 	components.FooterArgs
 }
 
-func PasswordProtection(args PasswordProtectionArgs) templ.Component {
+func Widget(arg WidgetArgs) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -39,6 +39,12 @@ func PasswordProtection(args PasswordProtectionArgs) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		if arg.CSS != "" {
+			templ_7745c5c3_Err = layout.InlineCSS(arg.CSS).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
 		templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -75,50 +81,41 @@ func PasswordProtection(args PasswordProtectionArgs) templ.Component {
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-1 justify-center items-center\"><div class=\"my-auto text-center rounded-lg border dark:border-white/10 p-8\"><h1>Protected Page</h1><p>Enter the password to access this changelog.</p><form hx-post=\"/password\" hx-trigger=\"submit\" hx-target=\"#password-error\" hx-disabled-elt=\"find button\" method=\"post\" class=\"space-y-3\"><div><label class=\"input flex items-center gap-2\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = icons.Key(16, 16).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input name=\"password\" type=\"password\" class=\"w-full\" placeholder=\"Password\"></label>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = PasswordProtectionError(args.Error).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><button class=\"btn btn-primary w-full\" type=\"submit\">Submit</button></form></div></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.Footer(args.FooterArgs).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.HeaderContent(arg.HeaderArgs).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					return templ_7745c5c3_Err
 				})
-				templ_7745c5c3_Err = components.Prose().Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = components.HeaderContainer().Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.ArticleList(arg.ArticleListArgs).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				return templ_7745c5c3_Err
 			})
-			templ_7745c5c3_Err = components.Theme(args.ThemeArgs).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.ChangelogContainer(arg.ChangelogContainerArgs).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.Footer(arg.FooterArgs).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = layout.Main(layout.MainArgs{
-			Title:       "Password Protection",
-			Description: "This changelog is password protected. Please contact your organization admin to receive your password",
-			CSS:         args.CSS,
-			IncludeHTMX: true,
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = components.Prose().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -126,7 +123,7 @@ func PasswordProtection(args PasswordProtectionArgs) templ.Component {
 	})
 }
 
-func PasswordProtectionError(msg string) templ.Component {
+func WidgetError(err error) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -144,14 +141,14 @@ func PasswordProtectionError(msg string) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p id=\"password-error\" class=\"text-xs !m-0 font-medium text-red-700\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>Error: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(msg)
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(err.Error())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handler/web/views/password.templ`, Line: 58, Col: 7}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handler/web/views/widget.templ`, Line: 32, Col: 24}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {

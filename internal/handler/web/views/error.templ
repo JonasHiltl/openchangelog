@@ -9,11 +9,13 @@ type ErrorArgs struct {
 	Status  int
 	Message string
 	Path    string
+	CSS     string
 }
 
 templ Error(args ErrorArgs) {
 	@layout.Main(layout.MainArgs{
 		Title: "Changelog Error",
+		CSS:   args.CSS,
 	}) {
 		<main class="max-w-2xl mx-auto my-8 text-center">
 			<h1 class="dark:text-white">{ fmt.Sprintf("%d", args.Status) }</h1>

@@ -18,6 +18,7 @@ type IndexArgs struct {
 	components.ThemeArgs
 	components.RSSArgs
 	components.Logo
+	components.ChangelogContainerArgs
 	components.HeaderArgs
 	components.ArticleListArgs
 	components.FooterArgs
@@ -155,7 +156,7 @@ func Index(arg IndexArgs) templ.Component {
 						}
 						return templ_7745c5c3_Err
 					})
-					templ_7745c5c3_Err = components.ChangelogContainer().Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.ChangelogContainer(arg.ChangelogContainerArgs).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -169,7 +170,7 @@ func Index(arg IndexArgs) templ.Component {
 					}
 					return templ_7745c5c3_Err
 				})
-				templ_7745c5c3_Err = components.TypographyStyle().Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = components.Prose().Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

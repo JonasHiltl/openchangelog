@@ -1,11 +1,23 @@
 package layout
 
-import "fmt"
+import "html/template"
 
 type MainArgs struct {
-	Title          string
-	Description    string
-	BaseCSSVersion string
+	Title       string
+	Description string
+	CSS         string
+	IncludeHTMX bool
+}
+
+var inlinceCSSTemplate = template.Must(template.New("inlinceCSSTemplate").Parse(`
+<style>
+	{{ . }}
+</style>
+`,
+))
+
+templ InlineCSS(css string) {
+	@templ.FromGoHTML(inlinceCSSTemplate, template.CSS(css))
 }
 
 templ Main(args MainArgs) {
@@ -20,9 +32,14 @@ templ Main(args MainArgs) {
 				<meta name="description" content={ args.Description }/>
 			}
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<link rel="stylesheet" type="text/css" media="screen" href={ fmt.Sprintf("/static/base.css?v=%s", args.BaseCSSVersion) }/>
-			<link rel="stylesheet" href="https://rsms.me/inter/inter.css"/>
-			<script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+			<link rel="preload" as="style" href="https://rsms.me/inter/inter.css"/>
+			// required for the password protection page
+			if args.IncludeHTMX {
+				<script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+			}
+			if args.CSS != "" {
+				@InlineCSS(args.CSS)
+			}
 		</head>
 		<body>
 			{ children... }

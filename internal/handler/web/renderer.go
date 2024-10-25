@@ -1,8 +1,7 @@
-package render
+package web
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"strings"
 
@@ -17,16 +16,17 @@ import (
 type Renderer interface {
 	RenderChangelog(ctx context.Context, w io.Writer, args RenderChangelogArgs) error
 	RenderArticleList(ctx context.Context, w io.Writer, args RenderArticleListArgs) error
+	RenderWidget(ctx context.Context, w io.Writer, args RenderChangelogArgs) error
 }
 
 type RenderChangelogArgs struct {
-	CL             store.Changelog
-	Articles       []changelog.ParsedArticle
-	HasMore        bool
-	NextPage       int
-	PageSize       int
-	FeedURL        string
-	BaseCSSVersion string
+	CL         store.Changelog
+	Articles   []changelog.ParsedArticle
+	HasMore    bool
+	CurrentURL string
+	NextPage   int
+	PageSize   int
+	FeedURL    string
 }
 
 type RenderArticleListArgs struct {
@@ -38,53 +38,39 @@ type RenderArticleListArgs struct {
 	PageSize int
 }
 
-func New(cfg config.Config) Renderer {
+func NewRenderer(cfg config.Config) Renderer {
 	return &renderer{
 		cfg: cfg,
+		css: baseCSS,
 	}
 }
 
 type renderer struct {
 	cfg config.Config
+	css string
 }
 
 func (r *renderer) RenderArticleList(ctx context.Context, w io.Writer, args RenderArticleListArgs) error {
 	articles := parsedArticlesToComponentArticles(args.Articles)
-
-	var nextPageURL string
-	if args.HasMore {
-		if r.cfg.IsDBMode() {
-			nextPageURL = fmt.Sprintf("/?wid=%s&cid=%s&page=%d&page-size=%d", args.WID.String(), args.CID.String(), args.NextPage, args.PageSize)
-		} else {
-			nextPageURL = fmt.Sprintf("/?page=%d&page-size=%d", args.NextPage, args.PageSize)
-		}
-	}
-
 	return components.ArticleList(components.ArticleListArgs{
-		Articles:    articles,
-		NextPageURL: nextPageURL,
+		Articles: articles,
 	}).Render(ctx, w)
 }
 
 func (r *renderer) RenderChangelog(ctx context.Context, w io.Writer, args RenderChangelogArgs) error {
-	var nextPageURL string
-	if args.HasMore {
-		if r.cfg.IsDBMode() {
-			nextPageURL = fmt.Sprintf("/?wid=%s&cid=%s&page=%d&page-size=%d", args.CL.WorkspaceID.String(), args.CL.ID.String(), args.NextPage, args.PageSize)
-		} else {
-			nextPageURL = fmt.Sprintf("/?page=%d&page-size=%d", args.NextPage, args.PageSize)
-		}
-	}
-
 	articles := parsedArticlesToComponentArticles(args.Articles)
 	return views.Index(views.IndexArgs{
 		RSSArgs: components.RSSArgs{
 			FeedURL: args.FeedURL,
 		},
+		ChangelogContainerArgs: components.ChangelogContainerArgs{
+			CurrentURL:     args.CurrentURL,
+			HasMoreArticle: args.HasMore,
+		},
 		MainArgs: layout.MainArgs{
-			Title:          args.CL.Title.V(),
-			Description:    args.CL.Subtitle.V(),
-			BaseCSSVersion: args.BaseCSSVersion,
+			Title:       args.CL.Title.V(),
+			Description: args.CL.Subtitle.V(),
+			CSS:         r.css,
 		},
 		ThemeArgs: components.ThemeArgs{
 			ColorScheme: args.CL.ColorScheme.ToApiTypes(),
@@ -101,8 +87,28 @@ func (r *renderer) RenderChangelog(ctx context.Context, w io.Writer, args Render
 			Link:   args.CL.LogoLink,
 		},
 		ArticleListArgs: components.ArticleListArgs{
-			Articles:    articles,
-			NextPageURL: nextPageURL,
+			Articles: articles,
+		},
+		FooterArgs: components.FooterArgs{
+			HidePoweredBy: args.CL.HidePoweredBy,
+		},
+	}).Render(ctx, w)
+}
+
+func (r *renderer) RenderWidget(ctx context.Context, w io.Writer, args RenderChangelogArgs) error {
+	articles := parsedArticlesToComponentArticles(args.Articles)
+	return views.Widget(views.WidgetArgs{
+		CSS: r.css,
+		ChangelogContainerArgs: components.ChangelogContainerArgs{
+			CurrentURL:     args.CurrentURL,
+			HasMoreArticle: args.HasMore,
+		},
+		HeaderArgs: components.HeaderArgs{
+			Title:    args.CL.Title,
+			Subtitle: args.CL.Subtitle,
+		},
+		ArticleListArgs: components.ArticleListArgs{
+			Articles: articles,
 		},
 		FooterArgs: components.FooterArgs{
 			HidePoweredBy: args.CL.HidePoweredBy,

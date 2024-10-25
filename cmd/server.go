@@ -14,10 +14,10 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/handler/rss"
 	"github.com/jonashiltl/openchangelog/internal/handler/web"
 	"github.com/jonashiltl/openchangelog/internal/store"
-	"github.com/jonashiltl/openchangelog/render"
 	"github.com/naveensrinivasan/httpcache"
 	"github.com/naveensrinivasan/httpcache/diskcache"
 	"github.com/peterbourgon/diskv"
+	"github.com/rs/cors"
 	"github.com/sourcegraph/s3cache"
 )
 
@@ -41,13 +41,15 @@ func main() {
 	}
 
 	loader := changelog.NewLoader(cfg, st, cache)
+	renderer := web.NewRenderer(cfg)
 
 	rest.RegisterRestHandler(mux, rest.NewEnv(st, loader))
-	web.RegisterWebHandler(mux, web.NewEnv(cfg, loader, render.New(cfg)))
+	web.RegisterWebHandler(mux, web.NewEnv(cfg, loader, renderer))
 	rss.RegisterRSSHandler(mux, rss.NewEnv(cfg, loader))
+	handler := cors.Default().Handler(mux)
 
 	fmt.Printf("Starting server at http://%s\n", cfg.Addr)
-	log.Fatal(http.ListenAndServe(cfg.Addr, mux))
+	log.Fatal(http.ListenAndServe(cfg.Addr, handler))
 }
 
 func parseConfig() (config.Config, error) {

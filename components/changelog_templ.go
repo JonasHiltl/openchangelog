@@ -8,7 +8,15 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func ChangelogContainer() templ.Component {
+import "html/template"
+
+type ChangelogContainerArgs struct {
+	CurrentURL     string
+	HasMoreArticle bool
+}
+
+// Contains the article list and footer
+func ChangelogContainer(args ChangelogContainerArgs) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -26,7 +34,7 @@ func ChangelogContainer() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main class=\"mx-4 mt-8 sm:mx-0 sm:mt-10 md:mt-20\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main id=\"ocl-changelog-container\" class=\"mx-4 sm:mx-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -34,12 +42,67 @@ func ChangelogContainer() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"ocl-skeleton\" class=\"hidden\"><div class=\"animate-pulse w-full space-y-4 mt-12\"><div class=\"w-3/4 h-9 rounded bg-black/10 dark:bg-white/10\"></div><div class=\"w-full h-5 rounded bg-black/10 dark:bg-white/10\"></div><div class=\"w-full h-32 rounded bg-black/10 dark:bg-white/10\"></div></div></div></main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
+		}
+		if args.HasMoreArticle {
+			templ_7745c5c3_Err = templ.FromGoHTML(infiniteScrollTemplate, args.CurrentURL).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		return templ_7745c5c3_Err
 	})
 }
+
+var infiniteScrollTemplate = template.Must(template.New("infiniteScrollTemplate").Parse(`
+<script>
+	const skeleton = document.getElementById("ocl-skeleton")
+	const container = document.getElementById("ocl-changelog-container")
+	const currentPageURL = new URL("{{ . }}")
+	const params = currentPageURL.searchParams;
+	let isLoadingNextPage = false
+	let hasMore = true
+
+	function loadStarted() {
+		isLoadingNextPage = true
+		skeleton.style.display = "block"
+	}
+
+	function loadEnded() {
+		isLoadingNextPage = false
+		skeleton.style.display = "none"
+	}
+
+	async function loadNextPage(url) {
+		try {
+			loadStarted()
+			const currentPage = parseInt(params.get('page')) || 1;
+			params.set('page', currentPage + 1);
+ 			// don't load full html page, only articles list
+			params.set('articles', "true");
+
+			const res = await fetch(currentPageURL)
+			if (!res.ok || res.status === 204) {
+				hasMore = false
+			}
+			const newArticles = await res.text()
+			skeleton.insertAdjacentHTML('beforebegin', newArticles)
+		} finally {
+			loadEnded()
+		}
+	}
+
+	window.addEventListener("scroll", () => {
+		const bufferPx = 100 // start loading before reaching end of container
+		const endReached = window.scrollY + window.innerHeight + bufferPx >= container.scrollHeight
+		if(endReached && !isLoadingNextPage && hasMore){
+			loadNextPage()
+		}
+	})
+</script>
+`,
+))
 
 var _ = templruntime.GeneratedTemplate

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"golang.org/x/crypto/bcrypt"
@@ -16,9 +17,10 @@ const (
 	AUTHORIZE_QUERY = "authorize"
 )
 
-func ChangelogToFeedURL(r *http.Request) string {
+// Turns the changelog request into the feed url of the changelog
+func GetFeedURL(r *http.Request) string {
 	rq := r.URL.Query()
-	// only copy the query params we want
+	// only copy the query params we want, don't want page or page-size
 	q := url.Values{}
 	if len(rq.Get(WS_ID_QUERY)) > 0 {
 		q.Add(WS_ID_QUERY, rq.Get(WS_ID_QUERY))
@@ -40,17 +42,16 @@ func ChangelogToFeedURL(r *http.Request) string {
 	if newURL.Host == "" {
 		newURL.Host = r.Host
 	}
-	if newURL.Scheme == "" {
-		if r.TLS != nil {
-			newURL.Scheme = "https"
-		} else {
-			newURL.Scheme = "http"
-		}
+	if strings.Contains(newURL.Host, "localhost") {
+		newURL.Scheme = "http"
+	} else {
+		newURL.Scheme = "https"
 	}
 	return newURL.String()
 }
 
-// Parses the changelog url from a request to a changelogs feed.
+// Turns the rss feed request into the changelog url.
+// Done by stripping away the request path (/feed)
 func FeedToChangelogURL(r *http.Request) string {
 	newURL := &url.URL{
 		Scheme:   r.URL.Scheme,
@@ -61,14 +62,33 @@ func FeedToChangelogURL(r *http.Request) string {
 	if newURL.Host == "" {
 		newURL.Host = r.Host
 	}
-	if newURL.Scheme == "" {
-		if r.TLS != nil {
-			newURL.Scheme = "https"
-		} else {
-			newURL.Scheme = "http"
-		}
+	if strings.Contains(newURL.Host, "localhost") {
+		newURL.Scheme = "http"
+	} else {
+		newURL.Scheme = "https"
 	}
 
+	return newURL.String()
+}
+
+// Returns the full url of the current request.
+// If request is htmx request (password submit) will use HX-Current-URL
+func GetFullURL(r *http.Request) string {
+	var newURL *url.URL
+	if r.Header.Get("HX-Current-URL") != "" {
+		newURL, _ = url.Parse(r.Header.Get("HX-Current-URL"))
+	} else {
+		newURL, _ = url.Parse(r.URL.String()) // deep clone (dirty)
+	}
+
+	if newURL.Host == "" {
+		newURL.Host = r.Host
+	}
+	if strings.Contains(newURL.Host, "localhost") {
+		newURL.Scheme = "http"
+	} else {
+		newURL.Scheme = "https"
+	}
 	return newURL.String()
 }
 

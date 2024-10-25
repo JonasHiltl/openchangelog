@@ -1,9 +1,7 @@
 package web
 
 import (
-	"crypto/md5"
-	"embed"
-	"encoding/hex"
+	_ "embed"
 	"errors"
 	"net/http"
 
@@ -11,15 +9,12 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
-	"github.com/jonashiltl/openchangelog/render"
 )
 
-//go:embed static/*
-var staticAssets embed.FS
+//go:embed static/base.css
+var baseCSS string
 
 func RegisterWebHandler(mux *http.ServeMux, e *env) {
-	fs := http.FileServer(http.FS(staticAssets))
-	mux.Handle("GET /static/*", fs)
 	mux.HandleFunc("GET /", serveHTTP(e, index))
 	mux.HandleFunc("POST /password", serveHTTP(e, passwordSubmit))
 }
@@ -27,34 +22,19 @@ func RegisterWebHandler(mux *http.ServeMux, e *env) {
 func NewEnv(
 	cfg config.Config,
 	loader *changelog.Loader,
-	render render.Renderer,
+	render Renderer,
 ) *env {
 	return &env{
-		cfg:            cfg,
-		loader:         loader,
-		render:         render,
-		baseCSSVersion: calculateBaseCSSVersion(),
+		cfg:    cfg,
+		loader: loader,
+		render: render,
 	}
-}
-
-// Calculates the md5 hash of the static/base.css file.
-// Needed for cache busting if base.css changes.
-func calculateBaseCSSVersion() string {
-	fileContent, err := staticAssets.ReadFile("static/base.css")
-	if err != nil {
-		return ""
-	}
-
-	hash := md5.New()
-	hash.Write(fileContent)
-	return hex.EncodeToString(hash.Sum(nil))
 }
 
 type env struct {
-	loader         *changelog.Loader
-	cfg            config.Config
-	render         render.Renderer
-	baseCSSVersion string
+	loader *changelog.Loader
+	cfg    config.Config
+	render Renderer
 }
 
 func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) func(http.ResponseWriter, *http.Request) {
@@ -70,6 +50,7 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 				Status:  http.StatusInternalServerError,
 				Message: err.Error(),
 				Path:    path,
+				CSS:     baseCSS,
 			}
 
 			var domErr errs.Error
@@ -85,6 +66,12 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 				case errs.ErrServiceUnavailable:
 					args.Status = http.StatusServiceUnavailable
 				}
+			}
+
+			// if requesting widget, don't render html error, just error message
+			if _, ok := r.URL.Query()["widget"]; ok {
+				http.Error(w, args.Message, args.Status)
+				return
 			}
 
 			w.WriteHeader(args.Status)

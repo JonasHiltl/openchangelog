@@ -16,7 +16,7 @@ func TestFeedToChangelogURL(t *testing.T) {
 		{
 			requestURL: "/feed?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
 			host:       "openchangelog.com",
-			expected:   "http://openchangelog.com?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
+			expected:   "https://openchangelog.com?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
 		},
 		{
 			requestURL: "https://tenant.openchangelog.com/feed",
@@ -26,7 +26,12 @@ func TestFeedToChangelogURL(t *testing.T) {
 		{
 			requestURL: "/feed",
 			host:       "tenant.openchangelog.com",
-			expected:   "http://tenant.openchangelog.com",
+			expected:   "https://tenant.openchangelog.com",
+		},
+		{
+			requestURL: "/feed",
+			host:       "localhost:6001",
+			expected:   "http://localhost:6001",
 		},
 	}
 
@@ -43,7 +48,7 @@ func TestFeedToChangelogURL(t *testing.T) {
 	}
 }
 
-func TestChangelogToFeedURL(t *testing.T) {
+func TestGetFeedURL(t *testing.T) {
 	tables := []struct {
 		requestURL string
 		host       string
@@ -52,7 +57,7 @@ func TestChangelogToFeedURL(t *testing.T) {
 		{
 			requestURL: "/?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
 			host:       "openchangelog.com",
-			expected:   "http://openchangelog.com/feed?cid=cl_cqj9t0fd5lbga0eemd10&wid=ws_cqj9svnd5lbga0eemd00",
+			expected:   "https://openchangelog.com/feed?cid=cl_cqj9t0fd5lbga0eemd10&wid=ws_cqj9svnd5lbga0eemd00",
 		},
 		{
 			requestURL: "https://tenant.openchangelog.com",
@@ -62,12 +67,17 @@ func TestChangelogToFeedURL(t *testing.T) {
 		{
 			requestURL: "/",
 			host:       "tenant.openchangelog.com",
-			expected:   "http://tenant.openchangelog.com/feed",
+			expected:   "https://tenant.openchangelog.com/feed",
 		},
 		{
 			requestURL: "/?page-size=5&page=2",
 			host:       "tenant.openchangelog.com",
-			expected:   "http://tenant.openchangelog.com/feed",
+			expected:   "https://tenant.openchangelog.com/feed",
+		},
+		{
+			requestURL: "/?page-size=5&page=2",
+			host:       "localhost:6001",
+			expected:   "http://localhost:6001/feed",
 		},
 	}
 
@@ -77,9 +87,66 @@ func TestChangelogToFeedURL(t *testing.T) {
 			URL:  u,
 			Host: table.host,
 		}
-		changelogURL := ChangelogToFeedURL(r)
-		if changelogURL != table.expected {
-			t.Fatalf("expected %s to equal %s", changelogURL, table.expected)
+		feedURL := GetFeedURL(r)
+		if feedURL != table.expected {
+			t.Fatalf("expected %s to equal %s", feedURL, table.expected)
+		}
+	}
+}
+
+func TestGetFullURL(t *testing.T) {
+	tables := []struct {
+		requestURL string
+		hxURL      string
+		host       string
+		expected   string
+	}{
+		{
+			requestURL: "/?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
+			host:       "openchangelog.com",
+			expected:   "https://openchangelog.com/?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
+		},
+		{
+			requestURL: "https://tenant.openchangelog.com",
+			host:       "tenant.openchangelog.com",
+			expected:   "https://tenant.openchangelog.com",
+		},
+		{
+			requestURL: "/",
+			host:       "tenant.openchangelog.com",
+			expected:   "https://tenant.openchangelog.com/",
+		},
+		{
+			requestURL: "/?page-size=5&page=2",
+			host:       "tenant.openchangelog.com",
+			expected:   "https://tenant.openchangelog.com/?page-size=5&page=2",
+		},
+		{
+			requestURL: "/?page-size=5&page=2",
+			host:       "localhost:6001",
+			expected:   "http://localhost:6001/?page-size=5&page=2",
+		},
+		{
+			hxURL:    "http://localhost:6001/?page-size=2",
+			host:     "localhost:6002",
+			expected: "http://localhost:6001/?page-size=2",
+		},
+	}
+
+	for _, table := range tables {
+		u, _ := url.Parse(table.requestURL)
+		r := &http.Request{
+			URL:    u,
+			Host:   table.host,
+			Header: http.Header{},
+		}
+		if table.hxURL != "" {
+			r.Header.Set("HX-Current-URL", table.hxURL)
+		}
+
+		fullURL := GetFullURL(r)
+		if fullURL != table.expected {
+			t.Fatalf("expected %s to equal %s", fullURL, table.expected)
 		}
 	}
 }

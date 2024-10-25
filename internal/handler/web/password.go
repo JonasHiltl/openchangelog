@@ -9,7 +9,6 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
-	"github.com/jonashiltl/openchangelog/render"
 )
 
 func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
@@ -47,14 +46,14 @@ func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 	// obfuscation purposes
 	setProtectedCookie(r, w, parsed.CL.PasswordHash)
 
-	return e.render.RenderChangelog(r.Context(), w, render.RenderChangelogArgs{
-		FeedURL:        handler.ChangelogToFeedURL(r),
-		CL:             parsed.CL,
-		Articles:       parsed.Articles,
-		HasMore:        parsed.HasMore,
-		PageSize:       pageSize,
-		NextPage:       page + 1,
-		BaseCSSVersion: e.baseCSSVersion,
+	return e.render.RenderChangelog(r.Context(), w, RenderChangelogArgs{
+		FeedURL:    handler.GetFeedURL(r),
+		CurrentURL: handler.GetFullURL(r),
+		CL:         parsed.CL,
+		Articles:   parsed.Articles,
+		HasMore:    parsed.HasMore,
+		PageSize:   pageSize,
+		NextPage:   page + 1,
 	})
 }
 

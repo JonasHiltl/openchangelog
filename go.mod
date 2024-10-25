@@ -1,6 +1,8 @@
 module github.com/jonashiltl/openchangelog
 
-go 1.22.2
+go 1.23
+
+toolchain go1.23.2
 
 require (
 	github.com/a-h/templ v0.2.771
@@ -13,6 +15,7 @@ require (
 	github.com/naveensrinivasan/httpcache v1.2.1
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/quail-ink/goldmark-enclave v0.0.8
+	github.com/rs/cors v1.11.1
 	github.com/rs/xid v1.5.0
 	github.com/sio/coolname v0.1.0
 	github.com/sourcegraph/s3cache v0.0.0-20141202193749-4150cc6b0465

@@ -1,0 +1,33 @@
+package views
+
+import (
+	"github.com/jonashiltl/openchangelog/components"
+	"github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
+)
+
+type WidgetArgs struct {
+	CSS string
+	components.ChangelogContainerArgs
+	components.HeaderArgs
+	components.ArticleListArgs
+	components.FooterArgs
+}
+
+templ Widget(arg WidgetArgs) {
+	if arg.CSS != "" {
+		@layout.InlineCSS(arg.CSS)
+	}
+	@components.Prose() {
+		@components.ChangelogContainer(arg.ChangelogContainerArgs) {
+			@components.HeaderContainer() {
+				@components.HeaderContent(arg.HeaderArgs)
+			}
+			@components.ArticleList(arg.ArticleListArgs)
+		}
+		@components.Footer(arg.FooterArgs)
+	}
+}
+
+templ WidgetError(err error) {
+	<p>Error: { err.Error() }</p>
+}
