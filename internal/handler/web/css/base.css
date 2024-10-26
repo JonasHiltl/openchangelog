@@ -4,11 +4,11 @@
 
 @layer components {
     .input {
-        @apply text-sm py-2 px-3 rounded-md border dark:border-white/10 dark:focus-within:border-white/20
+        @apply o-text-sm o-py-2 o-px-3 o-rounded-md o-border dark:o-border-white/10 dark:focus-within:o-border-white/20
     }
 
     .btn {
-        @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium h-10 px-4 py-2
+        @apply o-inline-flex o-items-center o-justify-center o-whitespace-nowrap o-rounded-md o-text-sm o-font-medium o-h-10 o-px-4 o-py-2
     }
 
     .btn:disabled {
@@ -17,7 +17,7 @@
     }
 
     .btn-primary {
-        @apply bg-primary hover:bg-primary/90 text-white
+        @apply o-bg-primary hover:o-bg-primary/90 o-text-white
     }
 
     input {

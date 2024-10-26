@@ -1,0 +1,13 @@
+package components
+
+// A wrapper to apply tailwind typography styles to the underlying texts
+templ Prose() {
+	<div
+		class="o-mx-auto o-w-full o-flex-1 o-flex o-flex-col o-justify-between o-prose o-prose-sm 
+	sm:o-prose-base prose-p:o-my-2 prose-p:o-leading-6 prose-h1:o-mb-3 prose-h2:o-mb-2 prose-h3:o-mb-2 
+	prose-a:o-no-underline hover:prose-a:o-underline prose-a:o-underline-offset-4 prose-a:o-text-primary 
+	hover:prose-a:o-text-primary/90 prose-img:o-rounded dark:o-prose-invert"
+	>
+		{ children... }
+	</div>
+}

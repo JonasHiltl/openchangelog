@@ -10,6 +10,7 @@ type IndexArgs struct {
 	components.ThemeArgs
 	components.RSSArgs
 	components.Logo
+	components.ChangelogContainerArgs
 	components.HeaderArgs
 	components.ArticleListArgs
 	components.FooterArgs
@@ -22,8 +23,8 @@ templ Index(arg IndexArgs) {
 				@components.LogoImg(arg.Logo)
 				@components.RSS(arg.RSSArgs)
 			}
-			@components.TypographyStyle() {
-				@components.ChangelogContainer() {
+			@components.Prose() {
+				@components.ChangelogContainer(arg.ChangelogContainerArgs) {
 					@components.HeaderContainer() {
 						@components.HeaderContent(arg.HeaderArgs)
 					}

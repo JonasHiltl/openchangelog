@@ -9,15 +9,17 @@ type ErrorArgs struct {
 	Status  int
 	Message string
 	Path    string
+	CSS     string
 }
 
 templ Error(args ErrorArgs) {
 	@layout.Main(layout.MainArgs{
 		Title: "Changelog Error",
+		CSS:   args.CSS,
 	}) {
-		<main class="max-w-2xl mx-auto my-8 text-center">
-			<h1 class="dark:text-white">{ fmt.Sprintf("%d", args.Status) }</h1>
-			<p class="mb-4 dark:text-white">{ args.Message }</p>
+		<main class="o-max-w-2xl o-mx-auto o-my-8 o-text-center">
+			<h1 class="dark:o-text-white">{ fmt.Sprintf("%d", args.Status) }</h1>
+			<p class="o-mb-4 dark:o-text-white">{ args.Message }</p>
 			<a class="btn btn-primary" href={ templ.URL(args.Path) }>Try Again</a>
 		</main>
 	}

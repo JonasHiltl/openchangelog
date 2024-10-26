@@ -15,9 +15,9 @@ type HeaderArgs struct {
 
 templ HeaderContent(args HeaderArgs) {
 	if args.Title.IsValid() {
-		<h1>{ args.Title.V() }</h1>
+		<h1 id="title">{ args.Title.V() }</h1>
 	}
 	if args.Subtitle.IsValid() {
-		<p>{ args.Subtitle.V() }</p>
+		<p id="subtitle">{ args.Subtitle.V() }</p>
 	}
 }

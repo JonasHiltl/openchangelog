@@ -1,0 +1,40 @@
+{
+  "name": "@openchangelog/next",
+  "version": "0.0.5",
+  "homepage": "https://github.com/JonasHiltl/openchangelog",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "description": "Embed your Openchangelog Changelog into your Next.js app.",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "next.js",
+    "openchangelog",
+    "changelog",
+    "github",
+    "release notes",
+    "release"
+  ],
+  "scripts": {
+    "lint": "eslint --fix",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepare": "npm run build"
+  },
+  "peerDependencies": {
+    "next": ">=14.0.0 || >=15.0.0-rc",
+    "react": ">=18.0.0 || >=19.0.0-beta",
+    "react-dom": ">=18.0.0 || >=19.0.0-beta"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.15",
+    "tsup": "^8.3.0",
+    "typescript": "^5"
+  }
+}

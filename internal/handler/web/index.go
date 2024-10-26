@@ -1,44 +1,51 @@
 package web
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/internal/changelog"
+	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
-	"github.com/jonashiltl/openchangelog/render"
 )
 
 func index(e *env, w http.ResponseWriter, r *http.Request) error {
-	page, pageSize := handler.ParsePagination(r.URL.Query())
+	q := r.URL.Query()
+	page, pageSize := handler.ParsePagination(q)
 	l, err := handler.LoadChangelog(e.loader, e.cfg.IsDBMode(), r, changelog.NewPagination(pageSize, page))
 	if err != nil {
 		return err
 	}
 
+	_, isWidget := q["widget"]
+
 	parsed := l.Parse(r.Context())
 
 	if parsed.CL.Protected {
+		if isWidget {
+			return errs.NewBadRequest(errors.New("can't display protected changelog in widget"))
+		}
 		err = ensurePasswordProvided(r, parsed.CL.PasswordHash)
 		if err != nil {
 			log.Printf("Blocked access to protected changelog: %s\n", parsed.CL.ID)
 			return views.PasswordProtection(views.PasswordProtectionArgs{
+				CSS: baseCSS,
 				ThemeArgs: components.ThemeArgs{
 					ColorScheme: parsed.CL.ColorScheme.ToApiTypes(),
 				},
 				FooterArgs: components.FooterArgs{
 					HidePoweredBy: parsed.CL.HidePoweredBy,
 				},
-				BaseCSSVersion: e.baseCSSVersion,
 			}).Render(r.Context(), w)
 		}
 	}
 
-	if htmxHeader := r.Header.Get("HX-Request"); len(htmxHeader) > 0 {
+	if _, ok := q["articles"]; ok {
 		if len(parsed.Articles) > 0 {
-			return e.render.RenderArticleList(r.Context(), w, render.RenderArticleListArgs{
+			return e.render.RenderArticleList(r.Context(), w, RenderArticleListArgs{
 				WID:      parsed.CL.WorkspaceID,
 				CID:      parsed.CL.ID,
 				Articles: parsed.Articles,
@@ -52,15 +59,24 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	return e.render.RenderChangelog(r.Context(), w, render.RenderChangelogArgs{
-		FeedURL:        handler.ChangelogToFeedURL(r),
-		CL:             parsed.CL,
-		Articles:       parsed.Articles,
-		HasMore:        parsed.HasMore,
-		PageSize:       pageSize,
-		NextPage:       page + 1,
-		BaseCSSVersion: e.baseCSSVersion,
-	})
+	if parsed.CL.Protected {
+		w.Header().Set("Cache-Control", "private,max-age=300")
+	} else {
+		w.Header().Set("Cache-Control", "public,max-age=300")
+	}
+
+	args := RenderChangelogArgs{
+		FeedURL:    handler.GetFeedURL(r),
+		CurrentURL: handler.GetFullURL(r),
+		CL:         parsed.CL,
+		Articles:   parsed.Articles,
+		HasMore:    parsed.HasMore,
+	}
+
+	if isWidget {
+		return e.render.RenderWidget(r.Context(), w, args)
+	}
+	return e.render.RenderChangelog(r.Context(), w, args)
 }
 
 func ensurePasswordProvided(r *http.Request, pwHash string) error {
