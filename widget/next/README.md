@@ -1,6 +1,7 @@
 # Openchangelog Next.js Widget
 
-A Next.js Server Component to embed your Openchangelog changelog into your Next.js app.
+A Next.js Server Component to embed your Openchangelog changelog into your Next.js app.  
+For a summary of the most recent changes to the project, please see the [Changelog](https://next.openchangelog.com).
 
 ## Installation
 ```
