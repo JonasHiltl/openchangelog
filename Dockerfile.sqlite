@@ -1,5 +1,5 @@
 # Non alpine because of CGO glibc dependency
-FROM golang:1.22 AS builder
+FROM golang:1.23 AS builder
 
 WORKDIR /build
 ENV CGO_ENABLED=1
@@ -11,7 +11,7 @@ COPY . .
 RUN go build -buildvcs=false -ldflags "-s -w -extldflags '-static'" -o ./openchangelog cmd/server.go
 
 # Build goose binary
-FROM golang:1.22 AS goose_builder
+FROM golang:1.23 AS goose_builder
 
 WORKDIR /build
 

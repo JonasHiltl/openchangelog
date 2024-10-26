@@ -1,5 +1,5 @@
 # Non alpine because of CGO glibc dependency
-FROM golang:1.22 AS builder
+FROM golang:1.23 AS builder
 
 WORKDIR /build
 ENV CGO_ENABLED=1
