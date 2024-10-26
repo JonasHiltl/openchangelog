@@ -28,6 +28,7 @@ Openchangelog takes your Changelog, hosted on GitHub or locally and renders it a
 - Automatic RSS feed
 - Password Protection
 - Supports [keep a changelog](https://keepachangelog.com/en/1.1.0/) format or 1 Markdown file per release
+- Next.js embed
 - Various integrations, open an issue to request a new integration
 
 ## Quickstart
