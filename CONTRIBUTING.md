@@ -32,7 +32,9 @@ Run `templ generate --watch` in the repo root to have `templ` automatically gene
 
 Inside `internal/handler/web` run `npm run watch` to generate the `base.css` file with tailwind whenever anything changes.  
 
-Now run `air` or `go run cmd/server.go` in the repo root to start Openchangelog with live reloading. Since `base.css` is embedded on server start, `air` sometimes doesn't update the `css` file after it changes. Rerunning `air` fixes this issue.
+Now run `air` or `go run cmd/server.go` in the repo root to start Openchangelog with live reloading. Since `base.css` is embedded on server start, `air` sometimes doesn't update the `css` file after it changes. Rerunning `air` fixes this issue.  
+
+Since the changelog page is cached for 5 minutes, you might need to disable the cache in the dev tools to see latest changelog updates.
 
 ## Creating a PR
 If you've made changes to any `*.templ` files, ensure you run `templ generate` afterward.  
