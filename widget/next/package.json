@@ -9,6 +9,14 @@
   "files": [
     "dist"
   ],
+  "keywords": [
+    "next.js",
+    "openchangelog",
+    "changelog",
+    "github",
+    "release notes",
+    "release"
+  ],
   "scripts": {
     "lint": "eslint --fix",
     "build": "tsup",
