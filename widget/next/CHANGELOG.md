@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.6] - 2024-10-27
 ### Fixed
-- Default `baseUrl` now points to the correct Openchangelog cloud url
+- Default *baseUrl* now points to the correct Openchangelog cloud url
 
 ## [0.0.5] - 2024-10-26
 
