@@ -1,4 +1,5 @@
 type BaseChangelogProps = {
+    className?: string
     page?: number
     pageSize?: number
     baseUrl?: string
@@ -18,7 +19,7 @@ type CloudChangelogProps = BaseChangelogProps & {
 type ChangelogProps = LocalChangelogProps | CloudChangelogProps
 
 async function fetchChangelog(args: ChangelogProps): Promise<string> {
-    const baseURL = args.baseUrl || "https://openchangelog.com"
+    const baseURL = args.baseUrl || "https://app.openchangelog.com/"
     const params = new URLSearchParams({
         widget: "true",
         ...(args.changelogID && { cid: args.changelogID }),
@@ -45,10 +46,6 @@ export async function Changelog(props: ChangelogProps) {
     const html = await fetchChangelog(props)
 
     return (
-        <>
-            <div color-scheme={props.theme}>
-                <div dangerouslySetInnerHTML={{ __html: html }}></div>
-            </div>
-        </>
+        <div color-scheme={props.theme} className={props.className} dangerouslySetInnerHTML={{ __html: html }}></div>
     )
 }
