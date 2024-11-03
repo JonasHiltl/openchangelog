@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/jonashiltl/openchangelog/components"
+	"github.com/jonashiltl/openchangelog/internal/analytics"
 	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler"
@@ -21,7 +22,6 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	_, isWidget := q["widget"]
-
 	parsed := l.Parse(r.Context())
 
 	if parsed.CL.Protected {
@@ -31,6 +31,8 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 		err = ensurePasswordProvided(r, parsed.CL.PasswordHash)
 		if err != nil {
 			log.Printf("Blocked access to protected changelog: %s\n", parsed.CL.ID)
+
+			go e.getAnalyticsEmitter(parsed.CL).Emit(analytics.NewAccessDeniedEvent(r, parsed.CL))
 			return views.PasswordProtection(views.PasswordProtectionArgs{
 				CSS: baseCSS,
 				ThemeArgs: components.ThemeArgs{
@@ -44,39 +46,11 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if _, ok := q["articles"]; ok {
-		if len(parsed.Articles) > 0 {
-			return e.render.RenderArticleList(r.Context(), w, RenderArticleListArgs{
-				WID:      parsed.CL.WorkspaceID,
-				CID:      parsed.CL.ID,
-				Articles: parsed.Articles,
-				HasMore:  parsed.HasMore,
-				NextPage: page + 1,
-				PageSize: pageSize,
-			})
-		} else {
-			w.WriteHeader(http.StatusNoContent)
-			return nil
-		}
+		return handleArticles(e, w, r, &parsed, page, pageSize)
 	}
 
-	if parsed.CL.Protected {
-		w.Header().Set("Cache-Control", "private,max-age=300")
-	} else {
-		w.Header().Set("Cache-Control", "public,max-age=300")
-	}
-
-	args := RenderChangelogArgs{
-		FeedURL:    handler.GetFeedURL(r),
-		CurrentURL: handler.GetFullURL(r),
-		CL:         parsed.CL,
-		Articles:   parsed.Articles,
-		HasMore:    parsed.HasMore,
-	}
-
-	if isWidget {
-		return e.render.RenderWidget(r.Context(), w, args)
-	}
-	return e.render.RenderChangelog(r.Context(), w, args)
+	setCacheControlHeader(w, parsed.CL.Protected)
+	return renderChangelog(e, w, r, &parsed, isWidget)
 }
 
 func ensurePasswordProvided(r *http.Request, pwHash string) error {
@@ -88,4 +62,44 @@ func ensurePasswordProvided(r *http.Request, pwHash string) error {
 
 	authorize := r.URL.Query().Get(handler.AUTHORIZE_QUERY)
 	return handler.ValidatePassword(pwHash, authorize)
+}
+
+func handleArticles(e *env, w http.ResponseWriter, r *http.Request, parsed *changelog.ParsedChangelog, page, pageSize int) error {
+	if len(parsed.Articles) > 0 {
+		return e.render.RenderArticleList(r.Context(), w, RenderArticleListArgs{
+			WID:      parsed.CL.WorkspaceID,
+			CID:      parsed.CL.ID,
+			Articles: parsed.Articles,
+			HasMore:  parsed.HasMore,
+			NextPage: page + 1,
+			PageSize: pageSize,
+		})
+	} else {
+		w.WriteHeader(http.StatusNoContent)
+		return nil
+	}
+}
+
+func setCacheControlHeader(w http.ResponseWriter, isProtected bool) {
+	if isProtected {
+		w.Header().Set("Cache-Control", "private,max-age=300")
+	} else {
+		w.Header().Set("Cache-Control", "public,max-age=300")
+	}
+}
+
+func renderChangelog(e *env, w http.ResponseWriter, r *http.Request, parsed *changelog.ParsedChangelog, isWidget bool) error {
+	args := RenderChangelogArgs{
+		FeedURL:    handler.GetFeedURL(r),
+		CurrentURL: handler.GetFullURL(r),
+		CL:         parsed.CL,
+		Articles:   parsed.Articles,
+		HasMore:    parsed.HasMore,
+	}
+
+	go e.getAnalyticsEmitter(parsed.CL).Emit(analytics.NewEvent(r, parsed.CL))
+	if isWidget {
+		return e.render.RenderWidget(r.Context(), w, args)
+	}
+	return e.render.RenderChangelog(r.Context(), w, args)
 }
