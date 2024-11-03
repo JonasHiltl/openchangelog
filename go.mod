@@ -13,6 +13,7 @@ require (
 	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013200840-98b510d4c198
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/naveensrinivasan/httpcache v1.2.1
+	github.com/olivere/ndjson v1.0.1
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/quail-ink/goldmark-enclave v0.0.8
 	github.com/rs/cors v1.11.1

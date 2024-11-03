@@ -1,0 +1,13 @@
+SCHEMA >
+    `time` DateTime `json:$.time`,
+    `wid` LowCardinality(String) `json:$.wid`,
+    `cid` LowCardinality(String) `json:$.cid`,
+    `city` Nullable(String) `json:$.city`,
+    `country_code` LowCardinality(Nullable(String)) `json:$.countryCode`,
+    `continent_code` LowCardinality(Nullable(String)) `json:$.continentCode`,
+    `lat` Nullable(Float64) `json:$.lat`,
+    `lng` Nullable(Float64) `json:$.lng`,
+    `access_denied` Bool `json:$.accessDenied`
+
+ENGINE "MergeTree"
+ENGINE_SORTING_KEY "wid, cid, time"
