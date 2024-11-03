@@ -11,6 +11,10 @@ cache:
   type: disk
   disk:
     location: /data/cache/
+#analytics:
+  #provider: tinybird
+  #tinybird:
+  #  accessToken:
 page:
   title: Changelog
   subtitle: The latest product updates from Openchangelog
