@@ -42,8 +42,8 @@ github.com/guregu/null/v5 v5.0.0/go.mod h1:SjupzNy+sCPtwQTKWhUCqjhVCO69hpsl2QsZr
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013200840-98b510d4c198 h1:YZfwqDUZX191LR891bJ27xN8Fqna3hs0biPnzAfvjyY=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241013200840-98b510d4c198/go.mod h1:xnbFN3Wrw2B1F/D7pvjjwoeXSt+njRI31ccPFno0BM0=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241103181214-07f2518d74c8 h1:HzF4o06P65v3jx4ouPtXnPhWrKY/hf9We5X27rZ731k=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241103181214-07f2518d74c8/go.mod h1:1C1oY27qUCTAqi0SLZRCBGA6QoMTHkWtGlMMwh8pZxk=
 github.com/kr/http v0.0.0-20150505212737-77bd98b60462 h1:b07ir+udaggBgCywmX2B8jIvNJJaEYXLjnLzIHm/uVg=
 github.com/kr/http v0.0.0-20150505212737-77bd98b60462/go.mod h1:cM5SqzKqF3qr2a/EhVFFGK1+3Co6d40ogrTacbrLzvA=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
@@ -107,8 +107,9 @@ github.com/stretchr/objx v0.5.0/go.mod h1:Yh+to48EsGEfYuaHDzXPcE3xhTkx73EhmCGUpE
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
-github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
+github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
+github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8=
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
 github.com/syndtr/goleveldb v1.0.0/go.mod h1:ZVVdQEZoIme9iO1Ch2Jdy24qqXrMMOU6lpPAyBWyWuQ=

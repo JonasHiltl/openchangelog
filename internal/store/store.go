@@ -64,6 +64,7 @@ type UpdateChangelogArgs struct {
 	ColorScheme   ColorScheme
 	HidePoweredBy *bool
 	Protected     *bool
+	Analytics     *bool
 	PasswordHash  apitypes.NullString
 }
 

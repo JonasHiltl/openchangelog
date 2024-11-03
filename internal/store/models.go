@@ -28,6 +28,7 @@ type changelog struct {
 	HidePoweredBy int64
 	Protected     int64
 	PasswordHash  apitypes.NullString
+	Analytics     int64
 }
 
 type changelogSource struct {

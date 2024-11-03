@@ -50,8 +50,9 @@ INSERT INTO changelogs (
     color_scheme,
     hide_powered_by,
     protected,
+    analytics,
     password_hash
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 RETURNING *;
 
 -- name: deleteChangelog :exec
@@ -93,6 +94,7 @@ SET
    logo_width = CASE WHEN cast(@set_logo_width as bool) THEN @logo_width ELSE logo_width END,
    color_scheme = CASE WHEN cast(@set_color_scheme as bool) THEN @color_scheme ELSE color_scheme END,
    protected = coalesce(sqlc.narg(protected), protected),
+   analytics = coalesce(sqlc.narg(analytics), analytics),
    password_hash = CASE WHEN cast(@set_password_hash as bool) THEN @password_hash ELSE password_hash END
 WHERE workspace_id = sqlc.arg(workspace_id) AND id = sqlc.arg(id)
 RETURNING *;
