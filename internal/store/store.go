@@ -23,6 +23,7 @@ type Changelog struct {
 	LogoHeight    apitypes.NullString
 	LogoWidth     apitypes.NullString
 	ColorScheme   ColorScheme
+	Analytics     bool
 	HidePoweredBy bool
 	Protected     bool
 	PasswordHash  string
