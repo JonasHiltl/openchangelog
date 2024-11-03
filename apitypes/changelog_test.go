@@ -68,6 +68,7 @@ func TestChangelogMarshaling(t *testing.T) {
 				"hidePoweredBy": true,
 				"hasPassword": true,
 				"protected": false,
+				"analytics": false,
 				"colorScheme": "dark",
 				"createdAt": "%s"
 			}`, nowStr),
@@ -89,6 +90,7 @@ func TestChangelogMarshaling(t *testing.T) {
 				"hidePoweredBy": false,
 				"hasPassword": false,
 				"protected": false,
+				"analytics": false,
 				"createdAt": "%s"
 			}`, nowStr),
 		},
@@ -96,6 +98,7 @@ func TestChangelogMarshaling(t *testing.T) {
 			input: Changelog{
 				ID:          "cl_xxxx",
 				WorkspaceID: "ws_xxxx",
+				Analytics:   true,
 				Logo: Logo{
 					Alt: NewString("test"),
 				},
@@ -106,6 +109,7 @@ func TestChangelogMarshaling(t *testing.T) {
 				"hidePoweredBy": false,
 				"hasPassword": false,
 				"protected": false,
+				"analytics": true,
 				"logo": {
 					"alt": "test"
 				}
@@ -152,6 +156,10 @@ func TestChangelogUnmarshal(t *testing.T) {
 			CreatedAt:   time.Unix(1715958564, 0).UTC(),
 			ColorScheme: Light,
 		},
+		{
+			Analytics: true,
+			Protected: true,
+		},
 	}
 
 	for _, table := range tables {
@@ -172,6 +180,7 @@ func TestChangelogUnmarshal(t *testing.T) {
 
 func TestUpdateChangelogBodyMarshal(t *testing.T) {
 	hidePoweredBy := true
+	analytics := true
 	tests := []struct {
 		name     string
 		input    UpdateChangelogBody
@@ -270,6 +279,22 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"hidePoweredBy": true
 			}`,
 		},
+		{
+			name: "valid analytics",
+			input: UpdateChangelogBody{
+				Analytics: &analytics,
+			},
+			expected: `{
+				"title": "",
+				"subtitle": "",
+				"logo": {},
+				"domain": "",
+				"subdomain": "",
+				"colorScheme": "",
+				"password": "",
+				"analytics": true
+			}`,
+		},
 	}
 
 	for _, test := range tests {
@@ -286,6 +311,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 
 func TestUpdateChangelogBodyUnmarshal(t *testing.T) {
 	hidePoweredBy := true
+	analytics := true
 	tests := []struct {
 		name  string
 		input UpdateChangelogBody
@@ -332,6 +358,12 @@ func TestUpdateChangelogBodyUnmarshal(t *testing.T) {
 			name: "valid hide powered by",
 			input: UpdateChangelogBody{
 				HidePoweredBy: &hidePoweredBy,
+			},
+		},
+		{
+			name: "valid analytics",
+			input: UpdateChangelogBody{
+				Analytics: &analytics,
 			},
 		},
 	}

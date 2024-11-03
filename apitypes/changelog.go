@@ -18,6 +18,7 @@ type Changelog struct {
 	HidePoweredBy bool
 	Protected     bool
 	HasPassword   bool
+	Analytics     bool
 	Logo          Logo
 	Source        Source
 	CreatedAt     time.Time
@@ -58,6 +59,7 @@ func (cl Changelog) MarshalJSON() ([]byte, error) {
 		HidePoweredBy bool       `json:"hidePoweredBy"`
 		Protected     bool       `json:"protected"`
 		HasPassword   bool       `json:"hasPassword"`
+		Analytics     bool       `json:"analytics"`
 		Logo          *Logo      `json:"logo,omitempty"`
 		Source        Source     `json:"source,omitempty"`
 		CreatedAt     *time.Time `json:"createdAt,omitempty"`
@@ -72,6 +74,7 @@ func (cl Changelog) MarshalJSON() ([]byte, error) {
 		HidePoweredBy: cl.HidePoweredBy,
 		Protected:     cl.Protected,
 		HasPassword:   cl.HasPassword,
+		Analytics:     cl.Analytics,
 		Source:        cl.Source,
 	}
 
@@ -159,6 +162,13 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 
 	if hasPasswordRaw, ok := objMap["hasPassword"]; ok {
 		err = json.Unmarshal(*hasPasswordRaw, &c.HasPassword)
+		if err != nil {
+			return err
+		}
+	}
+
+	if analyticsRaw, ok := objMap["analytics"]; ok {
+		err = json.Unmarshal(*analyticsRaw, &c.Analytics)
 		if err != nil {
 			return err
 		}
@@ -260,6 +270,7 @@ type CreateChangelogBody struct {
 	HidePoweredBy bool        `json:"hidePoweredBy"`
 	Protected     bool        `json:"protected"`
 	Password      string      `json:"password"` // actual password, no hash
+	Analytics     bool        `json:"analytics"`
 }
 
 type UpdateChangelogBody struct {
@@ -272,4 +283,5 @@ type UpdateChangelogBody struct {
 	HidePoweredBy *bool       `json:"hidePoweredBy,omitempty"`
 	Protected     *bool       `json:"protected,omitempty"`
 	Password      NullString  `json:"password,omitempty"` // actual password, no hash
+	Analytics     *bool       `json:"analytics,omitempty"`
 }
