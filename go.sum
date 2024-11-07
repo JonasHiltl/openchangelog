@@ -42,8 +42,8 @@ github.com/guregu/null/v5 v5.0.0/go.mod h1:SjupzNy+sCPtwQTKWhUCqjhVCO69hpsl2QsZr
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241103181214-07f2518d74c8 h1:HzF4o06P65v3jx4ouPtXnPhWrKY/hf9We5X27rZ731k=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241103181214-07f2518d74c8/go.mod h1:1C1oY27qUCTAqi0SLZRCBGA6QoMTHkWtGlMMwh8pZxk=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241107153929-c58225909952 h1:KkNpntJLpHeHj6OtCVe2G27QwZ8rq8/qB3p5LVIMhLc=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241107153929-c58225909952/go.mod h1:1C1oY27qUCTAqi0SLZRCBGA6QoMTHkWtGlMMwh8pZxk=
 github.com/kr/http v0.0.0-20150505212737-77bd98b60462 h1:b07ir+udaggBgCywmX2B8jIvNJJaEYXLjnLzIHm/uVg=
 github.com/kr/http v0.0.0-20150505212737-77bd98b60462/go.mod h1:cM5SqzKqF3qr2a/EhVFFGK1+3Co6d40ogrTacbrLzvA=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
