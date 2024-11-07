@@ -36,9 +36,12 @@ func (s *configStore) UpdateChangelog(context.Context, WorkspaceID, ChangelogID,
 	return Changelog{}, errs.NewError(errs.ErrBadRequest, errors.New("update changelog not allowed in local config mode"))
 }
 
+// Parses the configuration to a Changelog representation.
+// This allows the system to use the Changelog without needing to know it originates from the config.
 func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID ChangelogID) (Changelog, error) {
 	cl := Changelog{
-		ID: CL_DEFAULT_ID,
+		ID:          CL_DEFAULT_ID,
+		WorkspaceID: WS_DEFAULT_ID,
 	}
 
 	if s.cfg.Page != nil {
@@ -69,6 +72,10 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 			cl.Protected = s.cfg.Page.Auth.Enabled
 			cl.PasswordHash = s.cfg.Page.Auth.PasswordHash
 		}
+	}
+
+	if s.cfg.Analytics != nil && s.cfg.Analytics.Provider == config.Tinybird {
+		cl.Analytics = true
 	}
 
 	// parse local source from config

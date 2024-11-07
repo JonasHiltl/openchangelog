@@ -5,11 +5,13 @@ import (
 )
 
 type CacheTyp string
+type AnalyticsProvider string
 
 const (
-	Memory CacheTyp = "memory"
-	S3     CacheTyp = "s3"
-	Disk   CacheTyp = "disk"
+	Memory   CacheTyp          = "memory"
+	S3       CacheTyp          = "s3"
+	Disk     CacheTyp          = "disk"
+	Tinybird AnalyticsProvider = "tinybird"
 )
 
 type GithubConfig struct {
@@ -68,6 +70,15 @@ type AuthConfig struct {
 	PasswordHash string `mapstructure:"passwordHash"`
 }
 
+type AnalyticsConfig struct {
+	Provider AnalyticsProvider `mapstructure:"provider"`
+	Tinybird *TinybirdConfig   `mapstructure:"tinybird"`
+}
+
+type TinybirdConfig struct {
+	AccessToken string `mapstructure:"accessToken"`
+}
+
 type Config struct {
 	Addr      string        `mapstructure:"addr"`
 	SqliteURL string        `mapstructure:"sqliteUrl"`
@@ -75,6 +86,7 @@ type Config struct {
 	Local     *LocalConfig  `mapstructure:"local"`
 	Page      *PageConfig   `mapstructure:"page"`
 	Cache     *CacheConfig  `mapstructure:"cache"`
+	Analytics *AnalyticsConfig
 }
 
 func (c Config) HasGithubAuth() bool {
