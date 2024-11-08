@@ -1,6 +1,6 @@
 services:
   openchangelog:
-    build: .
+    image: ghcr.io/jonashiltl/openchangelog:0.5.0
     ports:
       - "6001:6001"
     volumes:
