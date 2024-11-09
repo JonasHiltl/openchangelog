@@ -110,6 +110,27 @@ func TestKParseFull(t *testing.T) {
 	}
 }
 
+func TestKParseGitCliff(t *testing.T) {
+	p := NewKeepAChangelogParser(createGoldmark())
+	file, read, err := openKTestDataAndDetect("git-cliff")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	parsed := p.parse(read, file, NoPagination())
+	if len(parsed.Articles) != 1 {
+		t.Fatalf("Expected 1 parsed article but got %d", len(parsed.Articles))
+	}
+
+	article := parsed.Articles[0]
+
+	expectedTitle := "2.6.1"
+	if article.Meta.Title != expectedTitle {
+		t.Errorf("Expected %s to equal %s", article.Meta.Title, expectedTitle)
+	}
+
+}
+
 func TestKParsePagination(t *testing.T) {
 	p := NewKeepAChangelogParser(createGoldmark())
 
@@ -180,5 +201,43 @@ func TestKParsePagination(t *testing.T) {
 				t.Errorf("Expected %s to equal %s", a.Meta.Title, expectedTitle[i])
 			}
 		}
+	}
+}
+
+func TestParseTitle(t *testing.T) {
+	tables := []struct {
+		name          string
+		firstLine     string
+		expectedTitle string
+	}{
+		{
+			name:          "basic keep a changelog title",
+			firstLine:     "## [2.6.1] - 2024-09-27",
+			expectedTitle: "2.6.1",
+		},
+		{
+			name:          "no []",
+			firstLine:     "## 2.6.1 - 2024-09-27",
+			expectedTitle: "2.6.1",
+		},
+		{
+			name:          "with link",
+			firstLine:     "## [2.6.1](https://github.com/orhun/git-cliff/compare/v2.6.0..v2.6.1) - 2024-09-27",
+			expectedTitle: "2.6.1",
+		},
+		{
+			name:          "no release date",
+			firstLine:     "## [2.6.1]",
+			expectedTitle: "2.6.1",
+		},
+	}
+
+	for _, table := range tables {
+		t.Run(table.name, func(t *testing.T) {
+			title := parseTitle(table.firstLine)
+			if title != table.expectedTitle {
+				t.Errorf("Expected %s to be %s", title, table.expectedTitle)
+			}
+		})
 	}
 }

@@ -48,8 +48,8 @@ func (g *kparser) parse(read string, rest io.ReadCloser, page Pagination) ParseR
 			read = ""
 		}
 
-		if strings.HasPrefix(section, "# ") {
-			// ignore the section with the changelog title
+		if !strings.HasPrefix(section, "## ") {
+			// continue if the section doesn't start with ##
 			continue
 		}
 
@@ -85,21 +85,15 @@ func (g *kparser) parseRelease(release string) (ParsedArticle, error) {
 	firstLine := release[:firstLineIdx]
 	content := release[firstLineIdx+1:]
 
-	h2Parts := strings.SplitN(strings.TrimPrefix(firstLine, "## "), " - ", 2)
-	title := cleanTitle(h2Parts[0])
+	title := parseTitle(firstLine)
+	releaseDate := parseReleaseDate(firstLine)
 
 	a := ParsedArticle{
 		Meta: Meta{
-			Title: title,
-			ID:    strings.ToLower(title),
+			Title:       title,
+			ID:          strings.ToLower(title),
+			PublishedAt: releaseDate,
 		},
-	}
-
-	if len(h2Parts) > 1 {
-		publishedAt, err := time.Parse("2006-01-02", strings.TrimSpace(h2Parts[1]))
-		if err == nil {
-			a.Meta.PublishedAt = publishedAt
-		}
 	}
 
 	sc := bufio.NewScanner(strings.NewReader(content))
@@ -122,10 +116,31 @@ func (g *kparser) parseRelease(release string) (ParsedArticle, error) {
 	return a, nil
 }
 
+func parseReleaseDate(firstLine string) time.Time {
+	parts := strings.SplitN(strings.TrimPrefix(firstLine, "## "), " - ", 2)
+	if len(parts) > 1 {
+		publishedAt, err := time.Parse("2006-01-02", strings.TrimSpace(parts[1]))
+		if err == nil {
+			return publishedAt
+		}
+	}
+	return time.Time{}
+}
+
+func parseTitle(firstLine string) string {
+	h2Parts := strings.SplitN(strings.TrimPrefix(firstLine, "## "), " - ", 2)
+	return cleanTitle(h2Parts[0])
+}
+
 func cleanTitle(title string) string {
-	title = strings.TrimSpace(title)
-	title = strings.Replace(title, "[", "", 1)
-	return strings.Replace(title, "]", "", 1)
+	// remove markdown link if present
+	if idx := strings.Index(title, "]("); idx != -1 {
+		title = title[:idx]
+	}
+
+	// remove "["" and "]""
+	title = strings.Trim(title, "[]")
+	return strings.TrimSpace(title)
 }
 
 func splitOnRelease(data []byte, atEOF bool) (advance int, token []byte, err error) {
