@@ -32,6 +32,9 @@ func (h *myHandler) Handle(ctx context.Context, r slog.Record) error {
 	if rID, ok := ctx.Value(ctxKeyWorkspaceID).(string); ok {
 		r.AddAttrs(slog.String("workspace_id", rID))
 	}
+	if rID, ok := ctx.Value(ctxKeyRequestURL).(string); ok {
+		r.AddAttrs(slog.String("url", rID))
+	}
 	return h.Handler.Handle(ctx, r)
 }
 

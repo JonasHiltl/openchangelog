@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"net/url"
 
 	"github.com/rs/xid"
 )
@@ -17,13 +18,15 @@ func (c contextKey) String() string {
 var (
 	ctxKeyRequestID   = contextKey("request-id")
 	ctxKeyWorkspaceID = contextKey("workspace-id")
+	ctxKeyRequestURL  = contextKey("request-url")
 )
 
 // Attaches logger attributes to the handler.
 func AttachLogger(fn http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		requestID := xid.New().String()
-		AddRequestID(r, requestID)
+		addRequestID(r, requestID)
+		addRequestURL(r, r.URL)
 		fn(w, r)
 	}
 }
@@ -34,10 +37,12 @@ func AddWorkspaceID(r *http.Request, id string) {
 	*r = *r.WithContext(context.WithValue(r.Context(), ctxKeyWorkspaceID, id))
 }
 
-// Attaches a request id to the request context.
-// Useful for logging.
-func AddRequestID(r *http.Request, id string) {
+func addRequestID(r *http.Request, id string) {
 	*r = *r.WithContext(context.WithValue(r.Context(), ctxKeyRequestID, id))
+}
+
+func addRequestURL(r *http.Request, url *url.URL) {
+	*r = *r.WithContext(context.WithValue(r.Context(), ctxKeyRequestURL, url.String()))
 }
 
 func ErrAttr(err error) slog.Attr {
