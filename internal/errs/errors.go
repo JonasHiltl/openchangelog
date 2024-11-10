@@ -1,6 +1,9 @@
 package errs
 
-import "errors"
+import (
+	"errors"
+	"net/http"
+)
 
 // Generic errors that can be wrapped in the domain
 var (
@@ -15,6 +18,25 @@ type Error struct {
 	appErr error
 	// The generic error type
 	domainErr error
+}
+
+func (e Error) Status() int {
+	switch e.domainErr {
+	case ErrBadRequest:
+		return http.StatusBadRequest
+	case ErrNotFound:
+		return http.StatusNotFound
+	case ErrUnauthorized:
+		return http.StatusUnauthorized
+	case ErrServiceUnavailable:
+		return http.StatusServiceUnavailable
+	}
+
+	return http.StatusInternalServerError
+}
+
+func (e Error) Msg() string {
+	return e.appErr.Error()
 }
 
 func NewError(domainErr error, appErr error) error {
