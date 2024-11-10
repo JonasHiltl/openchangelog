@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    scroll-padding-top: 64px;
+    scroll-behavior: smooth;
+}
+
 @layer components {
     .input {
         @apply o-text-sm o-py-2 o-px-3 o-rounded-md o-border dark:o-border-white/10 dark:focus-within:o-border-white/20
