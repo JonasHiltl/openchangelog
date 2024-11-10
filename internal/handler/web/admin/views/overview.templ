@@ -21,17 +21,17 @@ templ Overview(args OverviewArgs) {
 		<div class="o-flex o-m-4">
 			<div class="o-border-r o-pr-4 o-mr-4">
 				<h1 class="o-text-3xl o-font-semibold o-mb-2">Workspaces</h1>
-				<table class="o-table-auto">
+				<table class="o-table">
 					<thead>
 						<tr>
 							<td>Name</td>
 							<td>Changelogs</td>
 						</tr>
 					</thead>
-					<tbody hx-boost="true">
+					<tbody>
 						for _, ws := range args.Workspaces {
 							<tr
-								class="o-cursor-pointer"
+								class="o-hover o-cursor-pointer"
 								hx-get={ fmt.Sprintf("/admin/%s?authorize=%s", ws.Workspace.ID.String(), args.Authorize) }
 								hx-target="#details"
 							>

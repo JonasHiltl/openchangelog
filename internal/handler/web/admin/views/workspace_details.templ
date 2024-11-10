@@ -17,7 +17,7 @@ templ WorkspaceDetails(args WorkspaceDetailsArgs) {
 			<p>Token: <b>{ args.Workspace.Token.String() }</b></p>
 			<p>ID: <b>{ args.Workspace.ID.String() } </b></p>
 		</div>
-		<table class="o-table-auto">
+		<table class="o-table">
 			<thead>
 				<tr>
 					<td>ID</td>
@@ -27,7 +27,7 @@ templ WorkspaceDetails(args WorkspaceDetailsArgs) {
 					<td>Domain</td>
 				</tr>
 			</thead>
-			<tbody hx-boost="true">
+			<tbody>
 				for _, cl := range args.Changelogs {
 					<tr>
 						<td>{ cl.ID.String() }</td>

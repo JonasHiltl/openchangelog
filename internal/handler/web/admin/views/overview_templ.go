@@ -50,12 +50,12 @@ func Overview(args OverviewArgs) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"o-flex o-m-4\"><div class=\"o-border-r o-pr-4 o-mr-4\"><h1 class=\"o-text-3xl o-font-semibold o-mb-2\">Workspaces</h1><table class=\"o-table-auto\"><thead><tr><td>Name</td><td>Changelogs</td></tr></thead> <tbody hx-boost=\"true\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"o-flex o-m-4\"><div class=\"o-border-r o-pr-4 o-mr-4\"><h1 class=\"o-text-3xl o-font-semibold o-mb-2\">Workspaces</h1><table class=\"o-table\"><thead><tr><td>Name</td><td>Changelogs</td></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, ws := range args.Workspaces {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr class=\"o-cursor-pointer\" hx-get=\"")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr class=\"o-hover o-cursor-pointer\" hx-get=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

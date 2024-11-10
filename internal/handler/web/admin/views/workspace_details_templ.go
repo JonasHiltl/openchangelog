@@ -75,7 +75,7 @@ func WorkspaceDetails(args WorkspaceDetailsArgs) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</b></p></div><table class=\"o-table-auto\"><thead><tr><td>ID</td><td>Title</td><td>Protected</td><td>Subdomain</td><td>Domain</td></tr></thead> <tbody hx-boost=\"true\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</b></p></div><table class=\"o-table\"><thead><tr><td>ID</td><td>Title</td><td>Protected</td><td>Subdomain</td><td>Domain</td></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
