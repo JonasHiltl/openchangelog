@@ -32,3 +32,8 @@
         margin: 0px;
     }
 }
+
+:root {
+    scroll-padding-top: 64px;
+    scroll-behavior: smooth;
+}
