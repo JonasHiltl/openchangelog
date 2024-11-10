@@ -126,3 +126,10 @@ WHERE workspace_id = ? AND id = ?;
 -- name: deleteGHSource :exec
 DELETE FROM gh_sources
 WHERE workspace_id = ? AND id = ?;
+
+-- name: listWorkspacesChangelogCount :many
+SELECT sqlc.embed(w), COUNT(c.id) AS changelog_count
+FROM workspaces w
+LEFT JOIN changelogs c ON w.id = c.workspace_id
+GROUP BY w.id, w.name
+ORDER BY changelog_count DESC;

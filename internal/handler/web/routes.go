@@ -1,7 +1,6 @@
 package web
 
 import (
-	_ "embed"
 	"errors"
 	"log"
 	"net/http"
@@ -11,12 +10,10 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
+	"github.com/jonashiltl/openchangelog/internal/handler/web/static"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
 	"github.com/jonashiltl/openchangelog/internal/store"
 )
-
-//go:embed static/base.css
-var baseCSS string
 
 func RegisterWebHandler(mux *http.ServeMux, e *env) {
 	mux.HandleFunc("GET /", serveHTTP(e, index))
@@ -89,22 +86,13 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 				Status:  http.StatusInternalServerError,
 				Message: err.Error(),
 				Path:    path,
-				CSS:     baseCSS,
+				CSS:     static.BaseCSS,
 			}
 
 			var domErr errs.Error
 			if errors.As(err, &domErr) {
-				args.Message = domErr.AppErr().Error()
-				switch domErr.DomainErr() {
-				case errs.ErrBadRequest:
-					args.Status = http.StatusBadRequest
-				case errs.ErrNotFound:
-					args.Status = http.StatusNotFound
-				case errs.ErrUnauthorized:
-					args.Status = http.StatusUnauthorized
-				case errs.ErrServiceUnavailable:
-					args.Status = http.StatusServiceUnavailable
-				}
+				args.Message = domErr.Msg()
+				args.Status = domErr.Status()
 			}
 
 			// if requesting widget, don't render html error, just error message

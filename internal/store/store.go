@@ -68,6 +68,11 @@ type UpdateChangelogArgs struct {
 	PasswordHash  apitypes.NullString
 }
 
+type WorkspaceChangelogCount struct {
+	Workspace      Workspace
+	ChangelogCount int64
+}
+
 type Store interface {
 	GetChangelog(context.Context, WorkspaceID, ChangelogID) (Changelog, error)
 	GetChangelogByDomainOrSubdomain(ctx context.Context, domain Domain, subdomain Subdomain) (Changelog, error)
@@ -83,6 +88,9 @@ type Store interface {
 	SaveWorkspace(context.Context, Workspace) (Workspace, error)
 	GetWorkspaceIDByToken(ctx context.Context, token string) (WorkspaceID, error)
 	DeleteWorkspace(context.Context, WorkspaceID) error
+
+	// admin only methods
+	ListWorkspacesChangelogCount(context.Context) ([]WorkspaceChangelogCount, error)
 
 	// Source
 	CreateGHSource(context.Context, GHSource) (GHSource, error)

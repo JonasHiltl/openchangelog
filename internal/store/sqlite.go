@@ -366,3 +366,24 @@ func (s *sqlite) ListGHSources(ctx context.Context, wID WorkspaceID) ([]GHSource
 	}
 	return sources, nil
 }
+
+func (s *sqlite) ListWorkspacesChangelogCount(ctx context.Context) ([]WorkspaceChangelogCount, error) {
+	rows, err := s.q.listWorkspacesChangelogCount(ctx)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return make([]WorkspaceChangelogCount, 0), nil
+		}
+		return nil, err
+	}
+	res := make([]WorkspaceChangelogCount, len(rows))
+	for i, row := range rows {
+		res[i] = WorkspaceChangelogCount{
+			Workspace: Workspace{
+				ID:   WorkspaceID(row.workspace.ID),
+				Name: row.workspace.Name,
+			},
+			ChangelogCount: row.ChangelogCount,
+		}
+	}
+	return res, nil
+}

@@ -13,6 +13,7 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/handler/rest"
 	"github.com/jonashiltl/openchangelog/internal/handler/rss"
 	"github.com/jonashiltl/openchangelog/internal/handler/web"
+	"github.com/jonashiltl/openchangelog/internal/handler/web/admin"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"github.com/naveensrinivasan/httpcache"
 	"github.com/naveensrinivasan/httpcache/diskcache"
@@ -45,6 +46,7 @@ func main() {
 
 	rest.RegisterRestHandler(mux, rest.NewEnv(st, loader))
 	web.RegisterWebHandler(mux, web.NewEnv(cfg, loader, renderer))
+	admin.RegisterAdminHandler(mux, admin.NewEnv(cfg, st))
 	rss.RegisterRSSHandler(mux, rss.NewEnv(cfg, loader))
 	handler := cors.Default().Handler(mux)
 

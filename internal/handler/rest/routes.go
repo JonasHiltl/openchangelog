@@ -60,17 +60,8 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 
 			var domErr errs.Error
 			if errors.As(err, &domErr) {
-				msg = domErr.AppErr().Error()
-				switch domErr.DomainErr() {
-				case errs.ErrBadRequest:
-					status = http.StatusBadRequest
-				case errs.ErrNotFound:
-					status = http.StatusNotFound
-				case errs.ErrUnauthorized:
-					status = http.StatusUnauthorized
-				case errs.ErrServiceUnavailable:
-					status = http.StatusServiceUnavailable
-				}
+				msg = domErr.Msg()
+				status = domErr.Status()
 			}
 
 			res := map[string]any{
