@@ -1,0 +1,48 @@
+package adminviews
+
+import (
+	"fmt"
+	"github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
+	"github.com/jonashiltl/openchangelog/internal/store"
+)
+
+type OverviewArgs struct {
+	CSS        string
+	Authorize  string
+	Workspaces []store.WorkspaceChangelogCount
+}
+
+templ Overview(args OverviewArgs) {
+	@layout.Main(layout.MainArgs{
+		Title:       "Admin",
+		CSS:         args.CSS,
+		IncludeHTMX: true,
+	}) {
+		<div class="o-flex o-m-4">
+			<div class="o-border-r o-pr-4 o-mr-4">
+				<h1 class="o-text-3xl o-font-semibold o-mb-2">Workspaces</h1>
+				<table class="o-table-auto">
+					<thead>
+						<tr>
+							<td>Name</td>
+							<td>Changelogs</td>
+						</tr>
+					</thead>
+					<tbody hx-boost="true">
+						for _, ws := range args.Workspaces {
+							<tr
+								class="o-cursor-pointer"
+								hx-get={ fmt.Sprintf("/admin/%s?authorize=%s", ws.Workspace.ID.String(), args.Authorize) }
+								hx-target="#details"
+							>
+								<td>{ ws.Workspace.Name }</td>
+								<td>{ fmt.Sprint(ws.ChangelogCount) }</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+			<div id="details" class="o-flex-1"></div>
+		</div>
+	}
+}

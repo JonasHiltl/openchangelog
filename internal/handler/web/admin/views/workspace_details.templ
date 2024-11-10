@@ -1,0 +1,43 @@
+package adminviews
+
+import (
+	"fmt"
+	"github.com/jonashiltl/openchangelog/internal/store"
+)
+
+type WorkspaceDetailsArgs struct {
+	Workspace  store.Workspace
+	Changelogs []store.Changelog
+}
+
+templ WorkspaceDetails(args WorkspaceDetailsArgs) {
+	<div class="o-space-y-2">
+		<h1 class="o-text-3xl o-font-semibold">{ args.Workspace.Name }</h1>
+		<div>
+			<p>Token: <b>{ args.Workspace.Token.String() }</b></p>
+			<p>ID: <b>{ args.Workspace.ID.String() } </b></p>
+		</div>
+		<table class="o-table-auto">
+			<thead>
+				<tr>
+					<td>ID</td>
+					<td>Title</td>
+					<td>Protected</td>
+					<td>Subdomain</td>
+					<td>Domain</td>
+				</tr>
+			</thead>
+			<tbody hx-boost="true">
+				for _, cl := range args.Changelogs {
+					<tr>
+						<td>{ cl.ID.String() }</td>
+						<td>{ cl.Title.V() }</td>
+						<td>{ fmt.Sprint(cl.Protected) }</td>
+						<td>{ cl.Subdomain.String() }</td>
+						<td>{ cl.Domain.String() }</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}

@@ -79,14 +79,19 @@ type TinybirdConfig struct {
 	AccessToken string `mapstructure:"accessToken"`
 }
 
+type AdminConfig struct {
+	PasswordHash string `mapstructure:"passwordHash"`
+}
+
 type Config struct {
-	Addr      string        `mapstructure:"addr"`
-	SqliteURL string        `mapstructure:"sqliteUrl"`
-	Github    *GithubConfig `mapstructure:"github"`
-	Local     *LocalConfig  `mapstructure:"local"`
-	Page      *PageConfig   `mapstructure:"page"`
-	Cache     *CacheConfig  `mapstructure:"cache"`
-	Analytics *AnalyticsConfig
+	Addr      string           `mapstructure:"addr"`
+	SqliteURL string           `mapstructure:"sqliteUrl"`
+	Github    *GithubConfig    `mapstructure:"github"`
+	Local     *LocalConfig     `mapstructure:"local"`
+	Page      *PageConfig      `mapstructure:"page"`
+	Cache     *CacheConfig     `mapstructure:"cache"`
+	Analytics *AnalyticsConfig `mapstructure:"analytics"`
+	Admin     *AdminConfig     `mapstructure:"admin"`
 }
 
 func (c Config) HasGithubAuth() bool {

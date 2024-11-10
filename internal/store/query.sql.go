@@ -477,6 +477,42 @@ func (q *Queries) listGHSources(ctx context.Context, workspaceID string) ([]ghSo
 	return items, nil
 }
 
+const listWorkspacesChangelogCount = `-- name: listWorkspacesChangelogCount :many
+SELECT w.id, w.name, COUNT(c.id) AS changelog_count
+FROM workspaces w
+LEFT JOIN changelogs c ON w.id = c.workspace_id
+GROUP BY w.id, w.name
+ORDER BY changelog_count DESC
+`
+
+type listWorkspacesChangelogCountRow struct {
+	workspace      workspace
+	ChangelogCount int64
+}
+
+func (q *Queries) listWorkspacesChangelogCount(ctx context.Context) ([]listWorkspacesChangelogCountRow, error) {
+	rows, err := q.db.QueryContext(ctx, listWorkspacesChangelogCount)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []listWorkspacesChangelogCountRow
+	for rows.Next() {
+		var i listWorkspacesChangelogCountRow
+		if err := rows.Scan(&i.workspace.ID, &i.workspace.Name, &i.ChangelogCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const saveWorkspace = `-- name: saveWorkspace :one
 INSERT INTO workspaces (
     id, name

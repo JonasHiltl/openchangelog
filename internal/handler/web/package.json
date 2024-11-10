@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "npx tailwindcss -i ./css/base.css -o ./static/base.css --watch --minify"
+    "gen:base": "npx tailwindcss -c ./tailwind.config.js -i ./css/base.css -o ./static/base.css --minify",
+    "gen:admin": "npx tailwindcss -c ./tailwind.admin.config.js -i ./css/admin.css -o ./static/admin.css --minify",
+    "gen:all": "npm run gen:base && npm run gen:admin",
+    "watch:base": "npm run gen:base -- --watch",
+    "watch:admin": "npm run gen:admin -- --watch"
   },
   "keywords": [],
   "author": "",

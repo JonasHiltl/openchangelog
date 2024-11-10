@@ -166,3 +166,7 @@ func (s *configStore) GetWorkspace(context.Context, WorkspaceID) (Workspace, err
 func (s *configStore) GetWorkspaceIDByToken(ctx context.Context, token string) (WorkspaceID, error) {
 	return WS_DEFAULT_ID, nil
 }
+
+func (s *configStore) ListWorkspacesChangelogCount(ctx context.Context) ([]WorkspaceChangelogCount, error) {
+	return []WorkspaceChangelogCount{}, errs.NewError(errs.ErrBadRequest, errors.New("list workspaces and changelog count not supported in local config mode"))
+}

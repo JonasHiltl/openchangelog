@@ -10,6 +10,7 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler"
+	"github.com/jonashiltl/openchangelog/internal/handler/web/static"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
 )
 
@@ -34,7 +35,7 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 
 			go e.getAnalyticsEmitter(parsed.CL).Emit(analytics.NewAccessDeniedEvent(r, parsed.CL))
 			return views.PasswordProtection(views.PasswordProtectionArgs{
-				CSS: baseCSS,
+				CSS: static.BaseCSS,
 				ThemeArgs: components.ThemeArgs{
 					ColorScheme: parsed.CL.ColorScheme.ToApiTypes(),
 				},

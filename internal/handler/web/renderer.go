@@ -8,6 +8,7 @@ import (
 	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/config"
+	"github.com/jonashiltl/openchangelog/internal/handler/web/static"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
 	"github.com/jonashiltl/openchangelog/internal/store"
@@ -39,7 +40,7 @@ type RenderArticleListArgs struct {
 func NewRenderer(cfg config.Config) Renderer {
 	return &renderer{
 		cfg: cfg,
-		css: baseCSS,
+		css: static.BaseCSS,
 	}
 }
 
