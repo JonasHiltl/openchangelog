@@ -2,7 +2,7 @@ package admin
 
 import (
 	"errors"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/jonashiltl/openchangelog/internal/config"
@@ -15,7 +15,7 @@ func RegisterAdminHandler(mux *http.ServeMux, e *env) {
 		return
 	}
 
-	log.Println("admin view is enabled at /admin")
+	slog.Info("admin view is enabled at /admin")
 	mux.HandleFunc("GET /admin", serveHTTP(e, adminOverview))
 	mux.HandleFunc("GET /admin/{wid}", serveHTTP(e, details))
 }

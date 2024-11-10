@@ -7,6 +7,7 @@ import (
 
 	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/errs"
+	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/store"
 )
 
@@ -50,8 +51,8 @@ type env struct {
 	loader *changelog.Loader
 }
 
-func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
+	return lgr.AttachLogger(func(w http.ResponseWriter, r *http.Request) {
 		err := h(env, w, r)
 
 		if err != nil {
@@ -75,5 +76,5 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 		}
-	}
+	})
 }

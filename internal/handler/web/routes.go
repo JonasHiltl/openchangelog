@@ -2,7 +2,6 @@ package web
 
 import (
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/jonashiltl/openchangelog/internal/analytics"
@@ -12,7 +11,9 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/static"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
+	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"golang.org/x/exp/slog"
 )
 
 func RegisterWebHandler(mux *http.ServeMux, e *env) {
@@ -62,7 +63,7 @@ func createEmitter(cfg config.Config) analytics.Emitter {
 	switch cfg.Analytics.Provider {
 	case config.Tinybird:
 		if cfg.Analytics.Tinybird == nil {
-			log.Println("Tinybird analytics is enabled, but the 'analytics.tinybird' config section is missing")
+			slog.Warn("Tinybird analytics is enabled, but the 'analytics.tinybird' config section is missing")
 			return analytics.NewNoopEmitter()
 		}
 		return tinybird.New(tinybird.TinybirdOptions{
@@ -73,8 +74,8 @@ func createEmitter(cfg config.Config) analytics.Emitter {
 	return analytics.NewNoopEmitter()
 }
 
-func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
+	return lgr.AttachLogger(func(w http.ResponseWriter, r *http.Request) {
 		err := h(env, w, r)
 		if err != nil {
 			path := r.URL.Path
@@ -107,5 +108,5 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 		}
-	}
+	})
 }

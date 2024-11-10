@@ -1,6 +1,9 @@
 package config
 
 import (
+	"log/slog"
+	"strings"
+
 	"github.com/spf13/viper"
 )
 
@@ -83,9 +86,27 @@ type AdminConfig struct {
 	PasswordHash string `mapstructure:"passwordHash"`
 }
 
+type LogLevel string
+
+func (l LogLevel) ToSlog() slog.Level {
+	switch strings.ToLower(string(l)) {
+	case "info":
+		return slog.LevelInfo
+	case "error":
+		return slog.LevelError
+	case "warn":
+		return slog.LevelWarn
+	case "debug":
+		return slog.LevelDebug
+	}
+	return slog.LevelInfo
+}
+
 type Config struct {
 	Addr      string           `mapstructure:"addr"`
 	SqliteURL string           `mapstructure:"sqliteUrl"`
+	LogLevel  LogLevel         `mapstructure:"logLevel"`
+	LogStyle  string           `mapstructure:"logStyle"`
 	Github    *GithubConfig    `mapstructure:"github"`
 	Local     *LocalConfig     `mapstructure:"local"`
 	Page      *PageConfig      `mapstructure:"page"`
