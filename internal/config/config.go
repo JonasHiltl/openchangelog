@@ -1,6 +1,8 @@
 package config
 
 import (
+	"log/slog"
+
 	"github.com/spf13/viper"
 )
 
@@ -83,6 +85,19 @@ type AdminConfig struct {
 	PasswordHash string `mapstructure:"passwordHash"`
 }
 
+type LogConfig struct {
+	Level LogLevel `mapstructure:"level"`
+	Style string   `mapstructure:"style"`
+}
+
+type LogLevel string
+
+func (l LogLevel) ToSlog() slog.Level {
+	var sl slog.Level
+	sl.UnmarshalText([]byte(l))
+	return sl
+}
+
 type Config struct {
 	Addr      string           `mapstructure:"addr"`
 	SqliteURL string           `mapstructure:"sqliteUrl"`
@@ -92,6 +107,7 @@ type Config struct {
 	Cache     *CacheConfig     `mapstructure:"cache"`
 	Analytics *AnalyticsConfig `mapstructure:"analytics"`
 	Admin     *AdminConfig     `mapstructure:"admin"`
+	Log       *LogConfig       `mapstructure:"log"`
 }
 
 func (c Config) HasGithubAuth() bool {

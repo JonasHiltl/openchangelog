@@ -2,7 +2,7 @@ package web
 
 import (
 	"errors"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/jonashiltl/openchangelog/components"
@@ -31,7 +31,7 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 		}
 		err = ensurePasswordProvided(r, parsed.CL.PasswordHash)
 		if err != nil {
-			log.Printf("Blocked access to protected changelog: %s\n", parsed.CL.ID)
+			slog.InfoContext(r.Context(), "blocked access to changelog", slog.String("changelog", parsed.CL.ID.String()))
 
 			go e.getAnalyticsEmitter(parsed.CL).Emit(analytics.NewAccessDeniedEvent(r, parsed.CL))
 			return views.PasswordProtection(views.PasswordProtectionArgs{

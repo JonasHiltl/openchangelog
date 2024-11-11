@@ -3,12 +3,13 @@ package tinybird
 import (
 	"bytes"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/jonashiltl/openchangelog/internal/analytics"
+	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/olivere/ndjson"
 )
 
@@ -89,7 +90,7 @@ func (b *bird) sendBatch(events []analytics.Event) error {
 
 	req, err := http.NewRequest("POST", url, &buf)
 	if err != nil {
-		log.Printf("failed create new analytics request to tinybird: %s\n", err)
+		slog.Error("failed create new analytics request to tinybird", lgr.ErrAttr(err))
 		return err
 	}
 
@@ -98,13 +99,13 @@ func (b *bird) sendBatch(events []analytics.Event) error {
 
 	resp, err := b.client.Do(req)
 	if err != nil {
-		log.Printf("failed to send events to tinybird: %s\n", err)
+		slog.Error("failed to send events to tinybird", lgr.ErrAttr(err))
 		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode > http.StatusAccepted {
-		log.Printf("received error status from tinybird: %s", resp.Status)
+		slog.Error("received error status from tinybird", slog.String("status", resp.Status))
 		return fmt.Errorf("received error status from tinybird: %s", resp.Status)
 	}
 

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/jonashiltl/openchangelog/internal/errs"
+	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/store"
 )
 
@@ -29,6 +30,7 @@ func bearerAuth(e *env, r *http.Request) (Token, error) {
 	if err != nil {
 		return Token{}, err
 	}
+	lgr.AddWorkspaceID(r, id.String())
 	return Token{
 		Key:         key,
 		WorkspaceID: id,

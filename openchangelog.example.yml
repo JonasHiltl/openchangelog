@@ -1,4 +1,7 @@
 addr: localhost:6001
+#log:
+  #level: INFO (default), DEBUG, WARN, ERROR
+  #style: text (default), json
 #github:
 #  owner:
 #  repo:
