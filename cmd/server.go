@@ -54,7 +54,7 @@ func main() {
 	rss.RegisterRSSHandler(mux, rss.NewEnv(cfg, loader))
 	handler := cors.Default().Handler(mux)
 
-	slog.Info("Ready to server requests", slog.String("addr", fmt.Sprintf("http://%s", cfg.Addr)))
+	slog.Info("Ready to serve requests", slog.String("addr", fmt.Sprintf("http://%s", cfg.Addr)))
 	log.Fatal(http.ListenAndServe(cfg.Addr, handler))
 }
 
