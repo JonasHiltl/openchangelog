@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/jonashiltl/openchangelog/internal/config"
 )
@@ -29,11 +30,17 @@ func (h *myHandler) Handle(ctx context.Context, r slog.Record) error {
 	if rID, ok := ctx.Value(ctxKeyRequestID).(string); ok {
 		r.AddAttrs(slog.String("request_id", rID))
 	}
-	if rID, ok := ctx.Value(ctxKeyWorkspaceID).(string); ok {
-		r.AddAttrs(slog.String("workspace_id", rID))
+	if wID, ok := ctx.Value(ctxKeyWorkspaceID).(string); ok {
+		r.AddAttrs(slog.String("workspace_id", wID))
 	}
-	if rID, ok := ctx.Value(ctxKeyRequestURL).(string); ok {
-		r.AddAttrs(slog.String("url", rID))
+	if rURL, ok := ctx.Value(ctxKeyRequestPath).(string); ok {
+		r.AddAttrs(slog.String("path", rURL))
+	}
+	if rMth, ok := ctx.Value(ctxKeyRequestMethod).(string); ok {
+		r.AddAttrs(slog.String("method", rMth))
+	}
+	if start, ok := ctx.Value(ctxKeyRequestStart).(time.Time); ok {
+		r.AddAttrs(slog.Duration("duration", time.Since(start)))
 	}
 	return h.Handler.Handle(ctx, r)
 }
