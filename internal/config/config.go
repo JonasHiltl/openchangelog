@@ -2,7 +2,6 @@ package config
 
 import (
 	"log/slog"
-	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -94,17 +93,9 @@ type LogConfig struct {
 type LogLevel string
 
 func (l LogLevel) ToSlog() slog.Level {
-	switch strings.ToLower(string(l)) {
-	case "info":
-		return slog.LevelInfo
-	case "error":
-		return slog.LevelError
-	case "warn":
-		return slog.LevelWarn
-	case "debug":
-		return slog.LevelDebug
-	}
-	return slog.LevelInfo
+	var sl slog.Level
+	sl.UnmarshalText([]byte(l))
+	return sl
 }
 
 type Config struct {
