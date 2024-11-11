@@ -38,8 +38,8 @@ func (h *myHandler) Handle(ctx context.Context, r slog.Record) error {
 	if wID, ok := ctx.Value(ctxKeyWorkspaceID).(string); ok {
 		r.AddAttrs(slog.String("workspace_id", wID))
 	}
-	if rURL, ok := ctx.Value(ctxKeyRequestPath).(string); ok {
-		r.AddAttrs(slog.String("path", rURL))
+	if rPath, ok := ctx.Value(ctxKeyRequestPath).(string); ok {
+		r.AddAttrs(slog.String("path", rPath))
 	}
 	if rMth, ok := ctx.Value(ctxKeyRequestMethod).(string); ok {
 		r.AddAttrs(slog.String("method", rMth))
