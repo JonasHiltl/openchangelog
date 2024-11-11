@@ -86,6 +86,11 @@ type AdminConfig struct {
 	PasswordHash string `mapstructure:"passwordHash"`
 }
 
+type LogConfig struct {
+	Level LogLevel `mapstructure:"level"`
+	Style string   `mapstructure:"style"`
+}
+
 type LogLevel string
 
 func (l LogLevel) ToSlog() slog.Level {
@@ -105,14 +110,13 @@ func (l LogLevel) ToSlog() slog.Level {
 type Config struct {
 	Addr      string           `mapstructure:"addr"`
 	SqliteURL string           `mapstructure:"sqliteUrl"`
-	LogLevel  LogLevel         `mapstructure:"logLevel"`
-	LogStyle  string           `mapstructure:"logStyle"`
 	Github    *GithubConfig    `mapstructure:"github"`
 	Local     *LocalConfig     `mapstructure:"local"`
 	Page      *PageConfig      `mapstructure:"page"`
 	Cache     *CacheConfig     `mapstructure:"cache"`
 	Analytics *AnalyticsConfig `mapstructure:"analytics"`
 	Admin     *AdminConfig     `mapstructure:"admin"`
+	Log       *LogConfig       `mapstructure:"log"`
 }
 
 func (c Config) HasGithubAuth() bool {

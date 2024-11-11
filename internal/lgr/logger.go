@@ -11,11 +11,16 @@ import (
 
 func NewLogger(cfg config.Config) *slog.Logger {
 	var sh slog.Handler
-	switch cfg.LogStyle {
-	case "json":
-		sh = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: cfg.LogLevel.ToSlog()})
-	default:
-		sh = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: cfg.LogLevel.ToSlog()})
+
+	if cfg.Log == nil {
+		sh = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{})
+	} else {
+		switch cfg.Log.Style {
+		case "json":
+			sh = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: cfg.Log.Level.ToSlog()})
+		default:
+			sh = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: cfg.Log.Level.ToSlog()})
+		}
 	}
 	return slog.New(&myHandler{
 		Handler: sh,
