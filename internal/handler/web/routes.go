@@ -96,6 +96,8 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 				args.Status = domErr.Status()
 			}
 
+			defer lgr.LogRequest(r.Context(), args.Status, args.Message)
+
 			// if requesting widget, don't render html error, just error message
 			if _, ok := r.URL.Query()["widget"]; ok {
 				http.Error(w, args.Message, args.Status)
@@ -107,8 +109,6 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
-
-			lgr.LogRequest(r.Context(), args.Status, args.Message)
 		}
 	})
 }
