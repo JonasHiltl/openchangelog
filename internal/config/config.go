@@ -114,9 +114,14 @@ func (c Config) HasGithubAuth() bool {
 	return c.Github != nil && c.Github.Auth != nil
 }
 
-// Returns wether openchangelog should by started in database mode or in config mode
+// Returns true if Openchangelog was started in db mode (using sqlite to store changelog configs, multi tenancy)
 func (c Config) IsDBMode() bool {
 	return c.SqliteURL != ""
+}
+
+// Returns true if Openchangelog was started in config mode (using config file to store changelog configs)
+func (c Config) IsConfigMode() bool {
+	return !c.IsDBMode()
 }
 
 // Loads the config file from configPath if specified.

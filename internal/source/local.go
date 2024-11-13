@@ -1,4 +1,4 @@
-package changelog
+package source
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/store"
 )
 
@@ -15,13 +16,13 @@ type localSource struct {
 	path string
 }
 
-func newLocalSourceFromStore(s store.LocalSource) Source {
+func NewLocalSourceFromStore(s store.LocalSource) Source {
 	return localSource{
 		path: s.Path,
 	}
 }
 
-func (s localSource) Load(ctx context.Context, page Pagination) (LoadResult, error) {
+func (s localSource) Load(ctx context.Context, page internal.Pagination) (LoadResult, error) {
 	// sanitize params
 	if page.IsDefined() && page.PageSize() < 1 {
 		return LoadResult{}, nil
@@ -39,7 +40,7 @@ func (s localSource) Load(ctx context.Context, page Pagination) (LoadResult, err
 	}
 }
 
-func loadDir(path string, page Pagination) (LoadResult, error) {
+func loadDir(path string, page internal.Pagination) (LoadResult, error) {
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return LoadResult{}, err
@@ -60,8 +61,8 @@ func loadDir(path string, page Pagination) (LoadResult, error) {
 
 	if startIdx >= len(files) {
 		return LoadResult{
-			Articles: []RawArticle{},
-			HasMore:  false,
+			Raw:     []RawReleaseNote{},
+			HasMore: false,
 		}, nil
 	}
 
@@ -71,7 +72,7 @@ func loadDir(path string, page Pagination) (LoadResult, error) {
 	})
 
 	var wg sync.WaitGroup
-	results := make([]RawArticle, 0, page.PageSize())
+	notes := make([]RawReleaseNote, 0, page.PageSize())
 	mutex := &sync.Mutex{}
 
 	for i := startIdx; i <= endIdx && i < len(files); i++ {
@@ -84,7 +85,7 @@ func loadDir(path string, page Pagination) (LoadResult, error) {
 				return
 			}
 			mutex.Lock()
-			results = append(results, RawArticle{
+			notes = append(notes, RawReleaseNote{
 				Content: read,
 			})
 			mutex.Unlock()
@@ -93,8 +94,8 @@ func loadDir(path string, page Pagination) (LoadResult, error) {
 	wg.Wait()
 
 	return LoadResult{
-		Articles: results,
-		HasMore:  endIdx+1 < len(files),
+		Raw:     notes,
+		HasMore: endIdx+1 < len(files),
 	}, nil
 }
 
@@ -105,7 +106,7 @@ func loadFile(path string) (LoadResult, error) {
 		return LoadResult{}, err
 	}
 	return LoadResult{
-		Articles: []RawArticle{{Content: read}},
-		HasMore:  false,
+		Raw:     []RawReleaseNote{{Content: read}},
+		HasMore: false,
 	}, nil
 }

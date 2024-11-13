@@ -1,13 +1,14 @@
-package changelog
+package parse
 
 import (
-	"bytes"
 	"context"
 	"io"
 	"slices"
 	"sync"
 	"time"
 
+	"github.com/jonashiltl/openchangelog/internal"
+	"github.com/jonashiltl/openchangelog/internal/source"
 	"github.com/yuin/goldmark"
 )
 
@@ -20,22 +21,24 @@ type Meta struct {
 	Tags        []string  `yaml:"tags"`
 }
 
-type ParsedArticle struct {
+type ParsedReleaseNote struct {
 	Meta    Meta
 	Content io.Reader
 }
 
-func (a *ParsedArticle) AddTag(t string) {
+func (a *ParsedReleaseNote) AddTag(t string) {
 	if !slices.Contains(a.Meta.Tags, t) {
 		a.Meta.Tags = append(a.Meta.Tags, t)
 	}
 }
 
 type ParseResult struct {
-	Articles []ParsedArticle
+	Articles []ParsedReleaseNote
 	HasMore  bool
 }
 
+// Creates a new Parser that can be used to parse RawReleaseNote files to ParsedReleaseNote.
+// Converts all Markdown content to HTML.
 func NewParser(gm goldmark.Markdown) Parser {
 	return Parser{
 		og: NewOGParser(gm),
@@ -52,12 +55,12 @@ type Parser struct {
 // Uses the keep-a-changelog parser if only a single article in the keep-a-changelog format is provided.
 // Pagination is only applied when using the keep-a-changelog parser.
 // Else parses using the original parser.
-func (p *Parser) Parse(ctx context.Context, raw []RawArticle, kPage Pagination) ParseResult {
+func (p *Parser) Parse(ctx context.Context, raw []source.RawReleaseNote, kPage internal.Pagination) ParseResult {
 
 	// sanitize pagination
 	if kPage.IsDefined() && kPage.PageSize() < 1 {
 		return ParseResult{
-			Articles: []ParsedArticle{},
+			Articles: []ParsedReleaseNote{},
 			HasMore:  false,
 		}
 	}
@@ -72,7 +75,7 @@ func (p *Parser) Parse(ctx context.Context, raw []RawArticle, kPage Pagination) 
 			return ParseResult{}
 		}
 		return ParseResult{
-			Articles: []ParsedArticle{parsed},
+			Articles: []ParsedReleaseNote{parsed},
 			HasMore:  false, // hasMore can only be true with the keep-a-changelog parser
 		}
 	}
@@ -82,7 +85,7 @@ func (p *Parser) Parse(ctx context.Context, raw []RawArticle, kPage Pagination) 
 	mutex := &sync.Mutex{}
 	for _, a := range raw {
 		wg.Add(1)
-		go func(a RawArticle) {
+		go func(a source.RawReleaseNote) {
 			defer wg.Done()
 			parsed, err := p.og.parseArticle(a.Content)
 			if err != nil {
@@ -98,46 +101,4 @@ func (p *Parser) Parse(ctx context.Context, raw []RawArticle, kPage Pagination) 
 	slices.SortFunc(result.Articles, sortArticleDesc)
 
 	return result
-}
-
-type FileFormat int
-
-const (
-	OG FileFormat = iota
-	KeepAChangelog
-)
-
-// Detects the file format of r and returns the string read to detect the file format.
-// The read string can not be read again from r.
-func detectFileFormat(r io.Reader) (FileFormat, string) {
-	var buf bytes.Buffer
-	_, err := io.CopyN(&buf, r, 3)
-	if err != nil {
-		return OG, ""
-	}
-	start := buf.String()
-	if start == "---" {
-		// if content has frontmatter => it's probably our own file format
-		return OG, start
-	}
-	return KeepAChangelog, start
-}
-
-// Sorts ParsedArticles by their published date.
-func sortArticleDesc(a ParsedArticle, b ParsedArticle) int {
-	if a.Meta.PublishedAt.IsZero() && b.Meta.PublishedAt.IsZero() {
-		return 0
-	}
-	if a.Meta.PublishedAt.IsZero() {
-		return -1
-	}
-	if b.Meta.PublishedAt.IsZero() {
-		return 1
-	}
-
-	if a.Meta.PublishedAt.After(b.Meta.PublishedAt) {
-		return -1
-	}
-
-	return 1
 }

@@ -1,4 +1,4 @@
-package changelog
+package parse
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/jonashiltl/openchangelog/internal"
 )
 
 func openKTestData(name string) (*os.File, error) {
@@ -26,13 +28,13 @@ func openKTestDataAndDetect(name string) (*os.File, string, error) {
 }
 
 func TestKParseMinimal(t *testing.T) {
-	p := NewKeepAChangelogParser(createGoldmark())
+	p := NewKeepAChangelogParser(CreateGoldmark())
 	file, read, err := openKTestDataAndDetect("minimal")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	parsed := p.parse(read, file, NoPagination())
+	parsed := p.parse(read, file, internal.NoPagination())
 	if parsed.HasMore == true {
 		t.Error("hasMore should be false")
 	}
@@ -60,13 +62,13 @@ func TestKParseMinimal(t *testing.T) {
 }
 
 func TestKParseUnreleased(t *testing.T) {
-	p := NewKeepAChangelogParser(createGoldmark())
+	p := NewKeepAChangelogParser(CreateGoldmark())
 	file, read, err := openKTestDataAndDetect("unreleased")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	parsed := p.parse(read, file, NoPagination())
+	parsed := p.parse(read, file, internal.NoPagination())
 	if parsed.HasMore == true {
 		t.Error("hasMore should be false")
 	}
@@ -94,13 +96,13 @@ func TestKParseUnreleased(t *testing.T) {
 }
 
 func TestKParseFull(t *testing.T) {
-	p := NewKeepAChangelogParser(createGoldmark())
+	p := NewKeepAChangelogParser(CreateGoldmark())
 	file, read, err := openKTestDataAndDetect("full")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	parsed := p.parse(read, file, NoPagination())
+	parsed := p.parse(read, file, internal.NoPagination())
 	if parsed.HasMore == true {
 		t.Error("hasMore should be false")
 	}
@@ -111,13 +113,13 @@ func TestKParseFull(t *testing.T) {
 }
 
 func TestKParseGitCliff(t *testing.T) {
-	p := NewKeepAChangelogParser(createGoldmark())
+	p := NewKeepAChangelogParser(CreateGoldmark())
 	file, read, err := openKTestDataAndDetect("git-cliff")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	parsed := p.parse(read, file, NoPagination())
+	parsed := p.parse(read, file, internal.NoPagination())
 	if len(parsed.Articles) != 1 {
 		t.Fatalf("Expected 1 parsed article but got %d", len(parsed.Articles))
 	}
@@ -132,7 +134,7 @@ func TestKParseGitCliff(t *testing.T) {
 }
 
 func TestKParsePagination(t *testing.T) {
-	p := NewKeepAChangelogParser(createGoldmark())
+	p := NewKeepAChangelogParser(CreateGoldmark())
 
 	tables := []struct {
 		size            int
@@ -183,9 +185,9 @@ func TestKParsePagination(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		page := NewPagination(table.size, table.page)
+		page := internal.NewPagination(table.size, table.page)
 
-		parsed := p.parse(read, file, NewPagination(table.size, table.page))
+		parsed := p.parse(read, file, internal.NewPagination(table.size, table.page))
 
 		if parsed.HasMore != table.expectedHasMore {
 			t.Errorf("Expected hasMore %t but got %t", table.expectedHasMore, parsed.HasMore)

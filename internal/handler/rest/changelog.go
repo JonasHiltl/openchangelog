@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/jonashiltl/openchangelog/apitypes"
-	"github.com/jonashiltl/openchangelog/internal/changelog"
+	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/store"
@@ -238,20 +238,25 @@ func getFullChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	cId := r.PathValue(changelog_id_param)
-	page, pageSize := handler.ParsePagination(r.URL.Query())
-
-	loader, err := e.loader.FromWorkspace(
-		r.Context(),
-		t.WorkspaceID.String(),
-		cId,
-		changelog.NewPagination(pageSize, page),
-	)
+	cID, err := store.ParseCID(r.PathValue(changelog_id_param))
 	if err != nil {
 		return errs.NewBadRequest(err)
 	}
 
-	parsed := loader.Parse(r.Context())
+	cl, err := e.store.GetChangelog(r.Context(), t.WorkspaceID, cID)
+	if err != nil {
+		return errs.NewBadRequest(err)
+	}
+
+	page, pageSize := handler.ParsePagination(r.URL.Query())
+	pagination := internal.NewPagination(pageSize, page)
+
+	loaded, err := e.loader.LoadReleaseNotes(r.Context(), cl, pagination)
+	if err != nil {
+		return errs.NewBadRequest(err)
+	}
+
+	parsed := e.parser.Parse(r.Context(), loaded.Notes.Raw, pagination)
 
 	articles := make([]apitypes.Article, len(parsed.Articles))
 	for i, a := range parsed.Articles {
@@ -267,7 +272,7 @@ func getFullChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 	res := apitypes.FullChangelog{
-		Changelog:       changelogToApiType(parsed.CL),
+		Changelog:       changelogToApiType(loaded.CL),
 		Articles:        articles,
 		HasMoreArticles: parsed.HasMore,
 	}

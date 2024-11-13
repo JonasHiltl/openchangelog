@@ -1,4 +1,4 @@
-package changelog
+package parse
 
 import (
 	"bytes"
@@ -21,7 +21,7 @@ type ogparser struct {
 }
 
 // Creates a new goldmark instance, used to parse Markdown to HTML.
-func createGoldmark() goldmark.Markdown {
+func CreateGoldmark() goldmark.Markdown {
 	return goldmark.New(
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
@@ -50,22 +50,22 @@ func NewOGParser(gm goldmark.Markdown) *ogparser {
 }
 
 // Takes a raw article in our original markdown format and parses it.
-func (g *ogparser) parseArticle(article io.ReadCloser) (ParsedArticle, error) {
+func (g *ogparser) parseArticle(article io.ReadCloser) (ParsedReleaseNote, error) {
 	defer article.Close()
 	source, err := io.ReadAll(article)
 	if err != nil {
-		return ParsedArticle{}, err
+		return ParsedReleaseNote{}, err
 	}
 
 	return g.parseArticleBytes(source)
 }
 
 // Parses the raw article content, but expects a part of the content to be already read (to detect the file format).
-func (g *ogparser) parseArticleRead(read string, rest io.ReadCloser) (ParsedArticle, error) {
+func (g *ogparser) parseArticleRead(read string, rest io.ReadCloser) (ParsedReleaseNote, error) {
 	defer rest.Close()
 	source, err := io.ReadAll(rest)
 	if err != nil {
-		return ParsedArticle{}, err
+		return ParsedReleaseNote{}, err
 	}
 
 	full := append([]byte(read), source...)
@@ -74,30 +74,30 @@ func (g *ogparser) parseArticleRead(read string, rest io.ReadCloser) (ParsedArti
 }
 
 // Don't use diretly, use parseArticle() and parseArticleRead() instead.
-func (g *ogparser) parseArticleBytes(content []byte) (ParsedArticle, error) {
+func (g *ogparser) parseArticleBytes(content []byte) (ParsedReleaseNote, error) {
 	ctx := gmparser.NewContext()
 
 	var target bytes.Buffer
 	err := g.gm.Convert(content, &target, gmparser.WithContext(ctx))
 	if err != nil {
-		return ParsedArticle{}, err
+		return ParsedReleaseNote{}, err
 	}
 
 	data := frontmatter.Get(ctx)
 	if data == nil {
-		return ParsedArticle{
+		return ParsedReleaseNote{
 			Content: &target,
 		}, nil
 	}
 	var meta Meta
 	err = data.Decode(&meta)
 	if err != nil {
-		return ParsedArticle{}, err
+		return ParsedReleaseNote{}, err
 	}
 
 	meta.ID = fmt.Sprint(meta.PublishedAt.Unix())
 
-	return ParsedArticle{
+	return ParsedReleaseNote{
 		Meta:    meta,
 		Content: &target,
 	}, nil

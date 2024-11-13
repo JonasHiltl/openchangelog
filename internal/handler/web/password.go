@@ -6,9 +6,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/jonashiltl/openchangelog/internal/changelog"
+	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
+	"github.com/jonashiltl/openchangelog/internal/load"
 )
 
 func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
@@ -28,15 +29,15 @@ func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	page, pageSize := handler.ParsePagination(u.Query())
-
-	l, err := handler.LoadChangelog(e.loader, e.cfg.IsDBMode(), r, changelog.NewPagination(pageSize, page))
+	pagination := internal.NewPagination(pageSize, page)
+	loaded, err := e.loader.LoadChangelog(r, pagination)
 	if err != nil {
 		return err
 	}
 
-	parsed := l.Parse(r.Context())
+	parsed := e.parser.Parse(r.Context(), loaded.Notes.Raw, pagination)
 
-	err = handler.ValidatePassword(parsed.CL.PasswordHash, pw)
+	err = handler.ValidatePassword(loaded.CL.PasswordHash, pw)
 	if err != nil {
 		return views.PasswordProtectionError(err.Error()).Render(r.Context(), w)
 	}
@@ -44,14 +45,14 @@ func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("HX-Retarget", "body")
 	// the hashed password does not add any actual security, but we do it for
 	// obfuscation purposes
-	setProtectedCookie(r, w, parsed.CL.PasswordHash)
+	setProtectedCookie(r, w, loaded.CL.PasswordHash)
 
 	return e.render.RenderChangelog(r.Context(), w, RenderChangelogArgs{
-		FeedURL:    handler.GetFeedURL(r),
-		CurrentURL: handler.GetFullURL(r),
-		CL:         parsed.CL,
-		Articles:   parsed.Articles,
-		HasMore:    parsed.HasMore,
+		FeedURL:      handler.GetFeedURL(r),
+		CurrentURL:   handler.GetFullURL(r),
+		CL:           loaded.CL,
+		ReleaseNotes: parsed.Articles,
+		HasMore:      parsed.HasMore,
 	})
 }
 
@@ -96,7 +97,7 @@ func getHost(r *http.Request) string {
 }
 
 func createCookieKey(r *http.Request) string {
-	wID, cID := handler.GetQueryIDs(r)
+	wID, cID := load.GetQueryIDs(r)
 	if wID != "" && cID != "" {
 		return fmt.Sprintf("protected-%s-%s", wID, cID)
 	}

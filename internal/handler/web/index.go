@@ -1,57 +1,61 @@
 package web
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"net/http"
 
 	"github.com/jonashiltl/openchangelog/components"
+	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/analytics"
-	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/static"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
+	"github.com/jonashiltl/openchangelog/internal/parse"
+	"github.com/jonashiltl/openchangelog/internal/store"
 )
 
 func index(e *env, w http.ResponseWriter, r *http.Request) error {
 	q := r.URL.Query()
 	page, pageSize := handler.ParsePagination(q)
-	l, err := handler.LoadChangelog(e.loader, e.cfg.IsDBMode(), r, changelog.NewPagination(pageSize, page))
+	pagination := internal.NewPagination(pageSize, page)
+
+	loaded, err := e.loader.LoadChangelog(r, pagination)
 	if err != nil {
 		return err
 	}
 
 	_, isWidget := q["widget"]
-	parsed := l.Parse(r.Context())
+	parsed := e.parser.Parse(r.Context(), loaded.Notes.Raw, pagination)
 
-	if parsed.CL.Protected {
+	if loaded.CL.Protected {
 		if isWidget {
 			return errs.NewBadRequest(errors.New("can't display protected changelog in widget"))
 		}
-		err = ensurePasswordProvided(r, parsed.CL.PasswordHash)
+		err = ensurePasswordProvided(r, loaded.CL.PasswordHash)
 		if err != nil {
-			slog.InfoContext(r.Context(), "blocked access to changelog", slog.String("changelog", parsed.CL.ID.String()))
-
-			go e.getAnalyticsEmitter(parsed.CL).Emit(analytics.NewAccessDeniedEvent(r, parsed.CL))
+			slog.InfoContext(r.Context(), "blocked access to changelog", slog.String("changelog", loaded.CL.ID.String()))
+			go e.getAnalyticsEmitter(loaded.CL).Emit(analytics.NewAccessDeniedEvent(r, loaded.CL))
 			return views.PasswordProtection(views.PasswordProtectionArgs{
 				CSS: static.BaseCSS,
 				ThemeArgs: components.ThemeArgs{
-					ColorScheme: parsed.CL.ColorScheme.ToApiTypes(),
+					ColorScheme: loaded.CL.ColorScheme.ToApiTypes(),
 				},
 				FooterArgs: components.FooterArgs{
-					HidePoweredBy: parsed.CL.HidePoweredBy,
+					HidePoweredBy: loaded.CL.HidePoweredBy,
 				},
 			}).Render(r.Context(), w)
 		}
 	}
 
 	if _, ok := q["articles"]; ok {
-		return handleArticles(e, w, r, &parsed, page, pageSize)
+		return handleArticles(e, w, r.Context(), loaded.CL, parsed, page, pageSize)
 	}
 
-	setCacheControlHeader(w, parsed.CL.Protected)
-	return renderChangelog(e, w, r, &parsed, isWidget)
+	setCacheControlHeader(w, loaded.CL.Protected)
+	return renderChangelog(e, w, r, loaded.CL, parsed, isWidget)
 }
 
 func ensurePasswordProvided(r *http.Request, pwHash string) error {
@@ -65,11 +69,18 @@ func ensurePasswordProvided(r *http.Request, pwHash string) error {
 	return handler.ValidatePassword(pwHash, authorize)
 }
 
-func handleArticles(e *env, w http.ResponseWriter, r *http.Request, parsed *changelog.ParsedChangelog, page, pageSize int) error {
+func handleArticles(
+	e *env,
+	w http.ResponseWriter,
+	ctx context.Context,
+	cl store.Changelog,
+	parsed parse.ParseResult,
+	page, pageSize int,
+) error {
 	if len(parsed.Articles) > 0 {
-		return e.render.RenderArticleList(r.Context(), w, RenderArticleListArgs{
-			WID:      parsed.CL.WorkspaceID,
-			CID:      parsed.CL.ID,
+		return e.render.RenderArticleList(ctx, w, RenderArticleListArgs{
+			WID:      cl.WorkspaceID,
+			CID:      cl.ID,
 			Articles: parsed.Articles,
 			HasMore:  parsed.HasMore,
 			NextPage: page + 1,
@@ -89,16 +100,23 @@ func setCacheControlHeader(w http.ResponseWriter, isProtected bool) {
 	}
 }
 
-func renderChangelog(e *env, w http.ResponseWriter, r *http.Request, parsed *changelog.ParsedChangelog, isWidget bool) error {
+func renderChangelog(
+	e *env,
+	w http.ResponseWriter,
+	r *http.Request,
+	cl store.Changelog,
+	parsed parse.ParseResult,
+	isWidget bool,
+) error {
 	args := RenderChangelogArgs{
-		FeedURL:    handler.GetFeedURL(r),
-		CurrentURL: handler.GetFullURL(r),
-		CL:         parsed.CL,
-		Articles:   parsed.Articles,
-		HasMore:    parsed.HasMore,
+		FeedURL:      handler.GetFeedURL(r),
+		CurrentURL:   handler.GetFullURL(r),
+		CL:           cl,
+		ReleaseNotes: parsed.Articles,
+		HasMore:      parsed.HasMore,
 	}
 
-	go e.getAnalyticsEmitter(parsed.CL).Emit(analytics.NewEvent(r, parsed.CL))
+	go e.getAnalyticsEmitter(cl).Emit(analytics.NewEvent(r, cl))
 	if isWidget {
 		return e.render.RenderWidget(r.Context(), w, args)
 	}

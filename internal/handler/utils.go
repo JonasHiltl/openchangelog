@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -104,46 +103,6 @@ func ParsePagination(q url.Values) (page int, size int) {
 	}
 
 	return page, pageSize
-}
-
-func GetQueryIDs(r *http.Request) (wID string, cID string) {
-	query := r.URL.Query()
-	wID = query.Get(WS_ID_QUERY)
-	cID = query.Get(CL_ID_QUERY)
-
-	if wID == "" && cID == "" {
-		u, err := url.Parse(r.Header.Get("HX-Current-URL"))
-		if err == nil {
-			query = u.Query()
-			return query.Get(WS_ID_QUERY), query.Get(CL_ID_QUERY)
-		}
-	}
-	return wID, cID
-}
-
-// If in db-mode => load changelog by query ids or host.
-//
-// If in config mode => load changelog from config.
-func LoadChangelog(loader *changelog.Loader, isDBMode bool, r *http.Request, page changelog.Pagination) (changelog.LoadedChangelog, error) {
-	if isDBMode {
-		return loadChangelogDBMode(loader, r, page)
-	} else {
-		return loader.FromConfig(r.Context(), page)
-	}
-}
-
-func loadChangelogDBMode(loader *changelog.Loader, r *http.Request, page changelog.Pagination) (changelog.LoadedChangelog, error) {
-	wID, cID := GetQueryIDs(r)
-	if wID != "" && cID != "" {
-		return loader.FromWorkspace(r.Context(), wID, cID, page)
-	}
-
-	host := r.Host
-	if r.Header.Get("X-Forwarded-Host") != "" {
-		host = r.Header.Get("X-Forwarded-Host")
-	}
-
-	return loader.FromHost(r.Context(), host, page)
 }
 
 func ValidatePassword(hash, plaintext string) error {

@@ -9,13 +9,14 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/handler/rest"
 	"github.com/jonashiltl/openchangelog/internal/handler/rss"
 	"github.com/jonashiltl/openchangelog/internal/handler/web"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/admin"
 	"github.com/jonashiltl/openchangelog/internal/lgr"
+	"github.com/jonashiltl/openchangelog/internal/load"
+	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"github.com/naveensrinivasan/httpcache"
 	"github.com/naveensrinivasan/httpcache/diskcache"
@@ -45,13 +46,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	loader := changelog.NewLoader(cfg, st, cache)
+	loader := load.NewLoader(cfg, st, cache)
+	parser := parse.NewParser(parse.CreateGoldmark())
 	renderer := web.NewRenderer(cfg)
 
-	rest.RegisterRestHandler(mux, rest.NewEnv(st, loader))
-	web.RegisterWebHandler(mux, web.NewEnv(cfg, loader, renderer))
+	rest.RegisterRestHandler(mux, rest.NewEnv(st, loader, parser))
+	web.RegisterWebHandler(mux, web.NewEnv(cfg, loader, parser, renderer))
 	admin.RegisterAdminHandler(mux, admin.NewEnv(cfg, st))
-	rss.RegisterRSSHandler(mux, rss.NewEnv(cfg, loader))
+	rss.RegisterRSSHandler(mux, rss.NewEnv(cfg, loader, parser))
 	handler := cors.Default().Handler(mux)
 
 	slog.Info("Ready to serve requests", slog.String("addr", fmt.Sprintf("http://%s", cfg.Addr)))

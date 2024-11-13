@@ -6,12 +6,13 @@ import (
 
 	"github.com/jonashiltl/openchangelog/internal/analytics"
 	"github.com/jonashiltl/openchangelog/internal/analytics/tinybird"
-	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/static"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
 	"github.com/jonashiltl/openchangelog/internal/lgr"
+	"github.com/jonashiltl/openchangelog/internal/load"
+	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"golang.org/x/exp/slog"
 )
@@ -23,21 +24,24 @@ func RegisterWebHandler(mux *http.ServeMux, e *env) {
 
 func NewEnv(
 	cfg config.Config,
-	loader *changelog.Loader,
+	loader *load.Loader,
+	parser parse.Parser,
 	render Renderer,
 ) *env {
 	return &env{
 		cfg:    cfg,
 		loader: loader,
+		parser: parser,
 		render: render,
 	}
 }
 
 type env struct {
-	loader  *changelog.Loader
 	cfg     config.Config
 	render  Renderer
 	emitter analytics.Emitter
+	loader  *load.Loader
+	parser  parse.Parser
 }
 
 // Returns the analytics emitter of the changelog.

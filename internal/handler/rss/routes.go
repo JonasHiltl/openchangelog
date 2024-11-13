@@ -5,21 +5,24 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/lgr"
+	"github.com/jonashiltl/openchangelog/internal/load"
+	"github.com/jonashiltl/openchangelog/internal/parse"
 )
 
 type env struct {
 	cfg    config.Config
-	loader *changelog.Loader
+	loader *load.Loader
+	parser parse.Parser
 }
 
-func NewEnv(cfg config.Config, loader *changelog.Loader) *env {
+func NewEnv(cfg config.Config, loader *load.Loader, parser parse.Parser) *env {
 	return &env{
-		loader: loader,
 		cfg:    cfg,
+		loader: loader,
+		parser: parser,
 	}
 }
 

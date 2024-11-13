@@ -5,9 +5,10 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/lgr"
+	"github.com/jonashiltl/openchangelog/internal/load"
+	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/store"
 )
 
@@ -39,16 +40,18 @@ func RegisterRestHandler(mux *http.ServeMux, e *env) {
 	mux.HandleFunc("DELETE /api/changelogs/{cid}/source", serveHTTP(e, deleteChangelogSource))
 }
 
-func NewEnv(store store.Store, loader *changelog.Loader) *env {
+func NewEnv(store store.Store, loader *load.Loader, parser parse.Parser) *env {
 	return &env{
 		store:  store,
 		loader: loader,
+		parser: parser,
 	}
 }
 
 type env struct {
 	store  store.Store
-	loader *changelog.Loader
+	loader *load.Loader
+	parser parse.Parser
 }
 
 func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
