@@ -54,6 +54,7 @@ func main() {
 		slog.Error(err.Error())
 		os.Exit(1)
 	}
+	defer searcher.Close()
 
 	e := new(mint.Emitter)
 	parser := parse.NewParser(parse.CreateGoldmark())

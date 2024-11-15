@@ -16,6 +16,7 @@ import (
 type Searcher interface {
 	Index(context.Context, IndexArgs) error
 	BatchIndex(context.Context, BatchIndexArgs) error
+	Close()
 }
 
 type bleveSearcher struct {
@@ -32,12 +33,6 @@ func NewSearcher(cfg config.Config) (Searcher, error) {
 	}, nil
 }
 
-type IndexArgs struct {
-	WID         string // the workspace id of the release notes
-	SID         string // the id of the source that was used to load the release notes
-	ReleaseNote parse.ParsedReleaseNote
-}
-
 type storedReleaseNote struct {
 	WID         string
 	SID         string
@@ -46,6 +41,16 @@ type storedReleaseNote struct {
 	PublishedAt time.Time
 	Tags        []string
 	Content     string
+}
+
+func (s *bleveSearcher) Close() {
+	s.idx.Close()
+}
+
+type IndexArgs struct {
+	WID         string // the workspace id of the release notes
+	SID         string // the id of the source that was used to load the release notes
+	ReleaseNote parse.ParsedReleaseNote
 }
 
 func (s *bleveSearcher) Index(ctx context.Context, args IndexArgs) error {

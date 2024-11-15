@@ -8,6 +8,10 @@ func NewNoopSearcher() Searcher {
 
 type noopSearcher struct{}
 
+func (s noopSearcher) Close() {
+
+}
+
 func (s noopSearcher) Index(context.Context, IndexArgs) error {
 	return nil
 }
