@@ -29,7 +29,7 @@ func NewListener(e *mint.Emitter, parser parse.Parser, searcher search.Searcher)
 }
 
 // Starts listening to all events
-func (l EventListener) Start() {
+func (l *EventListener) Start() {
 	off := mint.On(l.e, l.OnSourceChanged)
 	// save all off functions of mint to cleanup later
 	l.offs = append(l.offs, off)
