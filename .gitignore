@@ -12,6 +12,7 @@ go.work*
 
 test.db
 .cache
+.data
 
 fly.toml
 unit-tests.xml

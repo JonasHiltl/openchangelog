@@ -50,18 +50,18 @@ func NewOGParser(gm goldmark.Markdown) *ogparser {
 }
 
 // Takes a raw article in our original markdown format and parses it.
-func (g *ogparser) parseArticle(article io.ReadCloser) (ParsedReleaseNote, error) {
+func (g *ogparser) parseReleaseNote(article io.ReadCloser) (ParsedReleaseNote, error) {
 	defer article.Close()
 	source, err := io.ReadAll(article)
 	if err != nil {
 		return ParsedReleaseNote{}, err
 	}
 
-	return g.parseArticleBytes(source)
+	return g.parseReleaseNoteBytes(source)
 }
 
 // Parses the raw article content, but expects a part of the content to be already read (to detect the file format).
-func (g *ogparser) parseArticleRead(read string, rest io.ReadCloser) (ParsedReleaseNote, error) {
+func (g *ogparser) parseReleaseNoteRead(read string, rest io.ReadCloser) (ParsedReleaseNote, error) {
 	defer rest.Close()
 	source, err := io.ReadAll(rest)
 	if err != nil {
@@ -70,11 +70,11 @@ func (g *ogparser) parseArticleRead(read string, rest io.ReadCloser) (ParsedRele
 
 	full := append([]byte(read), source...)
 
-	return g.parseArticleBytes(full)
+	return g.parseReleaseNoteBytes(full)
 }
 
 // Don't use diretly, use parseArticle() and parseArticleRead() instead.
-func (g *ogparser) parseArticleBytes(content []byte) (ParsedReleaseNote, error) {
+func (g *ogparser) parseReleaseNoteBytes(content []byte) (ParsedReleaseNote, error) {
 	ctx := gmparser.NewContext()
 
 	var target bytes.Buffer

@@ -2,6 +2,7 @@ package source
 
 import (
 	"context"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -20,6 +21,10 @@ func NewLocalSourceFromStore(s store.LocalSource) Source {
 	return localSource{
 		path: s.Path,
 	}
+}
+
+func (s localSource) ID() string {
+	return fmt.Sprintf("lc/%s", s.path)
 }
 
 func (s localSource) Load(ctx context.Context, page internal.Pagination) (LoadResult, error) {

@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/btvoidx/mint"
 	"github.com/jonashiltl/openchangelog/internal/config"
+	"github.com/jonashiltl/openchangelog/internal/events"
 	"github.com/jonashiltl/openchangelog/internal/handler/rest"
 	"github.com/jonashiltl/openchangelog/internal/handler/rss"
 	"github.com/jonashiltl/openchangelog/internal/handler/web"
@@ -17,6 +19,7 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/load"
 	"github.com/jonashiltl/openchangelog/internal/parse"
+	"github.com/jonashiltl/openchangelog/internal/search"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"github.com/naveensrinivasan/httpcache"
 	"github.com/naveensrinivasan/httpcache/diskcache"
@@ -46,9 +49,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	loader := load.NewLoader(cfg, st, cache)
+	searcher, err := createSearcher(cfg)
+	if err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
+
+	e := new(mint.Emitter)
 	parser := parse.NewParser(parse.CreateGoldmark())
+	loader := load.NewLoader(cfg, st, cache, parser, e)
 	renderer := web.NewRenderer(cfg)
+	listener := events.NewListener(e, parser, searcher)
+	listener.Start()
+	defer listener.Close()
 
 	rest.RegisterRestHandler(mux, rest.NewEnv(st, loader, parser))
 	web.RegisterWebHandler(mux, web.NewEnv(cfg, loader, parser, renderer))
@@ -100,4 +113,12 @@ func createCache(cfg config.Config) (httpcache.Cache, error) {
 		}
 	}
 	return nil, nil
+}
+
+func createSearcher(cfg config.Config) (search.Searcher, error) {
+	if cfg.Search == nil {
+		slog.Debug("no search configuration defined, using noop searcher")
+		return search.NewNoopSearcher(), nil
+	}
+	return search.NewSearcher(cfg)
 }

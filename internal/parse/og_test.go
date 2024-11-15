@@ -23,7 +23,7 @@ func TestOGParseArticle(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	parsed, err := p.parseArticle(file)
+	parsed, err := p.parseReleaseNote(file)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func TestOGParseArticleRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, read := detectFileFormat(file)
-	parsed, err := p.parseArticleRead(read, file)
+	parsed, err := p.parseReleaseNoteRead(read, file)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -39,11 +39,11 @@ func TestKParseMinimal(t *testing.T) {
 		t.Error("hasMore should be false")
 	}
 
-	if len(parsed.Articles) != 1 {
-		t.Fatalf("Expected 1 parsed article but got %d", len(parsed.Articles))
+	if len(parsed.ReleaseNotes) != 1 {
+		t.Fatalf("Expected 1 parsed article but got %d", len(parsed.ReleaseNotes))
 	}
 
-	article := parsed.Articles[0]
+	article := parsed.ReleaseNotes[0]
 
 	expectedTags := []string{"Added", "Fixed", "Changed", "Removed"}
 	if !reflect.DeepEqual(article.Meta.Tags, expectedTags) {
@@ -73,11 +73,11 @@ func TestKParseUnreleased(t *testing.T) {
 		t.Error("hasMore should be false")
 	}
 
-	if len(parsed.Articles) != 1 {
-		t.Fatalf("Expected 1 parsed article but got %d", len(parsed.Articles))
+	if len(parsed.ReleaseNotes) != 1 {
+		t.Fatalf("Expected 1 parsed article but got %d", len(parsed.ReleaseNotes))
 	}
 
-	article := parsed.Articles[0]
+	article := parsed.ReleaseNotes[0]
 
 	expectedTags := []string{"Added", "Changed", "Removed"}
 	if !reflect.DeepEqual(article.Meta.Tags, expectedTags) {
@@ -107,8 +107,8 @@ func TestKParseFull(t *testing.T) {
 		t.Error("hasMore should be false")
 	}
 
-	if len(parsed.Articles) != 15 {
-		t.Errorf("Expected 15 parsed article but got %d", len(parsed.Articles))
+	if len(parsed.ReleaseNotes) != 15 {
+		t.Errorf("Expected 15 parsed article but got %d", len(parsed.ReleaseNotes))
 	}
 }
 
@@ -120,11 +120,11 @@ func TestKParseGitCliff(t *testing.T) {
 	}
 
 	parsed := p.parse(read, file, internal.NoPagination())
-	if len(parsed.Articles) != 1 {
-		t.Fatalf("Expected 1 parsed article but got %d", len(parsed.Articles))
+	if len(parsed.ReleaseNotes) != 1 {
+		t.Fatalf("Expected 1 parsed article but got %d", len(parsed.ReleaseNotes))
 	}
 
-	article := parsed.Articles[0]
+	article := parsed.ReleaseNotes[0]
 
 	expectedTitle := "2.6.1"
 	if article.Meta.Title != expectedTitle {
@@ -193,11 +193,11 @@ func TestKParsePagination(t *testing.T) {
 			t.Errorf("Expected hasMore %t but got %t", table.expectedHasMore, parsed.HasMore)
 		}
 
-		if len(parsed.Articles) != table.expectedSize {
-			t.Errorf("Expected %d parsed article but got %d", table.expectedSize, len(parsed.Articles))
+		if len(parsed.ReleaseNotes) != table.expectedSize {
+			t.Errorf("Expected %d parsed article but got %d", table.expectedSize, len(parsed.ReleaseNotes))
 		}
 
-		for i, a := range parsed.Articles {
+		for i, a := range parsed.ReleaseNotes {
 			idx := page.StartIdx() + i
 			if a.Meta.Title != expectedTitle[idx] {
 				t.Errorf("Expected %s to equal %s", a.Meta.Title, expectedTitle[i])

@@ -18,12 +18,10 @@ import (
 var feedTemplate string
 
 func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
-	loaded, err := e.loader.LoadChangelog(r, internal.NoPagination())
+	loaded, err := e.loader.LoadAndParse(r, internal.NoPagination())
 	if err != nil {
 		return err
 	}
-
-	parsed := e.parser.Parse(r.Context(), loaded.Notes.Raw, internal.NoPagination())
 
 	if loaded.CL.Protected {
 		authorize := r.URL.Query().Get(handler.AUTHORIZE_QUERY)
@@ -52,8 +50,8 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 	link := handler.FeedToChangelogURL(r)
 	args := map[string]any{
 		"CL":       loaded.CL,
-		"Articles": parsed.Articles,
-		"HasMore":  parsed.HasMore,
+		"Articles": loaded.Notes,
+		"HasMore":  loaded.HasMore,
 		"Link":     strings.ReplaceAll(link, "&", "&amp;"), // & is reserved in xml
 	}
 	return tmpl.Execute(w, args)

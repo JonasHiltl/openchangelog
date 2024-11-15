@@ -75,8 +75,8 @@ func TestParse(t *testing.T) {
 			}
 
 			parsed := p.Parse(context.Background(), notes, table.page)
-			if len(parsed.Articles) != table.expectedArticleLength {
-				t.Errorf("Expected article length %d but got %d", table.expectedArticleLength, len(parsed.Articles))
+			if len(parsed.ReleaseNotes) != table.expectedArticleLength {
+				t.Errorf("Expected article length %d but got %d", table.expectedArticleLength, len(parsed.ReleaseNotes))
 			}
 			if parsed.HasMore != table.expectedHasMore {
 				t.Errorf("Expected hasMore %t but got %t", table.expectedHasMore, parsed.HasMore)

@@ -71,8 +71,8 @@ func (g *kparser) parse(read string, rest io.ReadCloser, page internal.Paginatio
 	}
 
 	return ParseResult{
-		Articles: articles,
-		HasMore:  hasMore,
+		ReleaseNotes: articles,
+		HasMore:      hasMore,
 	}
 }
 

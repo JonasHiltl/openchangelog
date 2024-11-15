@@ -30,12 +30,10 @@ func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 
 	page, pageSize := handler.ParsePagination(u.Query())
 	pagination := internal.NewPagination(pageSize, page)
-	loaded, err := e.loader.LoadChangelog(r, pagination)
+	loaded, err := e.loader.LoadAndParse(r, pagination)
 	if err != nil {
 		return err
 	}
-
-	parsed := e.parser.Parse(r.Context(), loaded.Notes.Raw, pagination)
 
 	err = handler.ValidatePassword(loaded.CL.PasswordHash, pw)
 	if err != nil {
@@ -51,8 +49,8 @@ func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 		FeedURL:      handler.GetFeedURL(r),
 		CurrentURL:   handler.GetFullURL(r),
 		CL:           loaded.CL,
-		ReleaseNotes: parsed.Articles,
-		HasMore:      parsed.HasMore,
+		ReleaseNotes: loaded.Notes,
+		HasMore:      loaded.HasMore,
 	})
 }
 

@@ -58,6 +58,10 @@ func NewGHSourceFromStore(cfg config.Config, gh store.GHSource, cache httpcache.
 	}, nil
 }
 
+func (s *ghSource) ID() string {
+	return fmt.Sprintf("gh/%s/%s/%s", s.Owner, s.Repo, s.Path)
+}
+
 func (s *ghSource) Load(ctx context.Context, page internal.Pagination) (LoadResult, error) {
 	// sanitize params
 	if page.IsDefined() && page.PageSize() < 1 {
@@ -76,7 +80,7 @@ func (s *ghSource) Load(ctx context.Context, page internal.Pagination) (LoadResu
 		return LoadResult{
 			Raw: []RawReleaseNote{
 				{
-					HasChanged: !fromCache(resp.Header),
+					hasChanged: !fromCache(resp.Header),
 					Content:    io.NopCloser(strings.NewReader(c)),
 				},
 			},
@@ -141,8 +145,11 @@ func (s *ghSource) loadFile(ctx context.Context, filename string) (RawReleaseNot
 	if err != nil {
 		return RawReleaseNote{}, err
 	}
+	if resp.StatusCode >= 400 {
+		return RawReleaseNote{}, fmt.Errorf("failed to download file from github, status %d", resp.StatusCode)
+	}
 	return RawReleaseNote{
-		HasChanged: !fromCache(resp.Header),
+		hasChanged: !fromCache(resp.Header),
 		Content:    read,
 	}, nil
 }

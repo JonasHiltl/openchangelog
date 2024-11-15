@@ -3,39 +3,58 @@ package load
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"net/url"
 
+	mint "github.com/btvoidx/mint/context"
 	"github.com/gregjones/httpcache"
 	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
+	"github.com/jonashiltl/openchangelog/internal/events"
 	"github.com/jonashiltl/openchangelog/internal/handler"
+	"github.com/jonashiltl/openchangelog/internal/lgr"
+	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/source"
 	"github.com/jonashiltl/openchangelog/internal/store"
 )
 
 type LoadedChangelog struct {
-	CL    store.Changelog
-	Notes source.LoadResult
+	CL      store.Changelog
+	Notes   []parse.ParsedReleaseNote
+	HasMore bool
 }
 
-func NewLoader(cfg config.Config, store store.Store, cache httpcache.Cache) *Loader {
+// Creates a new Loader.
+func NewLoader(
+	cfg config.Config,
+	store store.Store,
+	cache httpcache.Cache,
+	parser parse.Parser,
+	e *mint.Emitter,
+) *Loader {
 	return &Loader{
-		cfg:   cfg,
-		store: store,
-		cache: cache,
+		cfg:    cfg,
+		store:  store,
+		cache:  cache,
+		parser: parser,
+		e:      e,
 	}
 }
 
+// The loader combines the source and parse package.
+// It first loads the raw release notes using the source package and then parses it using the parse package.
 type Loader struct {
-	cfg   config.Config
-	store store.Store
-	cache httpcache.Cache
+	cfg    config.Config
+	store  store.Store
+	cache  httpcache.Cache
+	parser parse.Parser
+	e      *mint.Emitter
 }
 
-// Loads the changelog and it's release notes for this http request.
-func (l *Loader) LoadChangelog(r *http.Request, page internal.Pagination) (LoadedChangelog, error) {
+// Loads the changelog and parses it's release notes for the specified http request.
+func (l *Loader) LoadAndParse(r *http.Request, page internal.Pagination) (LoadedChangelog, error) {
 	wID, cID := GetQueryIDs(r)
 	host := r.Host
 	if r.Header.Get("X-Forwarded-Host") != "" {
@@ -56,11 +75,11 @@ func (l *Loader) LoadChangelog(r *http.Request, page internal.Pagination) (Loade
 		return LoadedChangelog{}, err
 	}
 
-	return l.LoadReleaseNotes(r.Context(), cl, page)
+	return l.LoadAndParseReleaseNotes(r.Context(), cl, page)
 }
 
-// Loads the release notes for the specified changelog
-func (l *Loader) LoadReleaseNotes(ctx context.Context, cl store.Changelog, page internal.Pagination) (LoadedChangelog, error) {
+// Loads and parses the release notes for the specified changelog.
+func (l *Loader) LoadAndParseReleaseNotes(ctx context.Context, cl store.Changelog, page internal.Pagination) (LoadedChangelog, error) {
 	var err error
 	var s source.Source
 	if cl.LocalSource.Valid {
@@ -72,17 +91,30 @@ func (l *Loader) LoadReleaseNotes(ctx context.Context, cl store.Changelog, page 
 		return LoadedChangelog{}, err
 	}
 
-	res := LoadedChangelog{
-		CL: cl,
-	}
 	if s != nil {
-		res.Notes, err = s.Load(ctx, page)
+		loaded, err := s.Load(ctx, page)
 		if err != nil {
 			return LoadedChangelog{}, err
 		}
+		// emit event if release notes have changed
+		if loaded.HasChanged() {
+			err = mint.Emit(l.e, ctx, events.SourceChanged{
+				WID:    cl.WorkspaceID.String(),
+				Source: s,
+			})
+			if err != nil {
+				slog.Debug("failed to emit source changed event", lgr.ErrAttr(err))
+			}
+		}
+		parsed := l.parser.Parse(ctx, loaded.Raw, page)
+		return LoadedChangelog{
+			CL:      cl,
+			Notes:   parsed.ReleaseNotes,
+			HasMore: loaded.HasMore || parsed.HasMore,
+		}, nil
 	}
 
-	return res, nil
+	return LoadedChangelog{CL: cl}, nil
 }
 
 func (l *Loader) fromWorkspace(ctx context.Context, wID, cID string) (store.Changelog, error) {

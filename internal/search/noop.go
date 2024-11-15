@@ -1,0 +1,17 @@
+package search
+
+import "context"
+
+func NewNoopSearcher() Searcher {
+	return noopSearcher{}
+}
+
+type noopSearcher struct{}
+
+func (s noopSearcher) Index(context.Context, IndexArgs) error {
+	return nil
+}
+
+func (s noopSearcher) BatchIndex(context.Context, BatchIndexArgs) error {
+	return nil
+}
