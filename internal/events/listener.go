@@ -2,7 +2,6 @@ package events
 
 import (
 	"context"
-	"log"
 	"log/slog"
 
 	"github.com/btvoidx/mint"
@@ -62,6 +61,4 @@ func (l EventListener) OnSourceChanged(e SourceChanged) {
 			return
 		}
 	}()
-	log.Println("Received source changed event")
-	log.Printf("%+v\n", e)
 }
