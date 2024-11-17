@@ -17,7 +17,12 @@ type IndexArgs struct {
 }
 
 templ Index(arg IndexArgs) {
-	@layout.Main(arg.MainArgs) {
+	@layout.Main(layout.MainArgs{
+		Title:       arg.MainArgs.Title,
+		Description: arg.MainArgs.Description,
+		CSS:         arg.MainArgs.CSS,
+		IncludeHTMX: true,
+	}) {
 		@components.Theme(arg.ThemeArgs) {
 			@components.Navbar() {
 				@components.LogoImg(arg.Logo)
@@ -28,6 +33,7 @@ templ Index(arg IndexArgs) {
 					@components.HeaderContainer() {
 						@components.HeaderContent(arg.HeaderArgs)
 					}
+					@components.SearchBar()
 					@components.ArticleList(arg.ArticleListArgs)
 				}
 				@components.Footer(arg.FooterArgs)

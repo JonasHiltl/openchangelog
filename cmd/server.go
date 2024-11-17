@@ -65,7 +65,7 @@ func main() {
 	defer listener.Close()
 
 	rest.RegisterRestHandler(mux, rest.NewEnv(st, loader, parser))
-	web.RegisterWebHandler(mux, web.NewEnv(cfg, loader, parser, renderer))
+	web.RegisterWebHandler(mux, web.NewEnv(cfg, loader, parser, renderer, searcher))
 	admin.RegisterAdminHandler(mux, admin.NewEnv(cfg, st))
 	rss.RegisterRSSHandler(mux, rss.NewEnv(cfg, loader, parser))
 	handler := cors.Default().Handler(mux)

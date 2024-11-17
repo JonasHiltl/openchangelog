@@ -1,0 +1,18 @@
+package components
+
+import "github.com/jonashiltl/openchangelog/internal/handler/web/icons"
+
+templ SearchBar() {
+	<div class="input o-flex o-items-center o-gap-2 o-mt-8">
+		@icons.Search(16, 16)
+		<input
+			name="query"
+			hx-post="/search"
+			hx-trigger="input changed delay:500ms, search"
+			hx-target="#article-list"
+			hx-swap="outerHTML"
+			class="o-flex-1"
+			placeholder="Search release notes"
+		/>
+	</div>
+}

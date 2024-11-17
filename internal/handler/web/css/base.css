@@ -4,7 +4,7 @@
 
 @layer components {
     .input {
-        @apply o-text-sm o-py-2 o-px-3 o-rounded-md o-border dark:o-border-white/10 dark:focus-within:o-border-white/20
+        @apply o-text-sm o-py-2 o-px-3 o-rounded-md o-border o-text-black/70 dark:o-text-white/80 dark:o-border-white/10 dark:focus-within:o-border-white/20
     }
 
     .btn {

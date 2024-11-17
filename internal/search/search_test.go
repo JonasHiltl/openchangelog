@@ -9,14 +9,11 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/source"
-	"github.com/jonashiltl/openchangelog/internal/store"
 )
 
-var wid = store.NewWID()
 var sid = source.NewGitHubID("owner", "repo", "path")
 var indexData = BatchIndexArgs{
-	WID: wid.String(),
-	SID: sid,
+	SID: sid.String(),
 	ReleaseNotes: []parse.ParsedReleaseNote{
 		{
 			Meta: parse.Meta{
@@ -75,26 +72,16 @@ func TestSearch(t *testing.T) {
 		expectedTotal uint64
 	}{
 		{
-			name: "only wid & sid",
+			name: "only sid",
 			args: SearchArgs{
-				WID: wid.String(),
-				SID: sid,
+				SID: sid.String(),
 			},
 			expectedTotal: 2,
 		},
 		{
-			name: "different wid",
-			args: SearchArgs{
-				WID: "a" + wid.String(),
-				SID: sid,
-			},
-			expectedTotal: 0,
-		},
-		{
 			name: "single tag",
 			args: SearchArgs{
-				WID:  wid.String(),
-				SID:  sid,
+				SID:  sid.String(),
 				Tags: []string{"Cloud"},
 			},
 			expectedTotal: 2,
@@ -102,8 +89,7 @@ func TestSearch(t *testing.T) {
 		{
 			name: "multiple tags",
 			args: SearchArgs{
-				WID:  wid.String(),
-				SID:  sid,
+				SID:  sid.String(),
 				Tags: []string{"Cloud", "Feature"},
 			},
 			expectedTotal: 1,
@@ -111,8 +97,7 @@ func TestSearch(t *testing.T) {
 		{
 			name: "title",
 			args: SearchArgs{
-				WID:   wid.String(),
-				SID:   sid,
+				SID:   sid.String(),
 				Query: "Analytics",
 			},
 			expectedTotal: 1,
@@ -120,8 +105,7 @@ func TestSearch(t *testing.T) {
 		{
 			name: "description",
 			args: SearchArgs{
-				WID:   wid.String(),
-				SID:   sid,
+				SID:   sid.String(),
 				Query: "showcase",
 			},
 			expectedTotal: 1,
@@ -129,8 +113,7 @@ func TestSearch(t *testing.T) {
 		{
 			name: "content",
 			args: SearchArgs{
-				WID:   wid.String(),
-				SID:   sid,
+				SID:   sid.String(),
 				Query: "monitor key metrics",
 			},
 			expectedTotal: 1,
@@ -138,8 +121,7 @@ func TestSearch(t *testing.T) {
 		{
 			name: "query and tags",
 			args: SearchArgs{
-				WID:   wid.String(),
-				SID:   sid,
+				SID:   sid.String(),
 				Tags:  []string{"Feature"},
 				Query: "Analytics",
 			},
@@ -148,8 +130,7 @@ func TestSearch(t *testing.T) {
 		{
 			name: "no html",
 			args: SearchArgs{
-				WID:   wid.String(),
-				SID:   sid,
+				SID:   sid.String(),
 				Query: "<p>",
 			},
 			expectedTotal: 0,
@@ -172,8 +153,7 @@ func TestSearch(t *testing.T) {
 func TestHighlightTitle(t *testing.T) {
 	searcher := newMemorySearcher(t)
 	res, err := searcher.Search(context.Background(), SearchArgs{
-		WID:   wid.String(),
-		SID:   sid,
+		SID:   sid.String(),
 		Query: "Domains",
 	})
 	if err != nil {
@@ -183,8 +163,8 @@ func TestHighlightTitle(t *testing.T) {
 		t.Errorf("expected total %d to be 1", res.Total)
 	}
 	hit := res.Hits[0]
-	if hit.Title != "Custom Domains" {
-		t.Errorf("expected title \"%s\" to be \"Custom Domains\"", res.Hits[0].Title)
+	if hit.Meta.Title != "Custom Domains" {
+		t.Errorf("expected title \"%s\" to be \"Custom Domains\"", res.Hits[0].Meta.Title)
 	}
 	highlightTitle := hit.Fragments["Title"][0]
 	if highlightTitle != "Custom <mark>Domains</mark>" {

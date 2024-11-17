@@ -38,7 +38,6 @@ func NewSearcher(cfg config.Config) (Searcher, error) {
 }
 
 type storedReleaseNote struct {
-	WID         string
 	SID         string
 	Title       string
 	Description string
@@ -63,32 +62,38 @@ func (s *bleveSearcher) Close() {
 }
 
 type SearchResult struct {
-	ID          string                 `json:"id"`
-	Score       float64                `json:"score"`
-	Title       string                 `json:"title"`
-	Description string                 `json:"description"`
-	Content     string                 `json:"content"`
-	Fragments   map[string][]string    `json:"fragments,omitempty"` // Highlighted fragments
-	Fields      map[string]interface{} `json:"fields,omitempty"`
+	parse.ParsedReleaseNote
+	ID        string
+	Score     float64
+	Fragments map[string][]string
+	Fields    map[string]interface{}
 }
 
 type SearchResults struct {
-	Total    uint64         `json:"total"`
-	Hits     []SearchResult `json:"hits"`
-	MaxScore float64        `json:"max_score"`
+	Total    uint64
+	Hits     []SearchResult
+	MaxScore float64
+}
+
+func (r SearchResults) GetParsedReleaseNotes() []parse.ParsedReleaseNote {
+	notes := make([]parse.ParsedReleaseNote, len(r.Hits))
+	for i, h := range r.Hits {
+		notes[i] = h.ParsedReleaseNote
+	}
+	return notes
 }
 
 type SearchArgs struct {
-	WID   string
 	SID   string
 	Tags  []string
 	Query string
 }
 
 func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResults, error) {
-	query := buildSearchQuery(args)
+	query := buildSearchQuery(ctx, args)
 	req := bleve.NewSearchRequest(query)
-	req.Fields = []string{"Title", "Description", "Content"}
+	req.SortBy([]string{"-PublishedAt"})
+	req.Fields = []string{"Title", "Description", "Content", "Tags", "PublishedAt"}
 	req.Highlight = bleve.NewHighlightWithStyle("html")
 
 	res, err := s.idx.SearchInContext(ctx, req)
@@ -113,13 +118,27 @@ func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResu
 
 		// Extract fields if they exist
 		if title, exists := hit.Fields["Title"]; exists {
-			result.Title = fmt.Sprint(title)
+			result.Meta.Title = fmt.Sprint(title)
 		}
 		if desc, exists := hit.Fields["Description"]; exists {
-			result.Description = fmt.Sprint(desc)
+			result.Meta.Description = fmt.Sprint(desc)
 		}
 		if content, exists := hit.Fields["Content"]; exists {
-			result.Content = fmt.Sprint(content)
+			result.Content = strings.NewReader(fmt.Sprint(content))
+		}
+		if tags, exists := hit.Fields["Tags"]; exists {
+			tagsSlice, ok := tags.([]any)
+			if ok {
+				for _, t := range tagsSlice {
+					result.Meta.Tags = append(result.Meta.Tags, fmt.Sprint(t))
+				}
+			}
+		}
+		if publishedAt, exists := hit.Fields["PublishedAt"]; exists {
+			t, err := time.Parse(time.RFC3339, fmt.Sprint(publishedAt))
+			if err == nil {
+				result.Meta.PublishedAt = t
+			}
 		}
 
 		results.Hits[i] = result
@@ -127,14 +146,18 @@ func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResu
 	return results, nil
 }
 
-func buildSearchQuery(args SearchArgs) query.Query {
-	wIDQuery := bleve.NewMatchQuery(args.WID)
-	wIDQuery.SetField("WID")
+func buildSearchQuery(ctx context.Context, args SearchArgs) query.Query {
+	slog.DebugContext(
+		ctx,
+		"building search query",
+		slog.String("sid", args.SID),
+		slog.String("query", args.Query),
+	)
 	sIDQuery := bleve.NewMatchQuery(args.SID)
 	sIDQuery.SetField("SID")
 
 	query := bleve.NewBooleanQuery()
-	query.AddMust(wIDQuery, sIDQuery)
+	query.AddMust(sIDQuery)
 
 	if len(args.Tags) > 0 {
 		for _, t := range args.Tags {
@@ -163,7 +186,6 @@ func buildSearchQuery(args SearchArgs) query.Query {
 }
 
 type IndexArgs struct {
-	WID         string // the workspace id of the release notes
 	SID         string // the id of the source that was used to load the release notes
 	ReleaseNote parse.ParsedReleaseNote
 }
@@ -175,11 +197,10 @@ func (s *bleveSearcher) Index(ctx context.Context, args IndexArgs) error {
 		return err
 	}
 
-	id := createID(args.WID, args.SID, args.ReleaseNote.Meta.ID)
+	id := createID(args.SID, args.ReleaseNote.Meta.ID)
 	slog.Debug("indexing document", slog.String("id", id))
 
 	doc := storedReleaseNote{
-		WID:         args.WID,
 		SID:         args.SID,
 		Title:       args.ReleaseNote.Meta.Title,
 		Description: args.ReleaseNote.Meta.Description,
@@ -192,7 +213,6 @@ func (s *bleveSearcher) Index(ctx context.Context, args IndexArgs) error {
 }
 
 type BatchIndexArgs struct {
-	WID          string
 	SID          string
 	ReleaseNotes []parse.ParsedReleaseNote
 }
@@ -206,11 +226,10 @@ func (s *bleveSearcher) BatchIndex(ctx context.Context, args BatchIndexArgs) err
 			return err
 		}
 
-		id := createID(args.WID, args.SID, note.Meta.ID)
+		id := createID(args.SID, note.Meta.ID)
 		slog.Debug("indexing document", slog.String("id", id))
 
 		doc := storedReleaseNote{
-			WID:         args.WID,
 			SID:         args.SID,
 			Title:       note.Meta.Title,
 			Description: note.Meta.Description,
@@ -233,6 +252,6 @@ func (s *bleveSearcher) BatchIndex(ctx context.Context, args BatchIndexArgs) err
 	return nil
 }
 
-func createID(wID, sID, releaseNoteID string) string {
-	return fmt.Sprintf("%s/%s/%s", wID, sID, releaseNoteID)
+func createID(sID, releaseNoteID string) string {
+	return fmt.Sprintf("%s/%s", sID, releaseNoteID)
 }

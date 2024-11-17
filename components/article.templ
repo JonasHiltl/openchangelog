@@ -11,9 +11,11 @@ type ArticleListArgs struct {
 }
 
 templ ArticleList(a ArticleListArgs) {
-	for _, item := range a.Articles {
-		@Article(item)
-	}
+	<div id="article-list">
+		for _, item := range a.Articles {
+			@Article(item)
+		}
+	</div>
 }
 
 type ArticleArgs struct {

@@ -13,6 +13,7 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/load"
 	"github.com/jonashiltl/openchangelog/internal/parse"
+	"github.com/jonashiltl/openchangelog/internal/search"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"golang.org/x/exp/slog"
 )
@@ -20,6 +21,7 @@ import (
 func RegisterWebHandler(mux *http.ServeMux, e *env) {
 	mux.HandleFunc("GET /", serveHTTP(e, index))
 	mux.HandleFunc("POST /password", serveHTTP(e, passwordSubmit))
+	mux.HandleFunc("POST /search", serveHTTP(e, searchSubmit))
 }
 
 func NewEnv(
@@ -27,21 +29,24 @@ func NewEnv(
 	loader *load.Loader,
 	parser parse.Parser,
 	render Renderer,
+	searcher search.Searcher,
 ) *env {
 	return &env{
-		cfg:    cfg,
-		loader: loader,
-		parser: parser,
-		render: render,
+		cfg:      cfg,
+		loader:   loader,
+		parser:   parser,
+		render:   render,
+		searcher: searcher,
 	}
 }
 
 type env struct {
-	cfg     config.Config
-	render  Renderer
-	emitter analytics.Emitter
-	loader  *load.Loader
-	parser  parse.Parser
+	cfg      config.Config
+	render   Renderer
+	emitter  analytics.Emitter
+	loader   *load.Loader
+	parser   parse.Parser
+	searcher search.Searcher
 }
 
 // Returns the analytics emitter of the changelog.

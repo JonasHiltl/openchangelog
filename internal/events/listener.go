@@ -42,8 +42,8 @@ func (l EventListener) Close() {
 	}
 }
 
-func (l EventListener) OnSourceChanged(e SourceChanged) {
-	slog.Debug("received SourceChanged event", slog.String("sid", e.Source.ID()))
+func (l EventListener) OnSourceChanged(e SourceContentChanged) {
+	slog.Debug("received SourceChanged event", slog.String("sid", e.Source.ID().String()))
 	go func() {
 		ctx := context.Background()
 		loaded, err := e.Source.Load(ctx, internal.NoPagination())
@@ -53,8 +53,7 @@ func (l EventListener) OnSourceChanged(e SourceChanged) {
 		}
 		parsed := l.parser.Parse(ctx, loaded.Raw, internal.NoPagination())
 		err = l.searcher.BatchIndex(ctx, search.BatchIndexArgs{
-			WID:          e.WID,
-			SID:          e.Source.ID(),
+			SID:          e.Source.ID().String(),
 			ReleaseNotes: parsed.ReleaseNotes,
 		})
 		if err != nil {

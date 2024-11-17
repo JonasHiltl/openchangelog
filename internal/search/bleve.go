@@ -66,7 +66,6 @@ func buildIndexMapping() (mapping.IndexMapping, error) {
 
 	releaseNoteMapping := bleve.NewDocumentMapping()
 
-	releaseNoteMapping.AddFieldMappingsAt("WID", widFieldMapping())
 	releaseNoteMapping.AddFieldMappingsAt("SID", sidFieldMapping())
 	releaseNoteMapping.AddFieldMappingsAt("Title", titleFieldMapping())
 	releaseNoteMapping.AddFieldMappingsAt("Description", descriptionFieldMapping())
@@ -76,14 +75,6 @@ func buildIndexMapping() (mapping.IndexMapping, error) {
 
 	indexMapping.AddDocumentMapping("note", releaseNoteMapping)
 	return indexMapping, nil
-}
-
-func widFieldMapping() *mapping.FieldMapping {
-	fm := bleve.NewTextFieldMapping()
-	fm.Analyzer = keyword.Name
-	fm.Store = false
-	fm.IncludeInAll = false
-	return fm
 }
 
 func sidFieldMapping() *mapping.FieldMapping {
@@ -106,7 +97,6 @@ func descriptionFieldMapping() *mapping.FieldMapping {
 
 func publishedAtFieldMapping() *mapping.FieldMapping {
 	fm := mapping.NewDateTimeFieldMapping()
-	fm.Store = false
 	fm.IncludeInAll = false
 	return fm
 }
@@ -114,7 +104,6 @@ func publishedAtFieldMapping() *mapping.FieldMapping {
 func tagsFieldMapping() *mapping.FieldMapping {
 	fm := mapping.NewTextFieldMapping()
 	fm.Analyzer = keyword.Name
-	fm.Store = false
 	return fm
 }
 
