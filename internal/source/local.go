@@ -23,8 +23,12 @@ func NewLocalSourceFromStore(s store.LocalSource) Source {
 	}
 }
 
+func NewLocalID(path string) string {
+	return fmt.Sprintf("lc/%s", path)
+}
+
 func (s localSource) ID() string {
-	return fmt.Sprintf("lc/%s", s.path)
+	return NewLocalID(s.path)
 }
 
 func (s localSource) Load(ctx context.Context, page internal.Pagination) (LoadResult, error) {

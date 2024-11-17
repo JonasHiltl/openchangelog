@@ -6,11 +6,22 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/analysis/analyzer/custom"
+	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
+	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
+	"github.com/blevesearch/bleve/v2/analysis/char/html"
+	"github.com/blevesearch/bleve/v2/analysis/tokenizer/web"
+	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/jonashiltl/openchangelog/internal/config"
 )
 
 func createBleve(cfg config.Config) (bleve.Index, error) {
+	idxMapping, err := buildIndexMapping()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build index mapping: %w", err)
+	}
+
 	if cfg.Search.Type == config.SearchDisk {
 		if cfg.Search.Disk.Path == "" {
 			return nil, errors.New("please define 'search.disk.path' as the directory path to store the search index")
@@ -20,7 +31,7 @@ func createBleve(cfg config.Config) (bleve.Index, error) {
 		if err != nil {
 			if os.IsNotExist(err) {
 				slog.Info("search index location doesn't exist, creating new index", slog.String("path", cfg.Search.Disk.Path))
-				return bleve.New(cfg.Search.Disk.Path, bleve.NewIndexMapping())
+				return bleve.New(cfg.Search.Disk.Path, idxMapping)
 			}
 			return nil, err
 		}
@@ -33,10 +44,82 @@ func createBleve(cfg config.Config) (bleve.Index, error) {
 		return idx, err
 	}
 
-	idx, err := bleve.NewMemOnly(bleve.NewIndexMapping())
+	idx, err := bleve.NewMemOnly(idxMapping)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create in memory search index: %w", err)
 	}
 	slog.Info("successfully created in-memory search index")
 	return idx, nil
+}
+
+func buildIndexMapping() (mapping.IndexMapping, error) {
+	indexMapping := bleve.NewIndexMapping()
+	indexMapping.DefaultMapping.DefaultAnalyzer = keyword.Name
+
+	if err := indexMapping.AddCustomAnalyzer("custom-html", map[string]interface{}{
+		"type":         custom.Name,
+		"tokenizer":    web.Name,
+		"char_filters": []interface{}{html.Name},
+	}); err != nil {
+		return nil, err
+	}
+
+	releaseNoteMapping := bleve.NewDocumentMapping()
+
+	releaseNoteMapping.AddFieldMappingsAt("WID", widFieldMapping())
+	releaseNoteMapping.AddFieldMappingsAt("SID", sidFieldMapping())
+	releaseNoteMapping.AddFieldMappingsAt("Title", titleFieldMapping())
+	releaseNoteMapping.AddFieldMappingsAt("Description", descriptionFieldMapping())
+	releaseNoteMapping.AddFieldMappingsAt("PublishedAt", publishedAtFieldMapping())
+	releaseNoteMapping.AddFieldMappingsAt("Tags", tagsFieldMapping())
+	releaseNoteMapping.AddFieldMappingsAt("Content", contentFieldMapping())
+
+	indexMapping.AddDocumentMapping("note", releaseNoteMapping)
+	return indexMapping, nil
+}
+
+func widFieldMapping() *mapping.FieldMapping {
+	fm := bleve.NewTextFieldMapping()
+	fm.Analyzer = keyword.Name
+	fm.Store = false
+	fm.IncludeInAll = false
+	return fm
+}
+
+func sidFieldMapping() *mapping.FieldMapping {
+	fm := bleve.NewTextFieldMapping()
+	fm.Analyzer = keyword.Name
+	fm.Store = false
+	fm.IncludeInAll = false
+	return fm
+}
+
+func titleFieldMapping() *mapping.FieldMapping {
+	fm := bleve.NewTextFieldMapping()
+	fm.Analyzer = standard.Name
+	return fm
+}
+
+func descriptionFieldMapping() *mapping.FieldMapping {
+	return titleFieldMapping()
+}
+
+func publishedAtFieldMapping() *mapping.FieldMapping {
+	fm := mapping.NewDateTimeFieldMapping()
+	fm.Store = false
+	fm.IncludeInAll = false
+	return fm
+}
+
+func tagsFieldMapping() *mapping.FieldMapping {
+	fm := mapping.NewTextFieldMapping()
+	fm.Analyzer = keyword.Name
+	fm.Store = false
+	return fm
+}
+
+func contentFieldMapping() *mapping.FieldMapping {
+	fm := mapping.NewTextFieldMapping()
+	fm.Analyzer = "custom-html"
+	return fm
 }

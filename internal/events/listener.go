@@ -43,6 +43,7 @@ func (l EventListener) Close() {
 }
 
 func (l EventListener) OnSourceChanged(e SourceChanged) {
+	slog.Debug("received SourceChanged event", slog.String("sid", e.Source.ID()))
 	go func() {
 		ctx := context.Background()
 		loaded, err := e.Source.Load(ctx, internal.NoPagination())

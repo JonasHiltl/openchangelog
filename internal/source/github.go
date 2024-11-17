@@ -58,8 +58,12 @@ func NewGHSourceFromStore(cfg config.Config, gh store.GHSource, cache httpcache.
 	}, nil
 }
 
+func NewGitHubID(owner, repo, path string) string {
+	return fmt.Sprintf("gh/%s/%s/%s", owner, repo, path)
+}
+
 func (s *ghSource) ID() string {
-	return fmt.Sprintf("gh/%s/%s/%s", s.Owner, s.Repo, s.Path)
+	return NewGitHubID(s.Owner, s.Repo, s.Path)
 }
 
 func (s *ghSource) Load(ctx context.Context, page internal.Pagination) (LoadResult, error) {
