@@ -92,7 +92,6 @@ type SearchArgs struct {
 func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResults, error) {
 	query := buildSearchQuery(ctx, args)
 	req := bleve.NewSearchRequest(query)
-	req.SortBy([]string{"-PublishedAt"})
 	req.Fields = []string{"Title", "Description", "Content", "Tags", "PublishedAt"}
 	req.Highlight = bleve.NewHighlightWithStyle("html")
 
@@ -175,7 +174,6 @@ func buildSearchQuery(ctx context.Context, args SearchArgs) query.Query {
 
 		descQuery := bleve.NewMatchQuery(strings.ToLower(args.Query))
 		descQuery.SetField("Description")
-		descQuery.SetBoost(2)
 
 		contentQuery := bleve.NewMatchQuery(args.Query)
 		contentQuery.SetField("Content")
