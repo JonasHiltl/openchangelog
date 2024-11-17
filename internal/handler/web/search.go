@@ -20,6 +20,13 @@ func searchSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 		return errs.NewBadRequest(err)
 	}
 
+	if cl.Protected {
+		err = ensurePasswordProvided(r, cl.PasswordHash)
+		if err != nil {
+			return errs.NewUnauthorized(err)
+		}
+	}
+
 	sid := source.NewIDFromChangelog(cl)
 	if sid == "" {
 		return errs.NewBadRequest(errors.New("changelog has no active source"))
