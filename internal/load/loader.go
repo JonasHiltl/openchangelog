@@ -53,24 +53,26 @@ type Loader struct {
 	e      *mint.Emitter
 }
 
-// Loads the changelog and parses it's release notes for the specified http request.
-func (l *Loader) LoadAndParse(r *http.Request, page internal.Pagination) (LoadedChangelog, error) {
+// Returns the changelog of the request.
+func (l *Loader) GetChangelog(r *http.Request) (store.Changelog, error) {
 	wID, cID := GetQueryIDs(r)
 	host := r.Host
 	if r.Header.Get("X-Forwarded-Host") != "" {
 		host = r.Header.Get("X-Forwarded-Host")
 	}
 
-	var cl store.Changelog
-	var err error
-
 	if l.cfg.IsConfigMode() {
-		cl, err = l.store.GetChangelog(r.Context(), "", "")
+		return l.store.GetChangelog(r.Context(), "", "")
 	} else if wID != "" && cID != "" {
-		cl, err = l.fromWorkspace(r.Context(), wID, cID)
+		return l.fromWorkspace(r.Context(), wID, cID)
 	} else {
-		cl, err = l.fromHost(r.Context(), host)
+		return l.fromHost(r.Context(), host)
 	}
+}
+
+// Loads the changelog and parses it's release notes for the specified http request.
+func (l *Loader) LoadAndParse(r *http.Request, page internal.Pagination) (LoadedChangelog, error) {
+	cl, err := l.GetChangelog(r)
 	if err != nil {
 		return LoadedChangelog{}, err
 	}
@@ -98,7 +100,7 @@ func (l *Loader) LoadAndParseReleaseNotes(ctx context.Context, cl store.Changelo
 		}
 		// emit event if release notes have changed
 		if loaded.HasChanged() {
-			err = mint.Emit(l.e, ctx, events.SourceChanged{
+			err = mint.Emit(l.e, ctx, events.SourceContentChanged{
 				WID:    cl.WorkspaceID.String(),
 				Source: s,
 			})
