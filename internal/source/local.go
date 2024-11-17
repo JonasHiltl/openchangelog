@@ -23,11 +23,11 @@ func NewLocalSourceFromStore(s store.LocalSource) Source {
 	}
 }
 
-func NewLocalID(path string) string {
-	return fmt.Sprintf("lc/%s", path)
+func NewLocalID(path string) ID {
+	return ID(fmt.Sprintf("lc/%s", path))
 }
 
-func (s localSource) ID() string {
+func (s localSource) ID() ID {
 	return NewLocalID(s.path)
 }
 

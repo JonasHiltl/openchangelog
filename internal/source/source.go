@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/jonashiltl/openchangelog/internal"
+	"github.com/jonashiltl/openchangelog/internal/store"
 )
 
 type RawReleaseNote struct {
@@ -30,5 +31,21 @@ func (r LoadResult) HasChanged() bool {
 // A source can be used to load raw release notes from a (remote) source like GitHub.
 type Source interface {
 	Load(ctx context.Context, page internal.Pagination) (LoadResult, error)
-	ID() string
+	ID() ID
+}
+
+// A unique identifier for a source
+type ID string
+
+func (i ID) String() string {
+	return string(i)
+}
+
+func NewIDFromChangelog(cl store.Changelog) ID {
+	if cl.LocalSource.Valid {
+		return NewLocalID(cl.LocalSource.V.Path)
+	} else if cl.GHSource.Valid {
+		return NewGitHubID(cl.GHSource.V.Owner, cl.GHSource.V.Repo, cl.GHSource.V.Path)
+	}
+	return ""
 }
