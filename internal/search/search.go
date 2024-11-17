@@ -127,11 +127,12 @@ func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResu
 			result.Content = strings.NewReader(fmt.Sprint(content))
 		}
 		if tags, exists := hit.Fields["Tags"]; exists {
-			tagsSlice, ok := tags.([]any)
-			if ok {
+			if tagsSlice, ok := tags.([]any); ok {
 				for _, t := range tagsSlice {
 					result.Meta.Tags = append(result.Meta.Tags, fmt.Sprint(t))
 				}
+			} else if tag, ok := tags.(string); ok {
+				result.Meta.Tags = []string{tag}
 			}
 		}
 		if publishedAt, exists := hit.Fields["PublishedAt"]; exists {
