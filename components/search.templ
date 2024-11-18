@@ -3,11 +3,14 @@ package components
 import (
 	"github.com/jonashiltl/openchangelog/internal/handler/web/icons"
 	"github.com/jonashiltl/openchangelog/internal/search"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type SearchResultsArgs struct {
 	Result search.SearchResults
 }
+
+var p = bluemonday.UGCPolicy()
 
 templ SearchResults(args SearchResultsArgs) {
 	<div id="search-results" class="o-flex-1">
@@ -16,10 +19,13 @@ templ SearchResults(args SearchResultsArgs) {
 				for _, h := range args.Result.Hits {
 					<a class="o-flex o-flex-col o-px-4 o-py-2">
 						<h2>
-							@templ.Raw(h.Title)
+							@templ.Raw(p.Sanitize(h.Title))
 						</h2>
 						<p class="o-text-caption">
-							@templ.Raw(h.Description)
+							@templ.Raw(p.Sanitize(h.Description))
+						</p>
+						<p class="o-text-caption">
+							@templ.Raw(p.Sanitize(h.ContentHighlight))
 						</p>
 					</a>
 				}

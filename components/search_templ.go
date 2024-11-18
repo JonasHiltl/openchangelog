@@ -11,11 +11,14 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"github.com/jonashiltl/openchangelog/internal/handler/web/icons"
 	"github.com/jonashiltl/openchangelog/internal/search"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type SearchResultsArgs struct {
 	Result search.SearchResults
 }
+
+var p = bluemonday.UGCPolicy()
 
 func SearchResults(args SearchResultsArgs) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -49,7 +52,7 @@ func SearchResults(args SearchResultsArgs) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templ.Raw(h.Title).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = templ.Raw(p.Sanitize(h.Title)).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -57,7 +60,15 @@ func SearchResults(args SearchResultsArgs) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templ.Raw(h.Description).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = templ.Raw(p.Sanitize(h.Description)).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><p class=\"o-text-caption\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templ.Raw(p.Sanitize(h.ContentHighlight)).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

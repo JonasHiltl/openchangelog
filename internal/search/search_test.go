@@ -171,3 +171,34 @@ func TestHighlightTitle(t *testing.T) {
 		t.Errorf("expected highlight \"%s\" to be \"Custom <mark>Domains</mark>\"", highlightTitle)
 	}
 }
+
+func TestMergeHTMLHighlights(t *testing.T) {
+	tests := []struct {
+		name      string
+		html      string
+		highlight string
+		expected  string
+	}{
+		{
+			name:      "one mark",
+			html:      "<h2>Bug Fixes</h2>",
+			highlight: "...><h2>Bug <mark>Fixes</mark></h2><a>...",
+			expected:  "Bug <mark>Fixes</mark>",
+		},
+		{
+			name:      "multiple marks",
+			html:      "<h2>Bug Fixes</h2>",
+			highlight: "...><h2><mark>Bug</mark> <mark>Fixes</mark></h2><a>...",
+			expected:  "<mark>Bug</mark> <mark>Fixes</mark>",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			merged := mergeHTMLHighlights(test.html, test.highlight)
+			if merged != test.expected {
+				t.Errorf("expected \"%s\" to equal \"%s\"", merged, test.expected)
+			}
+		})
+	}
+}

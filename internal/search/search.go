@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"regexp"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search/query"
 	mapset "github.com/deckarep/golang-set/v2"
+	strip "github.com/grokify/html-strip-tags-go"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/parse"
@@ -64,13 +66,13 @@ func (s *bleveSearcher) Close() {
 }
 
 type SearchResult struct {
-	ID          string
-	Title       string
-	Description string
-	Content     string
-	Score       float64
-	Fragments   map[string][]string
-	Fields      map[string]interface{}
+	ID               string
+	Title            string
+	Description      string
+	ContentHighlight string
+	Score            float64
+	Fragments        map[string][]string
+	Fields           map[string]interface{}
 }
 
 type SearchResults struct {
@@ -113,20 +115,23 @@ func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResu
 
 		// Extract fields if they exist
 		if title, exists := hit.Fields["Title"]; exists {
-			result.Title = fmt.Sprint(title)
+			result.Title = title.(string)
 		}
 		if desc, exists := hit.Fields["Description"]; exists {
-			result.Description = fmt.Sprint(desc)
-		}
-		if content, exists := hit.Fields["Content"]; exists {
-			result.Content = fmt.Sprint(content)
+			result.Description = desc.(string)
 		}
 
 		if title, exists := hit.Fragments["Title"]; exists && len(title) > 0 {
-			result.Title = fmt.Sprint(title[0])
+			result.Title = title[0]
 		}
 		if description, exists := hit.Fragments["Description"]; exists && len(description) > 0 {
-			result.Description = fmt.Sprint(description[0])
+			result.Description = description[0]
+		}
+
+		if content, exists := hit.Fields["Content"]; exists {
+			if highlights, exists := hit.Fragments["Content"]; exists && len(highlights) > 0 {
+				result.ContentHighlight = mergeHTMLHighlights(content.(string), highlights[0])
+			}
 		}
 
 		results.Hits[i] = result
@@ -159,6 +164,31 @@ func (s *bleveSearcher) GetAllTags(ctx context.Context, sid string) []string {
 	}
 
 	return set.ToSlice()
+}
+
+var markRegex = regexp.MustCompile(`<mark>(.*?)</mark>`)
+
+// Takes an html string and a partial html which sould include some <mark> sections.
+// It merges the <mark> sections on the html string ans strips it from all other html tags.
+func mergeHTMLHighlights(html, highlight string) string {
+	strippedHTML := strip.StripTags(html)
+	if highlight == "" {
+		return strippedHTML
+	}
+
+	matches := markRegex.FindAllStringSubmatch(highlight, -1)
+	if len(matches) == 0 {
+		return strippedHTML
+	}
+
+	result := strippedHTML
+	for _, match := range matches {
+		if len(match) == 2 {
+			markedText := match[1]
+			result = strings.ReplaceAll(result, markedText, fmt.Sprintf("<mark>%s</mark>", markedText))
+		}
+	}
+	return result
 }
 
 func buildSearchQuery(ctx context.Context, args SearchArgs) query.Query {
