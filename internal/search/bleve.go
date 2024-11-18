@@ -9,8 +9,9 @@ import (
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/custom"
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
 	"github.com/blevesearch/bleve/v2/analysis/char/html"
+	"github.com/blevesearch/bleve/v2/analysis/token/ngram"
+	"github.com/blevesearch/bleve/v2/analysis/tokenizer/unicode"
 	"github.com/blevesearch/bleve/v2/analysis/tokenizer/web"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/jonashiltl/openchangelog/internal/config"
@@ -64,6 +65,30 @@ func buildIndexMapping() (mapping.IndexMapping, error) {
 		return nil, err
 	}
 
+	if err := indexMapping.AddCustomTokenFilter("ngram_min_3_max_3",
+		map[string]interface{}{
+			"min":  3,
+			"max":  3,
+			"type": ngram.Name,
+		},
+	); err != nil {
+		return nil, err
+	}
+
+	if err := indexMapping.AddCustomAnalyzer("custom_ngram",
+		map[string]interface{}{
+			"type":         custom.Name,
+			"char_filters": []interface{}{},
+			"tokenizer":    unicode.Name,
+			"token_filters": []interface{}{
+				`to_lower`,
+				`ngram_min_3_max_3`,
+			},
+		},
+	); err != nil {
+		return nil, err
+	}
+
 	releaseNoteMapping := bleve.NewDocumentMapping()
 
 	releaseNoteMapping.AddFieldMappingsAt("SID", sidFieldMapping())
@@ -87,7 +112,7 @@ func sidFieldMapping() *mapping.FieldMapping {
 
 func titleFieldMapping() *mapping.FieldMapping {
 	fm := bleve.NewTextFieldMapping()
-	fm.Analyzer = standard.Name
+	fm.Analyzer = "custom_ngram"
 	return fm
 }
 

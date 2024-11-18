@@ -11,6 +11,7 @@ import (
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search/query"
+	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/parse"
@@ -18,6 +19,7 @@ import (
 
 type Searcher interface {
 	Search(context.Context, SearchArgs) (SearchResults, error)
+	GetAllTags(ctx context.Context, sid string) []string
 	Index(context.Context, IndexArgs) error
 	BatchIndex(context.Context, BatchIndexArgs) error
 	Close()
@@ -62,25 +64,19 @@ func (s *bleveSearcher) Close() {
 }
 
 type SearchResult struct {
-	parse.ParsedReleaseNote
-	ID        string
-	Score     float64
-	Fragments map[string][]string
-	Fields    map[string]interface{}
+	ID          string
+	Title       string
+	Description string
+	Content     string
+	Score       float64
+	Fragments   map[string][]string
+	Fields      map[string]interface{}
 }
 
 type SearchResults struct {
 	Total    uint64
 	Hits     []SearchResult
 	MaxScore float64
-}
-
-func (r SearchResults) GetParsedReleaseNotes() []parse.ParsedReleaseNote {
-	notes := make([]parse.ParsedReleaseNote, len(r.Hits))
-	for i, h := range r.Hits {
-		notes[i] = h.ParsedReleaseNote
-	}
-	return notes
 }
 
 type SearchArgs struct {
@@ -91,7 +87,7 @@ type SearchArgs struct {
 
 func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResults, error) {
 	query := buildSearchQuery(ctx, args)
-	req := bleve.NewSearchRequest(query)
+	req := bleve.NewSearchRequestOptions(query, 10, 0, false)
 	req.Fields = []string{"Title", "Description", "Content", "Tags", "PublishedAt"}
 	req.Highlight = bleve.NewHighlightWithStyle("html")
 
@@ -117,33 +113,52 @@ func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResu
 
 		// Extract fields if they exist
 		if title, exists := hit.Fields["Title"]; exists {
-			result.Meta.Title = fmt.Sprint(title)
+			result.Title = fmt.Sprint(title)
 		}
 		if desc, exists := hit.Fields["Description"]; exists {
-			result.Meta.Description = fmt.Sprint(desc)
+			result.Description = fmt.Sprint(desc)
 		}
 		if content, exists := hit.Fields["Content"]; exists {
-			result.Content = strings.NewReader(fmt.Sprint(content))
+			result.Content = fmt.Sprint(content)
 		}
-		if tags, exists := hit.Fields["Tags"]; exists {
-			if tagsSlice, ok := tags.([]any); ok {
-				for _, t := range tagsSlice {
-					result.Meta.Tags = append(result.Meta.Tags, fmt.Sprint(t))
-				}
-			} else if tag, ok := tags.(string); ok {
-				result.Meta.Tags = []string{tag}
-			}
+
+		if title, exists := hit.Fragments["Title"]; exists && len(title) > 0 {
+			result.Title = fmt.Sprint(title[0])
 		}
-		if publishedAt, exists := hit.Fields["PublishedAt"]; exists {
-			t, err := time.Parse(time.RFC3339, fmt.Sprint(publishedAt))
-			if err == nil {
-				result.Meta.PublishedAt = t
-			}
+		if description, exists := hit.Fragments["Description"]; exists && len(description) > 0 {
+			result.Description = fmt.Sprint(description[0])
 		}
 
 		results.Hits[i] = result
 	}
 	return results, nil
+}
+
+func (s *bleveSearcher) GetAllTags(ctx context.Context, sid string) []string {
+	query := bleve.NewMatchQuery(sid)
+	query.SetField("SID")
+	req := bleve.NewSearchRequest(query)
+	req.Fields = []string{"Tags"}
+
+	res, err := s.idx.SearchInContext(ctx, req)
+	if err != nil {
+		return []string{}
+	}
+
+	set := mapset.NewThreadUnsafeSet("")
+	for _, hit := range res.Hits {
+		if tags, exists := hit.Fields["Tags"]; exists {
+			if tagsSlice, ok := tags.([]any); ok {
+				for _, t := range tagsSlice {
+					set.Add(fmt.Sprint(t))
+				}
+			} else if tag, ok := tags.(string); ok {
+				set.Add(tag)
+			}
+		}
+	}
+
+	return set.ToSlice()
 }
 
 func buildSearchQuery(ctx context.Context, args SearchArgs) query.Query {

@@ -163,8 +163,8 @@ func TestHighlightTitle(t *testing.T) {
 		t.Errorf("expected total %d to be 1", res.Total)
 	}
 	hit := res.Hits[0]
-	if hit.Meta.Title != "Custom Domains" {
-		t.Errorf("expected title \"%s\" to be \"Custom Domains\"", res.Hits[0].Meta.Title)
+	if hit.Title != "Custom Domains" {
+		t.Errorf("expected title \"%s\" to be \"Custom Domains\"", res.Hits[0].Title)
 	}
 	highlightTitle := hit.Fragments["Title"][0]
 	if highlightTitle != "Custom <mark>Domains</mark>" {

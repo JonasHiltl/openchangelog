@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/internal"
@@ -52,7 +53,7 @@ func index(e *env, w http.ResponseWriter, r *http.Request) error {
 		return handleArticles(e, w, r.Context(), loaded, page, pageSize)
 	}
 
-	setCacheControlHeader(w, loaded.CL.Protected)
+	setCacheControlHeader(r, w, loaded.CL.Protected)
 	return renderChangelog(e, w, r, loaded, isWidget)
 }
 
@@ -89,7 +90,11 @@ func handleArticles(
 	}
 }
 
-func setCacheControlHeader(w http.ResponseWriter, isProtected bool) {
+func setCacheControlHeader(r *http.Request, w http.ResponseWriter, isProtected bool) {
+	if strings.Contains(r.Host, "localhost") {
+		return
+	}
+
 	if isProtected {
 		w.Header().Set("Cache-Control", "private,max-age=300")
 	} else {

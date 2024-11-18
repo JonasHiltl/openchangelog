@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/search"
 	"github.com/jonashiltl/openchangelog/internal/source"
@@ -33,6 +34,12 @@ func searchSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	q := r.FormValue("query")
+	if q == "" {
+		return components.SearchResults(components.SearchResultsArgs{
+			Result: search.SearchResults{},
+		}).Render(r.Context(), w)
+	}
+
 	res, err := e.searcher.Search(r.Context(), search.SearchArgs{
 		SID:   sid.String(),
 		Query: q,
@@ -41,9 +48,7 @@ func searchSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 		return errs.NewBadRequest(err)
 	}
 
-	return e.render.RenderArticleList(r.Context(), w, RenderArticleListArgs{
-		CID:      cl.ID,
-		WID:      cl.WorkspaceID,
-		Articles: res.GetParsedReleaseNotes(),
-	})
+	return components.SearchResults(components.SearchResultsArgs{
+		Result: res,
+	}).Render(r.Context(), w)
 }

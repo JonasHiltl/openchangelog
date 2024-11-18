@@ -26,14 +26,18 @@ templ Index(arg IndexArgs) {
 		@components.Theme(arg.ThemeArgs) {
 			@components.Navbar() {
 				@components.LogoImg(arg.Logo)
-				@components.RSS(arg.RSSArgs)
+				@components.NavbarActions() {
+					@components.SearchButton(components.SearchButtonArgs{
+						HasMetaKey: true,
+					})
+					@components.RSS(arg.RSSArgs)
+				}
 			}
 			@components.Prose() {
 				@components.ChangelogContainer(arg.ChangelogContainerArgs) {
 					@components.HeaderContainer() {
 						@components.HeaderContent(arg.HeaderArgs)
 					}
-					@components.SearchBar()
 					@components.ArticleList(arg.ArticleListArgs)
 				}
 				@components.Footer(arg.FooterArgs)

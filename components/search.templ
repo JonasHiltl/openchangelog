@@ -1,18 +1,86 @@
 package components
 
-import "github.com/jonashiltl/openchangelog/internal/handler/web/icons"
+import (
+	"github.com/jonashiltl/openchangelog/internal/handler/web/icons"
+	"github.com/jonashiltl/openchangelog/internal/search"
+)
 
-templ SearchBar() {
-	<div class="input o-flex o-items-center o-gap-2 o-mt-8">
+type SearchResultsArgs struct {
+	Result search.SearchResults
+}
+
+templ SearchResults(args SearchResultsArgs) {
+	<div id="search-results" class="o-flex-1">
+		if len(args.Result.Hits) > 0 {
+			<div class="o-bg-white dark:o-bg-black o-rounded-lg o-p-2">
+				for _, h := range args.Result.Hits {
+					<a class="o-flex o-flex-col o-px-4 o-py-2">
+						<h2>
+							@templ.Raw(h.Title)
+						</h2>
+						<p class="o-text-caption">
+							@templ.Raw(h.Description)
+						</p>
+						<div class="o-flex o-gap-1">
+							for _, t := range {  }
+						</div>
+					</a>
+				}
+			</div>
+		}
+	</div>
+}
+
+type SearchButtonArgs struct {
+	HasMetaKey bool
+}
+
+templ SearchButton(args SearchButtonArgs) {
+	<dialog id="search-dialog" class="o-transition-backdrop backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent">
+		<div class="input o-rounded-lg o-flex o-items-center o-gap-2 o-bg-white dark:o-bg-black o-mb-2">
+			@icons.Search(20, 20)
+			<input
+				name="query"
+				placeholder="Search Release Notes"
+				class="o-flex-1 o-text-lg"
+				hx-post="/search"
+				hx-trigger="input changed delay:500ms, search"
+				hx-target="#search-results"
+			/>
+			@searchKbd(args.HasMetaKey)
+		</div>
+		@SearchResults(SearchResultsArgs{})
+	</dialog>
+	<button
+		class="o-flex o-items-center o-gap-2 o-py-1 o-px-1 sm:o-px-2 o-rounded 
+		sm:o-text-black/40 sm:hover:o-text-black/60 hover:o-bg-black/5 
+		dark:o-text-white/50 dark:hover:o-text-white/70 dark:o-bg-white/5 hover:dark:o-bg-white/5"
+		hx-on::trigger="toggleSearchDialog()"
+		hx-trigger="click, keyup[ctrlKey&&key=='k'] from:body, keydown[metaKey&&key=='k'] from:body"
+	>
 		@icons.Search(16, 16)
-		<input
-			name="query"
-			hx-post="/search"
-			hx-trigger="input changed delay:500ms, search"
-			hx-target="#article-list"
-			hx-swap="outerHTML"
-			class="o-flex-1"
-			placeholder="Search release notes"
-		/>
+		<p class="o-text-sm o-leading-none o-hidden sm:o-block">Search...</p>
+		@searchKbd(args.HasMetaKey)
+	</button>
+	<script>
+		function toggleSearchDialog() {
+			const dialog = document.getElementById('search-dialog')
+			if (!dialog) return
+			if (dialog.open) {
+				dialog.close()
+			} else {
+				dialog.showModal()
+			}
+		}
+	</script>
+}
+
+templ searchKbd(hasMetaKey bool) {
+	<div class="o-hidden sm:o-block">
+		if hasMetaKey {
+			@KBD("⌘K")
+		} else {
+			@KBD("ctrl+K")
+		}
 	</div>
 }

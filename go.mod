@@ -9,6 +9,7 @@ require (
 	github.com/blevesearch/bleve/v2 v2.4.3
 	github.com/bradleyfalzon/ghinstallation/v2 v2.10.0
 	github.com/btvoidx/mint v0.4.3
+	github.com/deckarep/golang-set/v2 v2.6.0
 	github.com/google/go-github/v62 v62.0.0
 	github.com/gosimple/slug v1.14.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79

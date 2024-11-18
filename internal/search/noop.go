@@ -23,3 +23,7 @@ func (s noopSearcher) BatchIndex(context.Context, BatchIndexArgs) error {
 func (s noopSearcher) Search(context.Context, SearchArgs) (SearchResults, error) {
 	return SearchResults{}, nil
 }
+
+func (s noopSearcher) GetAllTags(ctx context.Context, sid string) []string {
+	return []string{}
+}

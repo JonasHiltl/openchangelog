@@ -31,6 +31,10 @@
     form {
         margin: 0px;
     }
+
+    mark {
+        @apply o-bg-primary/20 o-rounded
+    }
 }
 
 :root {
