@@ -7,6 +7,7 @@ import (
 )
 
 type SearchResultsArgs struct {
+	Query  string
 	Result search.SearchResults
 }
 
@@ -18,7 +19,7 @@ templ SearchResults(args SearchResultsArgs) {
 			<div class="o-bg-white dark:o-bg-black o-rounded-lg o-p-2">
 				for _, h := range args.Result.Hits {
 					<a class="o-flex o-flex-col o-px-4 o-py-2">
-						<h2>
+						<h2 class="o-text-lg o-font-semibold">
 							@templ.Raw(p.Sanitize(h.Title))
 						</h2>
 						<p class="o-text-caption">
@@ -30,7 +31,22 @@ templ SearchResults(args SearchResultsArgs) {
 					</a>
 				}
 			</div>
+		} else if args.Query != "" {
+			@emptySearchResults(args.Query)
 		}
+	</div>
+}
+
+templ emptySearchResults(query string) {
+	<div class="o-bg-white dark:o-bg-black o-rounded-lg o-p-4 o-flex o-flex-col o-items-center o-text-center">
+		@icons.Inbox(30, 30)
+		<h2 class="o-font-semibold o-mt-2">No release notes found</h2>
+		<p class="o-text-caption o-max-w-80">
+			"{ query }" did not match any results.
+			if len(query) < 3 {
+				Please try a longer or more specific query.
+			}
+		</p>
 	</div>
 }
 
@@ -41,7 +57,14 @@ type SearchButtonArgs struct {
 templ SearchButton(args SearchButtonArgs) {
 	<dialog id="search-dialog" class="o-transition-backdrop backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent">
 		<div class="input o-rounded-lg o-flex o-items-center o-gap-2 o-bg-white dark:o-bg-black o-mb-2">
-			@icons.Search(20, 20)
+			<div id="loader" class="o-flex o-gap-2">
+				<div class="htmx-indicator-rev">
+					@icons.Search(20, 20)
+				</div>
+				<div class="htmx-indicator">
+					@icons.Spinner(20, 20)
+				</div>
+			</div>
 			<input
 				name="query"
 				placeholder="Search Release Notes"
@@ -49,6 +72,7 @@ templ SearchButton(args SearchButtonArgs) {
 				hx-post="/search"
 				hx-trigger="input changed delay:500ms, search"
 				hx-target="#search-results"
+				hx-indicator="#loader"
 			/>
 			@searchKbd(args.HasMetaKey)
 		</div>

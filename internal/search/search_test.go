@@ -119,6 +119,14 @@ func TestSearch(t *testing.T) {
 			expectedTotal: 1,
 		},
 		{
+			name: "content case insensitive",
+			args: SearchArgs{
+				SID:   sid.String(),
+				Query: "OWN",
+			},
+			expectedTotal: 1,
+		},
+		{
 			name: "query and tags",
 			args: SearchArgs{
 				SID:   sid.String(),

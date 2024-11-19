@@ -49,6 +49,7 @@ func searchSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return components.SearchResults(components.SearchResultsArgs{
+		Query:  q,
 		Result: res,
 	}).Render(r.Context(), w)
 }

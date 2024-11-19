@@ -20,6 +20,30 @@
         @apply o-bg-primary hover:o-bg-primary/90 o-text-white
     }
 
+    .htmx-indicator {
+        display: none;
+    }
+
+    .htmx-request .htmx-indicator {
+        display: inline;
+    }
+
+    .htmx-request.htmx-indicator {
+        display: inline;
+    }
+
+    .htmx-indicator-rev {
+        display: inline;
+    }
+
+    .htmx-request .htmx-indicator-rev {
+        display: none;
+    }
+
+    .htmx-request.htmx-indicator-rev {
+        display: none;
+    }
+
     input {
         background-color: transparent;
     }
