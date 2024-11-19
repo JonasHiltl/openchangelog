@@ -58,9 +58,10 @@ func buildIndexMapping() (mapping.IndexMapping, error) {
 	indexMapping.DefaultMapping.DefaultAnalyzer = keyword.Name
 
 	if err := indexMapping.AddCustomAnalyzer("custom-html", map[string]interface{}{
-		"type":         custom.Name,
-		"tokenizer":    web.Name,
-		"char_filters": []interface{}{html.Name},
+		"type":          custom.Name,
+		"tokenizer":     web.Name,
+		"char_filters":  []interface{}{html.Name},
+		"token_filters": []interface{}{`to_lower`},
 	}); err != nil {
 		return nil, err
 	}
