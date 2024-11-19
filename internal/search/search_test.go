@@ -2,6 +2,8 @@ package search
 
 import (
 	"context"
+	"fmt"
+	"html"
 	"strings"
 	"testing"
 	"time"
@@ -180,32 +182,128 @@ func TestHighlightTitle(t *testing.T) {
 	}
 }
 
-func TestMergeHTMLHighlights(t *testing.T) {
+func TestStripPartialHTML(t *testing.T) {
 	tests := []struct {
-		name      string
-		html      string
-		highlight string
-		expected  string
+		name     string
+		html     string
+		expected string
 	}{
 		{
-			name:      "one mark",
-			html:      "<h2>Bug Fixes</h2>",
-			highlight: "...><h2>Bug <mark>Fixes</mark></h2><a>...",
-			expected:  "Bug <mark>Fixes</mark>",
+			name:     "no partial tag",
+			html:     "test <ul><li>a</li></ul> b",
+			expected: "test a b",
 		},
 		{
-			name:      "multiple marks",
-			html:      "<h2>Bug Fixes</h2>",
-			highlight: "...><h2><mark>Bug</mark> <mark>Fixes</mark></h2><a>...",
-			expected:  "<mark>Bug</mark> <mark>Fixes</mark>",
+			name:     "partial closing tag at start",
+			html:     "...agaadaw\">test</a> <li>a</li>",
+			expected: "test a",
+		},
+		{
+			name:     "partial tag at end",
+			html:     "test <li>a<a>b<",
+			expected: "test ab",
+		},
+		{
+			name:     "partial closing tag at end",
+			html:     "test <li>a<a>b</",
+			expected: "test ab",
+		},
+		{
+			name:     "longer partial closing tag at end",
+			html:     "test <li>a<a>b</veryLongTag",
+			expected: "test ab",
+		},
+		{
+			name:     "missing closing tags",
+			html:     "test <li>a<a>b",
+			expected: "test ab",
+		},
+		{
+			name:     "no html tags",
+			html:     "this has no html tags",
+			expected: "this has no html tags",
+		},
+		{
+			name:     "empty string",
+			html:     "",
+			expected: "",
+		},
+		{
+			name:     "release notes demo",
+			html:     "...ca2\">77731ec</a>)</li> </ul> <h3>🐛 Bug Fixes</h3> <ul> <li><em>(fixtures)</em> Fix test failures - (<a href=\"https://gi...",
+			expected: "77731ec)  🐛 Bug Fixes  (fixtures) Fix test failures - (",
+		},
+		{
+			name:     "release notes demo 2",
+			html:     "...error message to failing test - (<a href=\"...\">7d7470b</a>)</li> <li>Fix keep a changelog test case - (<a href=\"...\"",
+			expected: "...error message to failing test - (7d7470b) Fix keep a changelog test case - (",
+		},
+		{
+			name:     "preserve mark tags",
+			html:     "bug <mark>fixes</mark>",
+			expected: "bug <mark>fixes</mark>",
+		},
+		{
+			name:     "preserve mark tags with partial",
+			html:     "...ca2\">bu<a>g</a> <mark>fixes</mark>b</",
+			expected: "bug <mark>fixes</mark>b",
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			merged := mergeHTMLHighlights(test.html, test.highlight)
-			if merged != test.expected {
-				t.Errorf("expected \"%s\" to equal \"%s\"", merged, test.expected)
+			stripped := stripPartialHTML(test.html)
+			if stripped != test.expected {
+				t.Errorf("expected \"%s\" to equal \"%s\"", stripped, test.expected)
+			}
+		})
+		t.Run(fmt.Sprintf("%s escaped", test.name), func(t *testing.T) {
+			stripped := stripPartialHTML(html.EscapeString(test.html))
+			if stripped != test.expected {
+				t.Errorf("expected \"%s\" to equal \"%s\"", stripped, test.expected)
+			}
+		})
+	}
+}
+
+func TestSurroundWithEllipsis(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "no ellipsis",
+			input:    "test",
+			expected: "...test...",
+		},
+		{
+			name:     "prefix ellipsis",
+			input:    "...test",
+			expected: "...test...",
+		},
+		{
+			name:     "suffix ellipsis",
+			input:    "test...",
+			expected: "...test...",
+		},
+		{
+			name:     "suffix and prefix ellipsis",
+			input:    "...test...",
+			expected: "...test...",
+		},
+		{
+			name:     "with ellipsis character",
+			input:    "…test…",
+			expected: "...test...",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			res := surroundWithEllipsis(test.input)
+			if res != test.expected {
+				t.Errorf("expected \"%s\" to equal \"%s\"", res, test.expected)
 			}
 		})
 	}

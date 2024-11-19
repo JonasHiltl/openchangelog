@@ -3,9 +3,9 @@ package search
 import (
 	"context"
 	"fmt"
+	"html"
 	"io"
 	"log/slog"
-	"regexp"
 	"strings"
 	"time"
 
@@ -128,15 +128,87 @@ func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResu
 			result.Description = description[0]
 		}
 
-		if content, exists := hit.Fields["Content"]; exists {
-			if highlights, exists := hit.Fragments["Content"]; exists && len(highlights) > 0 {
-				result.ContentHighlight = mergeHTMLHighlights(content.(string), highlights[0])
-			}
+		if content, exists := hit.Fragments["Content"]; exists && len(content) > 0 {
+			result.ContentHighlight = surroundWithEllipsis(stripPartialHTML(content[0]))
 		}
 
 		results.Hits[i] = result
 	}
 	return results, nil
+}
+
+// stripPartialHTML removes all HTML tags and partial tags from the input string,
+// except for <mark> tags, which are preserved. It also handles cases where
+// the input starts or ends with incomplete HTML tags to ensure clean output.
+func stripPartialHTML(input string) string {
+	input = html.UnescapeString(input)
+
+	contentStartIdx := 0
+	for i, r := range input {
+		// if partial tag exists at start of input, content start after it
+		if r == '>' {
+			contentStartIdx = i + 1
+			break
+		}
+		// text start with a partial opening tag, will be removed later
+		if r == '<' {
+			break
+		}
+	}
+
+	if contentStartIdx >= len(input) {
+		return ""
+	}
+
+	input = input[contentStartIdx:]
+
+	// replace <mark> tags so that they can later be recovered
+	input = replaceMarks(input)
+	// clean all html tags
+	cleanedContent := strip.StripTags(input)
+	// recover <mark> tags
+	cleanedContent = replaceMarkPlaceholders(cleanedContent)
+
+	cleanedRunes := []rune(cleanedContent)
+
+	// Find where valid content ends
+	// We still might have some partial tags at the end of content
+	contentEnd := len(cleanedRunes)
+	for i := len(cleanedRunes) - 1; i > 0; i-- {
+		r := cleanedRunes[i]
+		if r == '<' {
+			contentEnd = i
+		}
+		// if </mark> is at end we can stop
+		if r == '>' {
+			break
+		}
+	}
+
+	return string(cleanedRunes[:contentEnd])
+}
+
+const mark_placeholder_start = "__MARK_START__"
+const mark_placeholder_end = "__MARK_END__"
+
+func replaceMarks(input string) string {
+	input = strings.ReplaceAll(input, "<mark>", mark_placeholder_start)
+	input = strings.ReplaceAll(input, "</mark>", mark_placeholder_end)
+	return input
+}
+
+func replaceMarkPlaceholders(input string) string {
+	input = strings.ReplaceAll(input, mark_placeholder_start, "<mark>")
+	input = strings.ReplaceAll(input, mark_placeholder_end, "</mark>")
+	return input
+}
+
+func surroundWithEllipsis(input string) string {
+	input, _ = strings.CutPrefix(input, "...")
+	input, _ = strings.CutPrefix(input, "…")
+	input, _ = strings.CutSuffix(input, "...")
+	input, _ = strings.CutSuffix(input, "…")
+	return fmt.Sprintf("...%s...", input)
 }
 
 func (s *bleveSearcher) GetAllTags(ctx context.Context, sid string) []string {
@@ -164,31 +236,6 @@ func (s *bleveSearcher) GetAllTags(ctx context.Context, sid string) []string {
 	}
 
 	return set.ToSlice()
-}
-
-var markRegex = regexp.MustCompile(`<mark>(.*?)</mark>`)
-
-// Takes an html string and a partial html which sould include some <mark> sections.
-// It merges the <mark> sections on the html string ans strips it from all other html tags.
-func mergeHTMLHighlights(html, highlight string) string {
-	strippedHTML := strip.StripTags(html)
-	if highlight == "" {
-		return strippedHTML
-	}
-
-	matches := markRegex.FindAllStringSubmatch(highlight, -1)
-	if len(matches) == 0 {
-		return strippedHTML
-	}
-
-	result := strippedHTML
-	for _, match := range matches {
-		if len(match) == 2 {
-			markedText := match[1]
-			result = strings.ReplaceAll(result, markedText, fmt.Sprintf("<mark>%s</mark>", markedText))
-		}
-	}
-	return result
 }
 
 func buildSearchQuery(ctx context.Context, args SearchArgs) query.Query {
