@@ -239,7 +239,7 @@ func (s *bleveSearcher) GetAllTags(ctx context.Context, sid string) []string {
 		return []string{}
 	}
 
-	set := mapset.NewThreadUnsafeSet("")
+	set := mapset.NewThreadUnsafeSet([]string{}...)
 	for _, hit := range res.Hits {
 		if tags, exists := hit.Fields["Tags"]; exists {
 			if tagsSlice, ok := tags.([]any); ok {

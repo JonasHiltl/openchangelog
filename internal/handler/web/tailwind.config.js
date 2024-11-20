@@ -13,9 +13,6 @@ module.exports = {
         "primary": theme.colors.blue[500],
         "caption": theme.colors.gray[400]
       }),
-      transitionProperty: {
-        'backdrop': 'backdrop-filter',
-      }
     },
   },
   prefix: "o-",

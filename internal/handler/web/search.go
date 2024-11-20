@@ -62,3 +62,25 @@ func searchSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 		Result: res,
 	}).Render(r.Context(), w)
 }
+
+func searchTags(e *env, w http.ResponseWriter, r *http.Request) error {
+	cl, err := e.loader.GetChangelog(r)
+	if err != nil {
+		return errs.NewBadRequest(err)
+	}
+
+	if cl.Protected {
+		err = ensurePasswordProvided(r, cl.PasswordHash)
+		if err != nil {
+			return errs.NewUnauthorized(err)
+		}
+	}
+
+	sid := source.NewIDFromChangelog(cl)
+	if sid == "" {
+		return errs.NewBadRequest(errors.New("changelog has no active source"))
+	}
+
+	tags := e.searcher.GetAllTags(r.Context(), sid.String())
+	return components.TagSelectors(tags).Render(r.Context(), w)
+}

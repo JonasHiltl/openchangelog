@@ -84,13 +84,13 @@ templ SearchButton(args SearchButtonArgs) {
 templ searchDialog(args SearchButtonArgs) {
 	<dialog
 		id="search-dialog"
-		class="o-transition-backdrop backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent "
+		class="backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent"
 	>
 		<div class="o-h-full o-flex o-flex-col">
 			<div
 				id="search"
 				hx-post="/search"
-				hx-trigger="input changed delay:500ms from:input, change from:input"
+				hx-trigger="input changed delay:500ms from:[name='query'], change from:'#search [type='checkbox']'"
 				hx-include="#search input"
 				hx-target="#search-results"
 				hx-indicator="#loader"
@@ -109,7 +109,7 @@ templ searchDialog(args SearchButtonArgs) {
 					@searchKbd(args.HasMetaKey)
 				</div>
 				<div class="o-flex o-gap-3 o-justify-between o-items-center o-border-t o-p-3">
-					@tagSelector([]string{"⛰️ Features", "🐛 Bug Fixes", "📚 Documentation", "⚡ Performance", "🧪 Testing", "⚙️ Miscellaneous Tasks"})
+					@loadingTagSelectors()
 					<div
 						class="o-inline-flex o-gap-2 o-items-center o-text-sm"
 					>
@@ -123,7 +123,7 @@ templ searchDialog(args SearchButtonArgs) {
 	</dialog>
 }
 
-templ tagSelector(tags []string) {
+templ TagSelectors(tags []string) {
 	<div class="o-overflow-auto o-scrollbar-hide o-flex o-gap-2">
 		for _, tag := range tags {
 			<label>
@@ -134,6 +134,15 @@ templ tagSelector(tags []string) {
 			</label>
 		}
 	</div>
+}
+
+templ loadingTagSelectors() {
+	<div
+		hx-trigger="load"
+		hx-get="/search/tags"
+		hx-target="this"
+		hx-swap="outerHTML"
+	></div>
 }
 
 templ searchKbd(hasMetaKey bool) {

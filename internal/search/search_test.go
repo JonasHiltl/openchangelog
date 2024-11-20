@@ -160,6 +160,15 @@ func TestSearch(t *testing.T) {
 	}
 }
 
+func TestGetTags(t *testing.T) {
+	searcher := newMemorySearcher(t)
+
+	tags := searcher.GetAllTags(context.Background(), sid.String())
+	if len(tags) != 2 {
+		t.Errorf("expected 2 tags but got %d", len(tags))
+	}
+}
+
 func TestHighlightTitle(t *testing.T) {
 	searcher := newMemorySearcher(t)
 	res, err := searcher.Search(context.Background(), SearchArgs{

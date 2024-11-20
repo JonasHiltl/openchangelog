@@ -222,7 +222,7 @@ func searchDialog(args SearchButtonArgs) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<dialog id=\"search-dialog\" class=\"o-transition-backdrop backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent \"><div class=\"o-h-full o-flex o-flex-col\"><div id=\"search\" hx-post=\"/search\" hx-trigger=\"input changed delay:500ms from:input, change from:input\" hx-include=\"#search input\" hx-target=\"#search-results\" hx-indicator=\"#loader\" class=\"o-rounded-lg o-overflow-hidden o-bg-white dark:o-bg-black o-mb-2\"><div class=\"input o-rounded-none o-border-none o-flex o-items-center o-gap-2 \"><div id=\"loader\" class=\"o-flex o-gap-2\"><div class=\"htmx-indicator-rev\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<dialog id=\"search-dialog\" class=\"backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent\"><div class=\"o-h-full o-flex o-flex-col\"><div id=\"search\" hx-post=\"/search\" hx-trigger=\"input changed delay:500ms from:[name=&#39;query&#39;], change from:&#39;#search [type=&#39;checkbox&#39;]&#39;\" hx-include=\"#search input\" hx-target=\"#search-results\" hx-indicator=\"#loader\" class=\"o-rounded-lg o-overflow-hidden o-bg-white dark:o-bg-black o-mb-2\"><div class=\"input o-rounded-none o-border-none o-flex o-items-center o-gap-2 \"><div id=\"loader\" class=\"o-flex o-gap-2\"><div class=\"htmx-indicator-rev\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -250,7 +250,7 @@ func searchDialog(args SearchButtonArgs) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = tagSelector([]string{"⛰️ Features", "🐛 Bug Fixes", "📚 Documentation", "⚡ Performance", "🧪 Testing", "⚙️ Miscellaneous Tasks"}).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = loadingTagSelectors().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -278,7 +278,7 @@ func searchDialog(args SearchButtonArgs) templ.Component {
 	})
 }
 
-func tagSelector(tags []string) templ.Component {
+func TagSelectors(tags []string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -348,7 +348,7 @@ func tagSelector(tags []string) templ.Component {
 	})
 }
 
-func searchKbd(hasMetaKey bool) templ.Component {
+func loadingTagSelectors() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -364,6 +364,32 @@ func searchKbd(hasMetaKey bool) templ.Component {
 		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
 		if templ_7745c5c3_Var9 == nil {
 			templ_7745c5c3_Var9 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div hx-trigger=\"load\" hx-get=\"/search/tags\" hx-target=\"this\" hx-swap=\"outerHTML\"></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+func searchKbd(hasMetaKey bool) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var10 == nil {
+			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"o-hidden sm:o-block\">")
