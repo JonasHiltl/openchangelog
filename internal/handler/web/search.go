@@ -3,6 +3,7 @@ package web
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/internal/errs"
@@ -34,7 +35,14 @@ func searchSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	q := r.FormValue("query")
-	if q == "" {
+	var tags []string
+	for name, value := range r.PostForm {
+		if strings.HasPrefix(name, "tag-") && len(value) > 0 && value[0] == "on" {
+			tags = append(tags, strings.TrimPrefix(name, "tag-"))
+		}
+	}
+
+	if q == "" && len(tags) == 0 {
 		return components.SearchResults(components.SearchResultsArgs{
 			Result: search.SearchResults{},
 		}).Render(r.Context(), w)
@@ -43,6 +51,7 @@ func searchSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 	res, err := e.searcher.Search(r.Context(), search.SearchArgs{
 		SID:   sid.String(),
 		Query: q,
+		Tags:  tags,
 	})
 	if err != nil {
 		return errs.NewBadRequest(err)

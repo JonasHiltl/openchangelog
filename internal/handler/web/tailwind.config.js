@@ -21,6 +21,7 @@ module.exports = {
   prefix: "o-",
   safelist: ["quail-image-wrapper"],
   plugins: [
+    require('tailwind-scrollbar-hide'),
     require('@tailwindcss/typography'),
   ],
 }

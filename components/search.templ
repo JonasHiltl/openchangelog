@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/icons"
 	"github.com/jonashiltl/openchangelog/internal/search"
 	"github.com/microcosm-cc/bluemonday"
@@ -14,7 +15,7 @@ type SearchResultsArgs struct {
 var p = bluemonday.UGCPolicy()
 
 templ SearchResults(args SearchResultsArgs) {
-	<div id="search-results" class="o-flex-1">
+	<div id="search-results" class="o-flex-1 o-overflow-auto">
 		if len(args.Result.Hits) > 0 {
 			<div class="o-bg-white dark:o-bg-black o-rounded-lg o-p-2">
 				for _, h := range args.Result.Hits {
@@ -55,29 +56,7 @@ type SearchButtonArgs struct {
 }
 
 templ SearchButton(args SearchButtonArgs) {
-	<dialog id="search-dialog" class="o-transition-backdrop backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent">
-		<div class="input o-rounded-lg o-flex o-items-center o-gap-2 o-bg-white dark:o-bg-black o-mb-2">
-			<div id="loader" class="o-flex o-gap-2">
-				<div class="htmx-indicator-rev">
-					@icons.Search(20, 20)
-				</div>
-				<div class="htmx-indicator">
-					@icons.Spinner(20, 20)
-				</div>
-			</div>
-			<input
-				name="query"
-				placeholder="Search Release Notes"
-				class="o-flex-1 o-text-lg"
-				hx-post="/search"
-				hx-trigger="input changed delay:500ms, search"
-				hx-target="#search-results"
-				hx-indicator="#loader"
-			/>
-			@searchKbd(args.HasMetaKey)
-		</div>
-		@SearchResults(SearchResultsArgs{})
-	</dialog>
+	@searchDialog(args)
 	<button
 		class="o-flex o-items-center o-gap-2 o-py-1 o-px-1 sm:o-px-2 o-rounded 
 		sm:o-text-black/40 sm:hover:o-text-black/60 hover:o-bg-black/5 
@@ -100,6 +79,61 @@ templ SearchButton(args SearchButtonArgs) {
 			}
 		}
 	</script>
+}
+
+templ searchDialog(args SearchButtonArgs) {
+	<dialog
+		id="search-dialog"
+		class="o-transition-backdrop backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent "
+	>
+		<div class="o-h-full o-flex o-flex-col">
+			<div
+				id="search"
+				hx-post="/search"
+				hx-trigger="input changed delay:500ms from:input, change from:input"
+				hx-include="#search input"
+				hx-target="#search-results"
+				hx-indicator="#loader"
+				class="o-rounded-lg o-overflow-hidden o-bg-white dark:o-bg-black o-mb-2"
+			>
+				<div class="input o-rounded-none o-border-none o-flex o-items-center o-gap-2 ">
+					<div id="loader" class="o-flex o-gap-2">
+						<div class="htmx-indicator-rev">
+							@icons.Search(20, 20)
+						</div>
+						<div class="htmx-indicator">
+							@icons.Spinner(20, 20)
+						</div>
+					</div>
+					<input name="query" placeholder="Search Release Notes" class="o-flex-1 o-text-lg"/>
+					@searchKbd(args.HasMetaKey)
+				</div>
+				<div class="o-flex o-gap-3 o-justify-between o-items-center o-border-t o-p-3">
+					@tagSelector([]string{"⛰️ Features", "🐛 Bug Fixes", "📚 Documentation", "⚡ Performance", "🧪 Testing", "⚙️ Miscellaneous Tasks"})
+					<div
+						class="o-inline-flex o-gap-2 o-items-center o-text-sm"
+					>
+						<span class="o-text-caption">Close</span>
+						@KBD("esc")
+					</div>
+				</div>
+			</div>
+			@SearchResults(SearchResultsArgs{})
+		</div>
+	</dialog>
+}
+
+templ tagSelector(tags []string) {
+	<div class="o-overflow-auto o-scrollbar-hide o-flex o-gap-2">
+		for _, tag := range tags {
+			<label>
+				<input class="o-peer o-hidden" type="checkbox" id={ tag } name={ fmt.Sprintf("tag-%s", tag) }/>
+				<div class="o-opacity-50 peer-checked:o-opacity-100 o-cursor-pointer">
+					@Tag(tag)
+				</div>
+			</label>
+		}
+	</div>
 }
 
 templ searchKbd(hasMetaKey bool) {

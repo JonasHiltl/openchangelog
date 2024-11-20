@@ -12,6 +12,7 @@ module.exports = {
   },
   prefix: "o-",
   plugins: [
+    require('tailwind-scrollbar-hide'),
     require('daisyui'),
   ]
 }
