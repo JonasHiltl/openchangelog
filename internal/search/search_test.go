@@ -308,3 +308,40 @@ func TestSurroundWithEllipsis(t *testing.T) {
 		})
 	}
 }
+
+func TestFirstNWords(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		n        int
+		expected string
+	}{
+		{
+			name:     "3 words",
+			input:    "one two three four five six",
+			n:        3,
+			expected: "one two three",
+		},
+		{
+			name:     "0 words",
+			input:    "one two three four five six",
+			n:        0,
+			expected: "",
+		},
+		{
+			name:     "n larger than words of input",
+			input:    "one two three four five six",
+			n:        10,
+			expected: "one two three four five six",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			nwords := firstNWords(test.input, test.n)
+			if nwords != test.expected {
+				t.Errorf("expected %s to equal %s", nwords, test.expected)
+			}
+		})
+	}
+}

@@ -130,6 +130,11 @@ func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResu
 
 		if content, exists := hit.Fragments["Content"]; exists && len(content) > 0 {
 			result.ContentHighlight = surroundWithEllipsis(stripPartialHTML(content[0]))
+		} else if content, exists := hit.Fields["Content"]; exists {
+			// use start of content if no content highlights exist
+			nwords := firstNWords(fmt.Sprint(content), 10)
+			content := stripPartialHTML(nwords)
+			result.ContentHighlight = fmt.Sprintf("%s...", content)
 		}
 
 		results.Hits[i] = result
@@ -186,6 +191,18 @@ func stripPartialHTML(input string) string {
 	}
 
 	return string(cleanedRunes[:contentEnd])
+}
+
+// Gets the first n words of the input.
+// If input has less than n words just returns input.
+func firstNWords(input string, n int) string {
+	words := strings.Fields(input) // Split the string into words
+
+	if n > len(words) {
+		return input
+	}
+
+	return strings.Join(words[:n], " ")
 }
 
 const mark_placeholder_start = "__MARK_START__"
