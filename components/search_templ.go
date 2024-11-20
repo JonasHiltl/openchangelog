@@ -115,7 +115,7 @@ func emptySearchResults(query string) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"o-bg-white dark:o-bg-black o-rounded-lg o-p-4 o-flex o-flex-col o-items-center o-text-center\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"o-bg-white dark:o-bg-black o-rounded-lg o-p-8 o-flex o-flex-col o-items-center o-text-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -327,7 +327,7 @@ func tagSelector(tags []string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"o-opacity-50 peer-checked:o-opacity-100 o-cursor-pointer\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"o-opacity-70 o-grayscale peer-checked:o-opacity-100 peer-checked:o-grayscale-0 o-cursor-pointer\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

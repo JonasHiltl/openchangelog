@@ -39,7 +39,7 @@ templ SearchResults(args SearchResultsArgs) {
 }
 
 templ emptySearchResults(query string) {
-	<div class="o-bg-white dark:o-bg-black o-rounded-lg o-p-4 o-flex o-flex-col o-items-center o-text-center">
+	<div class="o-bg-white dark:o-bg-black o-rounded-lg o-p-8 o-flex o-flex-col o-items-center o-text-center">
 		@icons.Inbox(30, 30)
 		<h2 class="o-font-semibold o-mt-2">No release notes found</h2>
 		<p class="o-text-caption o-max-w-80">
@@ -128,7 +128,7 @@ templ tagSelector(tags []string) {
 		for _, tag := range tags {
 			<label>
 				<input class="o-peer o-hidden" type="checkbox" id={ tag } name={ fmt.Sprintf("tag-%s", tag) }/>
-				<div class="o-opacity-50 peer-checked:o-opacity-100 o-cursor-pointer">
+				<div class="o-opacity-70 o-grayscale peer-checked:o-opacity-100 peer-checked:o-grayscale-0 o-cursor-pointer">
 					@Tag(tag)
 				</div>
 			</label>
