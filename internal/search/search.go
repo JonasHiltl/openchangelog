@@ -32,6 +32,10 @@ type bleveSearcher struct {
 }
 
 func NewSearcher(cfg config.Config) (Searcher, error) {
+	if cfg.Cache == nil {
+		slog.Warn("caching is disabled: this will negatively impact search performance as each release note will be reindexed on each request")
+	}
+
 	idx, err := createBleve(cfg)
 	if err != nil {
 		return nil, err
