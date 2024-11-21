@@ -15,8 +15,8 @@ import (
 	mapset "github.com/deckarep/golang-set/v2"
 	strip "github.com/grokify/html-strip-tags-go"
 	"github.com/jonashiltl/openchangelog/internal/config"
-	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/parse"
+	"github.com/jonashiltl/openchangelog/internal/xlog"
 )
 
 type Searcher interface {
@@ -65,7 +65,7 @@ func (s storedReleaseNote) Type() string {
 func (s *bleveSearcher) Close() {
 	err := s.idx.Close()
 	if err != nil {
-		slog.Error("failed to close search index", lgr.ErrAttr(err))
+		slog.Error("failed to close search index", xlog.ErrAttr(err))
 	}
 }
 
@@ -146,7 +146,7 @@ func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResu
 			if err == nil {
 				result.PublishedAt = t
 			} else {
-				slog.Error("", lgr.ErrAttr(err))
+				slog.Error("", xlog.ErrAttr(err))
 			}
 		}
 
@@ -314,7 +314,7 @@ type IndexArgs struct {
 func (s *bleveSearcher) Index(ctx context.Context, args IndexArgs) error {
 	content, err := io.ReadAll(args.ReleaseNote.Content)
 	if err != nil {
-		slog.DebugContext(ctx, "failed to read release note content for search indexing", lgr.ErrAttr(err))
+		slog.DebugContext(ctx, "failed to read release note content for search indexing", xlog.ErrAttr(err))
 		return err
 	}
 
@@ -343,7 +343,7 @@ func (s *bleveSearcher) BatchIndex(ctx context.Context, args BatchIndexArgs) err
 	for _, note := range args.ReleaseNotes {
 		content, err := io.ReadAll(note.Content)
 		if err != nil {
-			slog.DebugContext(ctx, "failed to read release note content for search indexing, skipping it", lgr.ErrAttr(err))
+			slog.DebugContext(ctx, "failed to read release note content for search indexing, skipping it", xlog.ErrAttr(err))
 			return err
 		}
 

@@ -14,10 +14,10 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/events"
 	"github.com/jonashiltl/openchangelog/internal/handler"
-	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/source"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/internal/xlog"
 )
 
 type LoadedChangelog struct {
@@ -105,7 +105,7 @@ func (l *Loader) LoadAndParseReleaseNotes(ctx context.Context, cl store.Changelo
 				Source: s,
 			})
 			if err != nil {
-				slog.Debug("failed to emit source changed event", lgr.ErrAttr(err))
+				slog.Debug("failed to emit source changed event", xlog.ErrAttr(err))
 			}
 		}
 		parsed := l.parser.Parse(ctx, loaded.Raw, page)

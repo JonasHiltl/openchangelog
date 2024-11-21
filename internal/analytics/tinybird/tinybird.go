@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/jonashiltl/openchangelog/internal/analytics"
-	"github.com/jonashiltl/openchangelog/internal/lgr"
+	"github.com/jonashiltl/openchangelog/internal/xlog"
 	"github.com/olivere/ndjson"
 )
 
@@ -90,7 +90,7 @@ func (b *bird) sendBatch(events []analytics.Event) error {
 
 	req, err := http.NewRequest("POST", url, &buf)
 	if err != nil {
-		slog.Error("failed create new analytics request to tinybird", lgr.ErrAttr(err))
+		slog.Error("failed create new analytics request to tinybird", xlog.ErrAttr(err))
 		return err
 	}
 
@@ -99,7 +99,7 @@ func (b *bird) sendBatch(events []analytics.Event) error {
 
 	resp, err := b.client.Do(req)
 	if err != nil {
-		slog.Error("failed to send events to tinybird", lgr.ErrAttr(err))
+		slog.Error("failed to send events to tinybird", xlog.ErrAttr(err))
 		return err
 	}
 	defer resp.Body.Close()

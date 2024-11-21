@@ -16,11 +16,11 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/handler/rss"
 	"github.com/jonashiltl/openchangelog/internal/handler/web"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/admin"
-	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/load"
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/search"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/internal/xlog"
 	"github.com/naveensrinivasan/httpcache"
 	"github.com/naveensrinivasan/httpcache/diskcache"
 	"github.com/peterbourgon/diskv"
@@ -31,21 +31,21 @@ import (
 func main() {
 	cfg, err := parseConfig()
 	if err != nil {
-		slog.Error("failed to read config", lgr.ErrAttr(err))
+		slog.Error("failed to read config", xlog.ErrAttr(err))
 		os.Exit(1)
 	}
-	slog.SetDefault(lgr.NewLogger(cfg))
+	slog.SetDefault(xlog.NewLogger(cfg))
 
 	mux := http.NewServeMux()
 	cache, err := createCache(cfg)
 	if err != nil {
-		slog.Error("failed to create cache", lgr.ErrAttr(err))
+		slog.Error("failed to create cache", xlog.ErrAttr(err))
 		os.Exit(1)
 	}
 
 	st, err := createStore(cfg)
 	if err != nil {
-		slog.Error("failed to create store", lgr.ErrAttr(err))
+		slog.Error("failed to create store", xlog.ErrAttr(err))
 		os.Exit(1)
 	}
 

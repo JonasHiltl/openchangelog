@@ -6,9 +6,9 @@ import (
 
 	"github.com/btvoidx/mint"
 	"github.com/jonashiltl/openchangelog/internal"
-	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/search"
+	"github.com/jonashiltl/openchangelog/internal/xlog"
 )
 
 type offFunc func() <-chan struct{}
@@ -48,7 +48,7 @@ func (l EventListener) OnSourceChanged(e SourceContentChanged) {
 		ctx := context.Background()
 		loaded, err := e.Source.Load(ctx, internal.NoPagination())
 		if err != nil {
-			slog.Error("failed to load source content for search indexing", lgr.ErrAttr(err))
+			slog.Error("failed to load source content for search indexing", xlog.ErrAttr(err))
 			return
 		}
 		parsed := l.parser.Parse(ctx, loaded.Raw, internal.NoPagination())
@@ -57,7 +57,7 @@ func (l EventListener) OnSourceChanged(e SourceContentChanged) {
 			ReleaseNotes: parsed.ReleaseNotes,
 		})
 		if err != nil {
-			slog.Error("failed to index parsed release notes", lgr.ErrAttr(err))
+			slog.Error("failed to index parsed release notes", xlog.ErrAttr(err))
 			return
 		}
 	}()

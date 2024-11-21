@@ -1,4 +1,4 @@
-package lgr
+package xlog
 
 import (
 	"context"

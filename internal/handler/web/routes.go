@@ -10,11 +10,11 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/static"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
-	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/load"
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/search"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/internal/xlog"
 	"golang.org/x/exp/slog"
 )
 
@@ -85,7 +85,7 @@ func createEmitter(cfg config.Config) analytics.Emitter {
 }
 
 func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
-	return lgr.AttachLogger(func(w http.ResponseWriter, r *http.Request) {
+	return xlog.AttachLogger(func(w http.ResponseWriter, r *http.Request) {
 		err := h(env, w, r)
 		if err != nil {
 			path := r.URL.Path
@@ -106,7 +106,7 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 				args.Status = domErr.Status()
 			}
 
-			defer lgr.LogRequest(r.Context(), args.Status, args.Message)
+			defer xlog.LogRequest(r.Context(), args.Status, args.Message)
 
 			// if requesting widget, don't render html error, just error message
 			if _, ok := r.URL.Query()["widget"]; ok {

@@ -6,10 +6,10 @@ import (
 	"net/http"
 
 	"github.com/jonashiltl/openchangelog/internal/errs"
-	"github.com/jonashiltl/openchangelog/internal/lgr"
 	"github.com/jonashiltl/openchangelog/internal/load"
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/internal/xlog"
 )
 
 func RegisterRestHandler(mux *http.ServeMux, e *env) {
@@ -55,7 +55,7 @@ type env struct {
 }
 
 func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
-	return lgr.AttachLogger(func(w http.ResponseWriter, r *http.Request) {
+	return xlog.AttachLogger(func(w http.ResponseWriter, r *http.Request) {
 		err := h(env, w, r)
 
 		if err != nil {
@@ -79,7 +79,7 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 
-			lgr.LogRequest(r.Context(), status, msg)
+			xlog.LogRequest(r.Context(), status, msg)
 		}
 	})
 }
