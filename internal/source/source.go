@@ -9,7 +9,7 @@ import (
 )
 
 type RawReleaseNote struct {
-	Content    io.ReadCloser
+	Content    io.Reader
 	hasChanged bool // only available if caching is enabled
 }
 

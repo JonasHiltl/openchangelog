@@ -3,7 +3,6 @@ package source
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"path/filepath"
 	"sort"
@@ -15,6 +14,7 @@ import (
 	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/internal/xcache"
 	"github.com/naveensrinivasan/httpcache"
 )
 
@@ -26,7 +26,7 @@ type ghSource struct {
 	InstallationID int64
 }
 
-func NewGHSourceFromStore(cfg config.Config, gh store.GHSource, cache httpcache.Cache) (Source, error) {
+func NewGHSourceFromStore(cfg config.Config, gh store.GHSource, cache xcache.Cache) (Source, error) {
 	tr := http.DefaultTransport
 
 	if cfg.HasGithubAuth() && cfg.Github.Auth.AppPrivateKey != "" && gh.InstallationID != 0 {
@@ -85,7 +85,7 @@ func (s *ghSource) Load(ctx context.Context, page internal.Pagination) (LoadResu
 			Raw: []RawReleaseNote{
 				{
 					hasChanged: !fromCache(resp.Header),
-					Content:    io.NopCloser(strings.NewReader(c)),
+					Content:    strings.NewReader(c),
 				},
 			},
 		}, nil

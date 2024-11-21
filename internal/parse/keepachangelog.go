@@ -26,9 +26,7 @@ func NewKeepAChangelogParser(gm goldmark.Markdown) *kparser {
 // Also returns whether the markdown file has any more releases to parse.
 // Skips any release that failed to be parsed.
 // The already read part (detect file format) needs to be provided independently.
-func (g *kparser) parse(read string, rest io.ReadCloser, page internal.Pagination) ParseResult {
-	defer rest.Close()
-
+func (g *kparser) parse(read string, rest io.Reader, page internal.Pagination) ParseResult {
 	// sanitize pagination
 	if page.IsDefined() && page.PageSize() < 1 {
 		return ParseResult{}

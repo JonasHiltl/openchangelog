@@ -43,8 +43,9 @@ func (l EventListener) Close() {
 }
 
 func (l EventListener) OnSourceChanged(e SourceContentChanged) {
-	slog.Debug("received SourceChanged event", slog.String("sid", e.Source.ID().String()))
+	slog.Debug("source content changed", slog.String("sid", e.Source.ID().String()))
 	go func() {
+		slog.Debug("reindexing content of source", slog.String("sid", e.Source.ID().String()))
 		ctx := context.Background()
 		loaded, err := e.Source.Load(ctx, internal.NoPagination())
 		if err != nil {

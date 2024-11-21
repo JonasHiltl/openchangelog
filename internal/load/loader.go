@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	mint "github.com/btvoidx/mint/context"
-	"github.com/gregjones/httpcache"
 	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
@@ -17,6 +16,7 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/source"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/internal/xcache"
 	"github.com/jonashiltl/openchangelog/internal/xlog"
 )
 
@@ -30,7 +30,7 @@ type LoadedChangelog struct {
 func NewLoader(
 	cfg config.Config,
 	store store.Store,
-	cache httpcache.Cache,
+	cache xcache.Cache,
 	parser parse.Parser,
 	e *mint.Emitter,
 ) *Loader {
@@ -48,7 +48,7 @@ func NewLoader(
 type Loader struct {
 	cfg    config.Config
 	store  store.Store
-	cache  httpcache.Cache
+	cache  xcache.Cache
 	parser parse.Parser
 	e      *mint.Emitter
 }
@@ -85,7 +85,7 @@ func (l *Loader) LoadAndParseReleaseNotes(ctx context.Context, cl store.Changelo
 	var err error
 	var s source.Source
 	if cl.LocalSource.Valid {
-		s = source.NewLocalSourceFromStore(cl.LocalSource.ValueOrZero())
+		s = source.NewLocalSourceFromStore(cl.LocalSource.ValueOrZero(), l.cache)
 	} else if cl.GHSource.Valid {
 		s, err = source.NewGHSourceFromStore(l.cfg, cl.GHSource.ValueOrZero(), l.cache)
 	}

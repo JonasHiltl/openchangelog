@@ -50,8 +50,7 @@ func NewOGParser(gm goldmark.Markdown) *ogparser {
 }
 
 // Takes a raw article in our original markdown format and parses it.
-func (g *ogparser) parseReleaseNote(article io.ReadCloser) (ParsedReleaseNote, error) {
-	defer article.Close()
+func (g *ogparser) parseReleaseNote(article io.Reader) (ParsedReleaseNote, error) {
 	source, err := io.ReadAll(article)
 	if err != nil {
 		return ParsedReleaseNote{}, err
@@ -61,8 +60,7 @@ func (g *ogparser) parseReleaseNote(article io.ReadCloser) (ParsedReleaseNote, e
 }
 
 // Parses the raw article content, but expects a part of the content to be already read (to detect the file format).
-func (g *ogparser) parseReleaseNoteRead(read string, rest io.ReadCloser) (ParsedReleaseNote, error) {
-	defer rest.Close()
+func (g *ogparser) parseReleaseNoteRead(read string, rest io.Reader) (ParsedReleaseNote, error) {
 	source, err := io.ReadAll(rest)
 	if err != nil {
 		return ParsedReleaseNote{}, err

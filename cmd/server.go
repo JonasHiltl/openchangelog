@@ -20,12 +20,10 @@ import (
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/search"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/internal/xcache"
 	"github.com/jonashiltl/openchangelog/internal/xlog"
 	"github.com/naveensrinivasan/httpcache"
-	"github.com/naveensrinivasan/httpcache/diskcache"
-	"github.com/peterbourgon/diskv"
 	"github.com/rs/cors"
-	"github.com/sourcegraph/s3cache"
 )
 
 func main() {
@@ -95,22 +93,19 @@ func createCache(cfg config.Config) (httpcache.Cache, error) {
 		switch cfg.Cache.Type {
 		case config.Memory:
 			slog.Info("using memory cache")
-			return httpcache.NewMemoryCache(), nil
+			return xcache.NewMemoryCache(), nil
 		case config.Disk:
 			if cfg.Cache.Disk == nil {
 				return nil, errors.New("missing 'cache.file' config section")
 			}
 			slog.Info("using disk cache")
-			return diskcache.NewWithDiskv(diskv.New(diskv.Options{
-				BasePath:     cfg.Cache.Disk.Location,
-				CacheSizeMax: cfg.Cache.Disk.MaxSize, // bytes
-			})), nil
+			return xcache.NewDiskCache(cfg), nil
 		case config.S3:
 			if cfg.Cache.S3 == nil {
 				return nil, errors.New("missing 'cache.s3' config section")
 			}
 			slog.Info("using s3 cache")
-			return s3cache.New(cfg.Cache.S3.Bucket), nil
+			return xcache.NewS3Cache(cfg.Cache.S3.Bucket), nil
 		}
 	}
 	return nil, nil

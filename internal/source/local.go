@@ -1,6 +1,7 @@
 package source
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io/fs"
@@ -11,15 +12,18 @@ import (
 
 	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/internal/xcache"
 )
 
 type localSource struct {
-	path string
+	path  string
+	cache xcache.Cache
 }
 
-func NewLocalSourceFromStore(s store.LocalSource) Source {
+func NewLocalSourceFromStore(s store.LocalSource, cache xcache.Cache) Source {
 	return localSource{
-		path: s.Path,
+		path:  s.Path,
+		cache: cache,
 	}
 }
 
@@ -43,13 +47,13 @@ func (s localSource) Load(ctx context.Context, page internal.Pagination) (LoadRe
 	}
 
 	if info.IsDir() {
-		return loadDir(s.path, page)
+		return s.loadDir(s.path, page)
 	} else {
-		return loadFile(s.path)
+		return s.loadFile(s.path)
 	}
 }
 
-func loadDir(path string, page internal.Pagination) (LoadResult, error) {
+func (s *localSource) loadDir(path string, page internal.Pagination) (LoadResult, error) {
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return LoadResult{}, err
@@ -88,15 +92,12 @@ func loadDir(path string, page internal.Pagination) (LoadResult, error) {
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
-			read, err := os.Open(filepath.Join(path, name))
+			raw, err := s.openAndCacheFile(filepath.Join(path, name))
 			if err != nil {
-				read.Close()
 				return
 			}
 			mutex.Lock()
-			notes = append(notes, RawReleaseNote{
-				Content: read,
-			})
+			notes = append(notes, raw)
 			mutex.Unlock()
 		}(files[i].Name())
 	}
@@ -108,14 +109,35 @@ func loadDir(path string, page internal.Pagination) (LoadResult, error) {
 	}, nil
 }
 
-func loadFile(path string) (LoadResult, error) {
-	read, err := os.Open(path)
+func (s *localSource) loadFile(path string) (LoadResult, error) {
+	raw, err := s.openAndCacheFile(path)
 	if err != nil {
-		read.Close()
 		return LoadResult{}, err
 	}
+
 	return LoadResult{
-		Raw:     []RawReleaseNote{{Content: read}},
+		Raw:     []RawReleaseNote{raw},
 		HasMore: false,
+	}, nil
+}
+
+// Loads the file from the disk and checks wether is has been modified by comparing the cached value.
+// Updates the cached value if the content has changed.
+func (s *localSource) openAndCacheFile(path string) (RawReleaseNote, error) {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return RawReleaseNote{}, err
+	}
+
+	cached, found := s.cache.Get(path)
+	equal := bytes.Equal(cached, content)
+
+	if !found || !equal {
+		s.cache.Set(path, content)
+	}
+
+	return RawReleaseNote{
+		Content:    bytes.NewReader(content),
+		hasChanged: !equal,
 	}, nil
 }
