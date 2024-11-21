@@ -70,6 +70,8 @@ type SearchResult struct {
 	Title            string
 	Description      string
 	ContentHighlight string
+	Content          string
+	PublishedAt      time.Time
 	Score            float64
 	Fragments        map[string][]string
 	Fields           map[string]interface{}
@@ -90,7 +92,7 @@ type SearchArgs struct {
 func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResults, error) {
 	query := buildSearchQuery(ctx, args)
 	req := bleve.NewSearchRequestOptions(query, 10, 0, false)
-	req.Fields = []string{"Title", "Description", "Content", "Tags", "PublishedAt"}
+	req.Fields = []string{"Title", "Description", "Content", "PublishedAt"}
 	req.Highlight = bleve.NewHighlightWithStyle("html")
 
 	res, err := s.idx.SearchInContext(ctx, req)
@@ -114,27 +116,34 @@ func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResu
 		}
 
 		// Extract fields if they exist
-		if title, exists := hit.Fields["Title"]; exists {
+		if titleHighlight, exists := hit.Fragments["Title"]; exists && len(titleHighlight) > 0 {
+			result.Title = titleHighlight[0]
+		} else if title, exists := hit.Fields["Title"]; exists {
 			result.Title = title.(string)
 		}
-		if desc, exists := hit.Fields["Description"]; exists {
+
+		if descHighlight, exists := hit.Fragments["Description"]; exists && len(descHighlight) > 0 {
+			result.Description = descHighlight[0]
+		} else if desc, exists := hit.Fields["Description"]; exists {
 			result.Description = desc.(string)
 		}
 
-		if title, exists := hit.Fragments["Title"]; exists && len(title) > 0 {
-			result.Title = title[0]
+		if content, exists := hit.Fields["Content"]; exists {
+			stripped := strip.StripTags(fmt.Sprint(content))
+			// only display first 10 words of content
+			nwords := firstNWords(stripped, 10)
+			result.Content = fmt.Sprintf("%s...", nwords)
 		}
-		if description, exists := hit.Fragments["Description"]; exists && len(description) > 0 {
-			result.Description = description[0]
+		if highlights, exists := hit.Fragments["Content"]; exists && len(highlights) > 0 {
+			result.ContentHighlight = surroundWithEllipsis(stripPartialHTML(highlights[0]))
 		}
-
-		if content, exists := hit.Fragments["Content"]; exists && len(content) > 0 {
-			result.ContentHighlight = surroundWithEllipsis(stripPartialHTML(content[0]))
-		} else if content, exists := hit.Fields["Content"]; exists {
-			// use start of content if no content highlights exist
-			nwords := firstNWords(fmt.Sprint(content), 10)
-			content := stripPartialHTML(nwords)
-			result.ContentHighlight = fmt.Sprintf("%s...", content)
+		if ts, exists := hit.Fields["PublishedAt"]; exists {
+			t, err := time.Parse(time.RFC3339, ts.(string))
+			if err == nil {
+				result.PublishedAt = t
+			} else {
+				slog.Error("", lgr.ErrAttr(err))
+			}
 		}
 
 		results.Hits[i] = result
