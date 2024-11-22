@@ -21,7 +21,7 @@ type localSource struct {
 }
 
 func NewLocalSourceFromStore(s store.LocalSource, cache xcache.Cache) Source {
-	return localSource{
+	return &localSource{
 		path:  s.Path,
 		cache: cache,
 	}
@@ -35,7 +35,7 @@ func (s localSource) ID() ID {
 	return NewLocalID(s.path)
 }
 
-func (s localSource) Load(ctx context.Context, page internal.Pagination) (LoadResult, error) {
+func (s *localSource) Load(ctx context.Context, page internal.Pagination) (LoadResult, error) {
 	// sanitize params
 	if page.IsDefined() && page.PageSize() < 1 {
 		return LoadResult{}, nil
@@ -59,24 +59,11 @@ func (s *localSource) loadDir(path string, page internal.Pagination) (LoadResult
 		return LoadResult{}, err
 	}
 
-	files = filter(files, func(f fs.DirEntry) bool {
-		return filepath.Ext(f.Name()) == ".md"
-	})
-
-	startIdx := page.StartIdx()
-	endIdx := page.EndIdx()
-
-	// If pagination is not applied, process all files
-	if !page.IsDefined() {
-		startIdx = 0
-		endIdx = len(files) - 1
-	}
-
-	if startIdx >= len(files) {
-		return LoadResult{
-			Raw:     []RawReleaseNote{},
-			HasMore: false,
-		}, nil
+	files = filter(files, fileIsMD)
+	totalFiles := len(files)
+	start, end := calculatePaginationIndices(page, totalFiles)
+	if start >= totalFiles {
+		return LoadResult{}, nil
 	}
 
 	// sort files in descending order by filename
@@ -85,27 +72,27 @@ func (s *localSource) loadDir(path string, page internal.Pagination) (LoadResult
 	})
 
 	var wg sync.WaitGroup
+	var mutex sync.Mutex
 	notes := make([]RawReleaseNote, 0, page.PageSize())
-	mutex := &sync.Mutex{}
 
-	for i := startIdx; i <= endIdx && i < len(files); i++ {
+	for _, file := range files[start:end] {
 		wg.Add(1)
-		go func(name string) {
+		go func(file fs.DirEntry) {
 			defer wg.Done()
-			raw, err := s.openAndCacheFile(filepath.Join(path, name))
+			raw, err := s.openAndCacheFile(filepath.Join(path, file.Name()))
 			if err != nil {
 				return
 			}
 			mutex.Lock()
 			notes = append(notes, raw)
 			mutex.Unlock()
-		}(files[i].Name())
+		}(file)
 	}
 	wg.Wait()
 
 	return LoadResult{
 		Raw:     notes,
-		HasMore: endIdx+1 < len(files),
+		HasMore: end < len(files),
 	}, nil
 }
 
@@ -140,4 +127,15 @@ func (s *localSource) openAndCacheFile(path string) (RawReleaseNote, error) {
 		Content:    bytes.NewReader(content),
 		hasChanged: !equal,
 	}, nil
+}
+
+// Caculates the start and end index for the total files.
+// Start is inclusive, end ist exclusive.
+func calculatePaginationIndices(page internal.Pagination, totalFiles int) (start, end int) {
+	if !page.IsDefined() {
+		return 0, totalFiles
+	}
+	start = page.StartIdx()
+	end = min(start+page.PageSize(), totalFiles)
+	return
 }

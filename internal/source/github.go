@@ -3,6 +3,7 @@ package source
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"path/filepath"
 	"sort"
@@ -94,24 +95,11 @@ func (s *ghSource) Load(ctx context.Context, page internal.Pagination) (LoadResu
 }
 
 func (s *ghSource) loadDir(ctx context.Context, files []*github.RepositoryContent, page internal.Pagination) (LoadResult, error) {
-	files = filter(files, func(f *github.RepositoryContent) bool {
-		return filepath.Ext(f.GetName()) == ".md"
-	})
-
-	startIdx := page.StartIdx()
-	endIdx := page.EndIdx()
-
-	// If pagination is not applied, process all files
-	if !page.IsDefined() {
-		startIdx = 0
-		endIdx = len(files) - 1
-	}
-
-	if startIdx >= len(files) {
-		return LoadResult{
-			Raw:     []RawReleaseNote{},
-			HasMore: false,
-		}, nil
+	files = filter(files, githubFileIsMD)
+	totalFiles := len(files)
+	start, end := calculatePaginationIndices(page, totalFiles)
+	if start >= totalFiles {
+		return LoadResult{}, nil
 	}
 
 	// sort files in descending order by filename
@@ -120,10 +108,10 @@ func (s *ghSource) loadDir(ctx context.Context, files []*github.RepositoryConten
 	})
 
 	var wg sync.WaitGroup
+	var mutex sync.Mutex
 	notes := make([]RawReleaseNote, 0, page.PageSize())
-	mutex := &sync.Mutex{}
 
-	for i := startIdx; i <= endIdx && i < len(files); i++ {
+	for _, file := range files[start:end] {
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
@@ -134,13 +122,13 @@ func (s *ghSource) loadDir(ctx context.Context, files []*github.RepositoryConten
 			mutex.Lock()
 			notes = append(notes, note)
 			mutex.Unlock()
-		}(files[i].GetName())
+		}(file.GetName())
 	}
 	wg.Wait()
 
 	return LoadResult{
 		Raw:     notes,
-		HasMore: endIdx+1 < len(files),
+		HasMore: end < len(files),
 	}, nil
 }
 
@@ -170,4 +158,12 @@ func filter[T any](ss []T, test func(T) bool) (ret []T) {
 		}
 	}
 	return
+}
+
+func fileIsMD(f fs.DirEntry) bool {
+	return filepath.Ext(f.Name()) == ".md"
+}
+
+func githubFileIsMD(f *github.RepositoryContent) bool {
+	return filepath.Ext(f.GetName()) == ".md"
 }
