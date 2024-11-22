@@ -20,6 +20,7 @@ import (
 
 func RegisterWebHandler(mux *http.ServeMux, e *env) {
 	mux.HandleFunc("GET /", serveHTTP(e, index))
+	mux.HandleFunc("GET /{nid}", serveHTTP(e, details))
 	mux.HandleFunc("POST /password", serveHTTP(e, passwordSubmit))
 	mux.HandleFunc("POST /search", serveHTTP(e, searchSubmit))
 	mux.HandleFunc("GET /search/tags", serveHTTP(e, searchTags))

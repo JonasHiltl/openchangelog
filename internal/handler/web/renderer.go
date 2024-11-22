@@ -18,6 +18,7 @@ type Renderer interface {
 	RenderChangelog(ctx context.Context, w io.Writer, args RenderChangelogArgs) error
 	RenderArticleList(ctx context.Context, w io.Writer, args RenderArticleListArgs) error
 	RenderWidget(ctx context.Context, w io.Writer, args RenderChangelogArgs) error
+	RenderDetails(ctx context.Context, w io.Writer, args RenderDetailsArgs) error
 }
 
 type RenderChangelogArgs struct {
@@ -35,6 +36,14 @@ type RenderArticleListArgs struct {
 	HasMore  bool
 	NextPage int
 	PageSize int
+}
+
+type RenderDetailsArgs struct {
+	CL          store.Changelog
+	ReleaseNote parse.ParsedReleaseNote
+	Prev        parse.ParsedReleaseNote
+	Next        parse.ParsedReleaseNote
+	FeedURL     string
 }
 
 func NewRenderer(cfg config.Config) Renderer {
@@ -115,23 +124,63 @@ func (r *renderer) RenderWidget(ctx context.Context, w io.Writer, args RenderCha
 	}).Render(ctx, w)
 }
 
+func (r *renderer) RenderDetails(ctx context.Context, w io.Writer, args RenderDetailsArgs) error {
+	articles := parsedArticlesToComponentArticles([]parse.ParsedReleaseNote{
+		args.ReleaseNote, args.Prev, args.Next,
+	})
+	return views.Details(views.DetailsArgs{
+		RSSArgs: components.RSSArgs{
+			FeedURL: args.FeedURL,
+		},
+		MainArgs: layout.MainArgs{
+			Title:       args.CL.Title.V(),
+			Description: args.CL.Subtitle.V(),
+			CSS:         r.css,
+		},
+		HeaderArgs: components.HeaderArgs{
+			Title:    args.CL.Title,
+			Subtitle: args.CL.Subtitle,
+			ShowBack: true,
+		},
+		ThemeArgs: components.ThemeArgs{
+			ColorScheme: args.CL.ColorScheme.ToApiTypes(),
+		},
+		Logo: components.Logo{
+			Src:    args.CL.LogoSrc,
+			Width:  args.CL.LogoWidth,
+			Height: args.CL.LogoHeight,
+			Alt:    args.CL.LogoAlt,
+			Link:   args.CL.LogoLink,
+		},
+		ArticleArgs: articles[0],
+		Prev:        articles[1],
+		Next:        articles[2],
+		FooterArgs: components.FooterArgs{
+			HidePoweredBy: args.CL.HidePoweredBy,
+		},
+	}).Render(ctx, w)
+}
+
 func parsedArticlesToComponentArticles(parsed []parse.ParsedReleaseNote) []components.ArticleArgs {
 	articles := make([]components.ArticleArgs, len(parsed))
 	for i, a := range parsed {
-		buf := new(strings.Builder)
-		_, err := io.Copy(buf, a.Content)
-		if err != nil {
-			continue
-		}
-
-		articles[i] = components.ArticleArgs{
+		article := components.ArticleArgs{
 			ID:          a.Meta.ID,
 			Title:       a.Meta.Title,
 			Description: a.Meta.Description,
 			PublishedAt: a.Meta.PublishedAt,
 			Tags:        a.Meta.Tags,
-			Content:     buf.String(),
 		}
+		if a.Content != nil {
+			buf := new(strings.Builder)
+			_, err := io.Copy(buf, a.Content)
+			if err != nil {
+				continue
+			}
+			article.Content = buf.String()
+		}
+
+		articles[i] = article
 	}
 
 	return articles

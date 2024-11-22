@@ -9,7 +9,6 @@ import (
 	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
-	"github.com/jonashiltl/openchangelog/internal/load"
 )
 
 func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
@@ -95,11 +94,6 @@ func getHost(r *http.Request) string {
 }
 
 func createCookieKey(r *http.Request) string {
-	wID, cID := load.GetQueryIDs(r)
-	if wID != "" && cID != "" {
-		return fmt.Sprintf("protected-%s-%s", wID, cID)
-	}
-
 	host := getHost(r)
 
 	return fmt.Sprintf("protected-%s", host)

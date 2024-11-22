@@ -3,7 +3,7 @@ package components
 import "github.com/jonashiltl/openchangelog/apitypes"
 
 templ HeaderContainer() {
-	<header>
+	<header class="o-relative">
 		{ children... }
 	</header>
 }
@@ -11,9 +11,17 @@ templ HeaderContainer() {
 type HeaderArgs struct {
 	Title    apitypes.NullString
 	Subtitle apitypes.NullString
+	ShowBack bool
 }
 
 templ HeaderContent(args HeaderArgs) {
+	if args.ShowBack {
+		<div class="lg:o-absolute lg:o--left-40 lg:o-top-0 -o-ml-2">
+			@BackButton("/") {
+				Back	
+			}
+		</div>
+	}
 	if args.Title.IsValid() {
 		<h1 id="title">{ args.Title.V() }</h1>
 	}

@@ -5,14 +5,12 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"net/url"
 
 	mint "github.com/btvoidx/mint/context"
 	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/events"
-	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/source"
 	"github.com/jonashiltl/openchangelog/internal/store"
@@ -55,7 +53,6 @@ type Loader struct {
 
 // Returns the changelog of the request.
 func (l *Loader) GetChangelog(r *http.Request) (store.Changelog, error) {
-	wID, cID := GetQueryIDs(r)
 	host := r.Host
 	if r.Header.Get("X-Forwarded-Host") != "" {
 		host = r.Header.Get("X-Forwarded-Host")
@@ -63,8 +60,6 @@ func (l *Loader) GetChangelog(r *http.Request) (store.Changelog, error) {
 
 	if l.cfg.IsConfigMode() {
 		return l.store.GetChangelog(r.Context(), "", "")
-	} else if wID != "" && cID != "" {
-		return l.fromWorkspace(r.Context(), wID, cID)
 	} else {
 		return l.fromHost(r.Context(), host)
 	}
@@ -119,19 +114,6 @@ func (l *Loader) LoadAndParseReleaseNotes(ctx context.Context, cl store.Changelo
 	return LoadedChangelog{CL: cl}, nil
 }
 
-func (l *Loader) fromWorkspace(ctx context.Context, wID, cID string) (store.Changelog, error) {
-	parsedWID, err := store.ParseWID(wID)
-	if err != nil {
-		return store.Changelog{}, err
-	}
-	parsedCID, err := store.ParseCID(cID)
-	if err != nil {
-		return store.Changelog{}, err
-	}
-
-	return l.store.GetChangelog(ctx, parsedWID, parsedCID)
-}
-
 func (l *Loader) fromHost(ctx context.Context, host string) (store.Changelog, error) {
 	subdomain, err1 := store.SubdomainFromHost(host)
 	domain, err2 := store.ParseDomain(host)
@@ -140,20 +122,4 @@ func (l *Loader) fromHost(ctx context.Context, host string) (store.Changelog, er
 	}
 
 	return l.store.GetChangelogByDomainOrSubdomain(ctx, domain, subdomain)
-}
-
-// Parses the workspace and changelog id from the request query params
-func GetQueryIDs(r *http.Request) (wID string, cID string) {
-	query := r.URL.Query()
-	wID = query.Get(handler.WS_ID_QUERY)
-	cID = query.Get(handler.CL_ID_QUERY)
-
-	if wID == "" && cID == "" {
-		u, err := url.Parse(r.Header.Get("HX-Current-URL"))
-		if err == nil {
-			query = u.Query()
-			return query.Get(handler.WS_ID_QUERY), query.Get(handler.CL_ID_QUERY)
-		}
-	}
-	return wID, cID
 }

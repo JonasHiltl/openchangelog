@@ -13,9 +13,8 @@ func TestCreateCookieKey(t *testing.T) {
 		expected   string
 	}{
 		{
-			requestURL: "/?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
-			host:       "openchangelog.com",
-			expected:   "protected-ws_cqj9svnd5lbga0eemd00-cl_cqj9t0fd5lbga0eemd10",
+			host:     "changelog.openchangelog.com",
+			expected: "protected-changelog.openchangelog.com",
 		},
 		{
 			requestURL: "/",

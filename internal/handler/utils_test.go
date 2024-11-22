@@ -14,11 +14,6 @@ func TestFeedToChangelogURL(t *testing.T) {
 		expected   string
 	}{
 		{
-			requestURL: "/feed?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
-			host:       "openchangelog.com",
-			expected:   "https://openchangelog.com?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
-		},
-		{
 			requestURL: "https://tenant.openchangelog.com/feed",
 			host:       "tenant.openchangelog.com",
 			expected:   "https://tenant.openchangelog.com",
@@ -55,9 +50,9 @@ func TestGetFeedURL(t *testing.T) {
 		expected   string
 	}{
 		{
-			requestURL: "/?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
+			requestURL: "/",
 			host:       "openchangelog.com",
-			expected:   "https://openchangelog.com/feed?cid=cl_cqj9t0fd5lbga0eemd10&wid=ws_cqj9svnd5lbga0eemd00",
+			expected:   "https://openchangelog.com/feed",
 		},
 		{
 			requestURL: "https://tenant.openchangelog.com",
@@ -102,9 +97,9 @@ func TestGetFullURL(t *testing.T) {
 		expected   string
 	}{
 		{
-			requestURL: "/?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
+			requestURL: "/",
 			host:       "openchangelog.com",
-			expected:   "https://openchangelog.com/?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
+			expected:   "https://openchangelog.com/",
 		},
 		{
 			requestURL: "https://tenant.openchangelog.com",

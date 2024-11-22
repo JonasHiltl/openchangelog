@@ -1,0 +1,33 @@
+package components
+
+import "github.com/jonashiltl/openchangelog/internal/handler/web/icons"
+
+templ BackButton(link string) {
+	<a
+		class="o-not-prose o-group o-w-fit o-mb-2 o-px-2 o-py-1 o-rounded o-flex o-items-center o-text-sm o-gap-2 
+        hover:o-bg-black/10 dark:hover:o-bg-white/5"
+		href={ templ.URL(link) }
+	>
+		<span class="o-translate-x-1 group-hover:-o-translate-x-0 o-transition-transform">
+			@icons.ChevronLeft(16, 16)
+		</span>
+		<p class="o-font-semibold">
+			{ children... }
+		</p>
+	</a>
+}
+
+templ ForwardButton(link string) {
+	<a
+		class="o-not-prose o-group o-w-fit o-mb-2 o-px-2 o-py-1 o-rounded o-flex o-items-center o-text-sm o-gap-2 
+        hover:o-bg-black/10 dark:hover:o-bg-white/5"
+		href={ templ.URL(link) }
+	>
+		<p class="o-font-semibold">
+			{ children... }
+		</p>
+		<span class="-o-translate-x-1 group-hover:o-translate-x-0 o-transition-transform">
+			@icons.ChevronRight(16, 16)
+		</span>
+	</a>
+}
