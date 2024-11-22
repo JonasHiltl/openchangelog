@@ -19,26 +19,7 @@ templ SearchResults(args SearchResultsArgs) {
 		if len(args.Result.Hits) > 0 {
 			<div class="o-bg-white dark:o-bg-black o-rounded-lg o-p-2">
 				for _, h := range args.Result.Hits {
-					<a class="o-flex o-flex-col o-px-4 o-py-2">
-						<div class="o-flex o-gap-2 o-items-center">
-							<h2 class="o-text-lg o-font-semibold">
-								@templ.Raw(p.Sanitize(h.Title))
-							</h2>
-							if !h.PublishedAt.IsZero() {
-								<span class="o-bg-caption o-size-1 o-rounded-full"></span>
-								<p class="o-text-caption o-text-nowrap">{ h.PublishedAt.Format("02 Jan 2006") }</p>
-							}
-						</div>
-						<p class="o-text-caption">
-							if h.ContentHighlight != "" {
-								@templ.Raw(p.Sanitize(h.ContentHighlight))
-							} else if h.Description != "" {
-								@templ.Raw(p.Sanitize(h.Description))
-							} else {
-								{ h.Content }
-							}
-						</p>
-					</a>
+					@SearchResult(h)
 				}
 			</div>
 		} else if args.Query != "" {
@@ -47,10 +28,41 @@ templ SearchResults(args SearchResultsArgs) {
 	</div>
 }
 
+templ SearchResult(h search.SearchResult) {
+	<a
+		href={ templ.URL(fmt.Sprintf("/%s", h.ID)) }
+		class="o-group o-flex o-items-center o-px-4 o-py-2 o-rounded-lg hover:o-bg-primary/5"
+	>
+		<div class="o-flex-1">
+			<div class="o-flex o-gap-2 o-items-center">
+				<h2 class="o-text-lg o-font-semibold dark:o-text-white">
+					@templ.Raw(p.Sanitize(h.Title))
+				</h2>
+				if !h.PublishedAt.IsZero() {
+					<span class="o-bg-caption o-size-1 o-rounded-full"></span>
+					<p class="o-text-caption o-text-nowrap">{ h.PublishedAt.Format("02 Jan 2006") }</p>
+				}
+			</div>
+			<p class="o-text-caption">
+				if h.ContentHighlight != "" {
+					@templ.Raw(p.Sanitize(h.ContentHighlight))
+				} else if h.Description != "" {
+					@templ.Raw(p.Sanitize(h.Description))
+				} else {
+					{ h.Content }
+				}
+			</p>
+		</div>
+		<div class="o-hidden group-hover:o-block o-text-primary">
+			@icons.ChevronRight(16, 16)
+		</div>
+	</a>
+}
+
 templ emptySearchResults(query string) {
 	<div class="o-bg-white dark:o-bg-black o-rounded-lg o-p-8 o-flex o-flex-col o-items-center o-text-center">
 		@icons.Inbox(30, 30)
-		<h2 class="o-font-semibold o-mt-2">No release notes found</h2>
+		<h2 class="o-font-semibold o-mt-2 dark:o-text-white">No release notes found</h2>
 		<p class="o-text-caption o-max-w-80">
 			"{ query }" did not match any results.
 			if len(query) < 3 {
@@ -117,10 +129,10 @@ templ searchDialog(args SearchButtonArgs) {
 					<input name="query" placeholder="Search Release Notes" class="o-flex-1 o-text-lg"/>
 					@searchKbd(args.HasMetaKey)
 				</div>
-				<div class="o-flex o-gap-3 o-justify-between o-items-center o-border-t o-p-3">
+				<div class="o-flex o-gap-3 o-justify-between o-items-center o-border-t o-border-t-black/10 dark:o-border-t-white/10 o-p-3">
 					@loadingTagSelectors()
 					<div
-						class="o-inline-flex o-gap-2 o-items-center o-text-sm"
+						class="o-inline-flex o-gap-2 o-items-center o-text-sm dark:o-text-white"
 					>
 						<span class="o-text-caption">Close</span>
 						@KBD("esc")

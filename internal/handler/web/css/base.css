@@ -57,7 +57,7 @@
     }
 
     mark {
-        @apply o-bg-primary/20 o-rounded
+        @apply o-bg-primary/20 dark:o-bg-primary/40 o-rounded o-text-current
     }
 }
 

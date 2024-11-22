@@ -70,6 +70,7 @@ func (s *bleveSearcher) Close() {
 }
 
 type SearchResult struct {
+	// the id of the release note
 	ID               string
 	Title            string
 	Description      string
@@ -113,7 +114,7 @@ func (s *bleveSearcher) Search(ctx context.Context, args SearchArgs) (SearchResu
 	// Convert each hit to our SearchResult struct
 	for i, hit := range res.Hits {
 		result := SearchResult{
-			ID:        hit.ID,
+			ID:        idToReleaseNoteID(hit.ID),
 			Score:     hit.Score,
 			Fragments: hit.Fragments,
 			Fields:    hit.Fields,
@@ -375,4 +376,9 @@ func (s *bleveSearcher) BatchIndex(ctx context.Context, args BatchIndexArgs) err
 
 func createID(sID, releaseNoteID string) string {
 	return fmt.Sprintf("%s/%s", sID, releaseNoteID)
+}
+
+func idToReleaseNoteID(id string) string {
+	parts := strings.Split(id, "/")
+	return parts[len(parts)-1]
 }
