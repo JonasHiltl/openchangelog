@@ -2,10 +2,15 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
+	"log/slog"
 	"net/http"
 
+	"github.com/guregu/null/v5"
 	"github.com/jonashiltl/openchangelog/apitypes"
+	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/internal/xlog"
 )
 
 const (
@@ -60,14 +65,30 @@ func createGHSource(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	gh, err := e.store.CreateGHSource(r.Context(), store.GHSource{
+	gh := store.GHSource{
 		WorkspaceID:    t.WorkspaceID,
 		ID:             store.NewGHID(),
 		Owner:          req.Owner,
 		Repo:           req.Repo,
 		Path:           req.Path,
 		InstallationID: req.InstallationID,
-	})
+	}
+
+	// first check if the person actually has access to the repo,
+	// maybe someone tried adding a private github repo of somebody else
+	_, err = e.loader.LoadAndParseReleaseNotes(
+		r.Context(),
+		store.Changelog{
+			GHSource: null.NewValue(gh, true),
+		},
+		internal.NewPagination(1, 1),
+	)
+	if err != nil {
+		slog.Debug("source connection test failed", xlog.ErrAttr(err))
+		return errors.New("failed to test github source connection, looks like you don't have access to the repo")
+	}
+
+	gh, err = e.store.CreateGHSource(r.Context(), gh)
 	if err != nil {
 		return err
 	}
