@@ -230,8 +230,8 @@ func emptySearchResults(query string) templ.Component {
 }
 
 type SearchButtonArgs struct {
-	Show       bool
 	HasMetaKey bool
+	Active     bool // whether the click should actually open the search modal
 }
 
 func SearchButton(args SearchButtonArgs) templ.Component {
@@ -252,11 +252,23 @@ func SearchButton(args SearchButtonArgs) templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = searchDialog(args).Render(ctx, templ_7745c5c3_Buffer)
+		if args.Active {
+			templ_7745c5c3_Err = searchDialog(args).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button class=\"o-flex o-items-center o-gap-2 o-py-1 o-px-1 sm:o-px-2 o-rounded \n\t\tsm:o-text-black/40 sm:hover:o-text-black/60 hover:o-bg-black/5 \n\t\tdark:o-text-white/50 dark:hover:o-text-white/70 dark:o-bg-white/5 hover:dark:o-bg-white/5\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button class=\"o-flex o-items-center o-gap-2 o-py-1 o-px-1 sm:o-px-2 o-rounded \n\t\tsm:o-text-black/40 sm:hover:o-text-black/60 hover:o-bg-black/5 \n\t\tdark:o-text-white/50 dark:hover:o-text-white/70 dark:o-bg-white/5 hover:dark:o-bg-white/5\" hx-on::trigger=\"toggleSearchDialog()\" hx-trigger=\"click, keyup[ctrlKey&amp;&amp;key==&#39;k&#39;] from:body, keydown[metaKey&amp;&amp;key==&#39;k&#39;] from:body\">")
+		if args.Active {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-on::trigger=\"toggleSearchDialog()\" hx-trigger=\"click, keyup[ctrlKey&amp;&amp;key==&#39;k&#39;] from:body, keydown[metaKey&amp;&amp;key==&#39;k&#39;] from:body\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -272,9 +284,15 @@ func SearchButton(args SearchButtonArgs) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button><script>\n\t\tfunction toggleSearchDialog() {\n\t\t\tconst dialog = document.getElementById('search-dialog')\n\t\t\tif (!dialog) return\n\t\t\tif (dialog.open) {\n\t\t\t\tdialog.close()\n\t\t\t} else {\n\t\t\t\tdialog.showModal()\n\t\t\t}\n\t\t}\n\t</script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
+		}
+		if args.Active {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n\t\tfunction toggleSearchDialog() {\n\t\t\tconst dialog = document.getElementById('search-dialog')\n\t\t\tif (!dialog) return\n\t\t\tif (dialog.open) {\n\t\t\t\tdialog.close()\n\t\t\t} else {\n\t\t\t\tdialog.showModal()\n\t\t\t}\n\t\t}\n\t</script>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		return templ_7745c5c3_Err
 	})
@@ -384,7 +402,7 @@ func TagSelectors(tags []string) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(tag)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/search.templ`, Line: 152, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/search.templ`, Line: 158, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -397,7 +415,7 @@ func TagSelectors(tags []string) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("tag-%s", tag))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/search.templ`, Line: 152, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/search.templ`, Line: 158, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {

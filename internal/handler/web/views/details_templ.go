@@ -24,6 +24,7 @@ type DetailsArgs struct {
 	Prev components.ArticleArgs
 	Next components.ArticleArgs
 	components.FooterArgs
+	ShowSearchButton bool
 	components.SearchButtonArgs
 }
 
@@ -101,7 +102,7 @@ func Details(arg DetailsArgs) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						if arg.SearchButtonArgs.Show {
+						if arg.ShowSearchButton {
 							templ_7745c5c3_Err = components.SearchButton(arg.SearchButtonArgs).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
@@ -205,7 +206,7 @@ func Details(arg DetailsArgs) templ.Component {
 								var templ_7745c5c3_Var10 string
 								templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(arg.Prev.Title)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handler/web/views/details.templ`, Line: 50, Col: 24}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handler/web/views/details.templ`, Line: 51, Col: 24}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 								if templ_7745c5c3_Err != nil {
@@ -239,7 +240,7 @@ func Details(arg DetailsArgs) templ.Component {
 								var templ_7745c5c3_Var12 string
 								templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(arg.Next.Title)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handler/web/views/details.templ`, Line: 57, Col: 24}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/handler/web/views/details.templ`, Line: 58, Col: 24}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 								if templ_7745c5c3_Err != nil {

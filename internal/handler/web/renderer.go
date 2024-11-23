@@ -73,8 +73,9 @@ func (r *renderer) RenderChangelog(ctx context.Context, w io.Writer, args Render
 		RSSArgs: components.RSSArgs{
 			FeedURL: args.FeedURL,
 		},
+		ShowSearchButton: args.CL.Searchable,
 		SearchButtonArgs: components.SearchButtonArgs{
-			Show:       args.CL.Searchable,
+			Active:     true,
 			HasMetaKey: args.HasMetaKey,
 		},
 		ChangelogContainerArgs: components.ChangelogContainerArgs{
@@ -138,8 +139,9 @@ func (r *renderer) RenderDetails(ctx context.Context, w io.Writer, args RenderDe
 		RSSArgs: components.RSSArgs{
 			FeedURL: args.FeedURL,
 		},
+		ShowSearchButton: args.CL.Searchable,
 		SearchButtonArgs: components.SearchButtonArgs{
-			Show:       args.CL.Searchable,
+			Active:     true,
 			HasMetaKey: args.HasMetaKey,
 		},
 		MainArgs: layout.MainArgs{

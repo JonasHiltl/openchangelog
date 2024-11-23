@@ -73,24 +73,29 @@ templ emptySearchResults(query string) {
 }
 
 type SearchButtonArgs struct {
-	Show       bool
 	HasMetaKey bool
+	Active     bool // whether the click should open the search modal
 }
 
 templ SearchButton(args SearchButtonArgs) {
-	@searchDialog(args)
+	if args.Active {
+		@searchDialog(args)
+	}
 	<button
 		class="o-flex o-items-center o-gap-2 o-py-1 o-px-1 sm:o-px-2 o-rounded 
 		sm:o-text-black/40 sm:hover:o-text-black/60 hover:o-bg-black/5 
 		dark:o-text-white/50 dark:hover:o-text-white/70 dark:o-bg-white/5 hover:dark:o-bg-white/5"
-		hx-on::trigger="toggleSearchDialog()"
-		hx-trigger="click, keyup[ctrlKey&&key=='k'] from:body, keydown[metaKey&&key=='k'] from:body"
+		if args.Active {
+			hx-on::trigger="toggleSearchDialog()"
+			hx-trigger="click, keyup[ctrlKey&&key=='k'] from:body, keydown[metaKey&&key=='k'] from:body"
+		}
 	>
 		@icons.Search(16, 16)
 		<p class="o-text-sm o-leading-none o-hidden sm:o-block">Search...</p>
 		@searchKbd(args.HasMetaKey)
 	</button>
-	<script>
+	if args.Active {
+		<script>
 		function toggleSearchDialog() {
 			const dialog = document.getElementById('search-dialog')
 			if (!dialog) return
@@ -101,6 +106,7 @@ templ SearchButton(args SearchButtonArgs) {
 			}
 		}
 	</script>
+	}
 }
 
 templ searchDialog(args SearchButtonArgs) {

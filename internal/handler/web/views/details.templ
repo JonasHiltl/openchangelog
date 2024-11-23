@@ -16,6 +16,7 @@ type DetailsArgs struct {
 	Prev components.ArticleArgs
 	Next components.ArticleArgs
 	components.FooterArgs
+	ShowSearchButton bool
 	components.SearchButtonArgs
 }
 
@@ -30,7 +31,7 @@ templ Details(arg DetailsArgs) {
 			@components.Navbar() {
 				@components.LogoImg(arg.Logo)
 				@components.NavbarActions() {
-					if arg.SearchButtonArgs.Show {
+					if arg.ShowSearchButton {
 						@components.SearchButton(arg.SearchButtonArgs)
 					}
 					@components.RSS(arg.RSSArgs)

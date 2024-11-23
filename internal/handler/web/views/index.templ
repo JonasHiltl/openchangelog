@@ -14,6 +14,7 @@ type IndexArgs struct {
 	components.HeaderArgs
 	components.ArticleListArgs
 	components.FooterArgs
+	ShowSearchButton bool
 	components.SearchButtonArgs
 }
 
@@ -28,7 +29,7 @@ templ Index(arg IndexArgs) {
 			@components.Navbar() {
 				@components.LogoImg(arg.Logo)
 				@components.NavbarActions() {
-					if arg.SearchButtonArgs.Show {
+					if arg.ShowSearchButton {
 						@components.SearchButton(arg.SearchButtonArgs)
 					}
 					@components.RSS(arg.RSSArgs)
