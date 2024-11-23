@@ -58,11 +58,11 @@ func main() {
 	parser := parse.NewParser(parse.CreateGoldmark())
 	loader := load.NewLoader(cfg, st, cache, parser, e)
 	renderer := web.NewRenderer(cfg)
-	listener := events.NewListener(e, parser, searcher)
+	listener := events.NewListener(cfg, e, parser, searcher, cache)
 	listener.Start()
 	defer listener.Close()
 
-	rest.RegisterRestHandler(mux, rest.NewEnv(st, loader, parser))
+	rest.RegisterRestHandler(mux, rest.NewEnv(st, loader, parser, e))
 	web.RegisterWebHandler(mux, web.NewEnv(cfg, loader, parser, renderer, searcher))
 	admin.RegisterAdminHandler(mux, admin.NewEnv(cfg, st))
 	rss.RegisterRSSHandler(mux, rss.NewEnv(cfg, loader, parser))

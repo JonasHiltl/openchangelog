@@ -7,9 +7,11 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/btvoidx/mint"
 	"github.com/jonashiltl/openchangelog/apitypes"
 	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/errs"
+	"github.com/jonashiltl/openchangelog/internal/events"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"golang.org/x/crypto/bcrypt"
@@ -148,7 +150,7 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		hashedPassword = apitypes.NewString(hash)
 	}
 
-	c, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, store.UpdateChangelogArgs{
+	args := store.UpdateChangelogArgs{
 		Title:         req.Title,
 		Subdomain:     req.Subdomain,
 		Domain:        domain,
@@ -164,11 +166,17 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		PasswordHash:  hashedPassword,
 		Analytics:     req.Analytics,
 		Searchable:    req.Searchable,
-	})
+	}
+
+	cl, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, args)
 	if err != nil {
 		return err
 	}
-	return encodeChangelog(w, c)
+	mint.Emit(e.e, events.ChangelogUpdated{
+		CL:   cl,
+		Args: args,
+	})
+	return encodeChangelog(w, cl)
 }
 
 func setChangelogSource(e *env, w http.ResponseWriter, r *http.Request) error {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/btvoidx/mint"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/load"
 	"github.com/jonashiltl/openchangelog/internal/parse"
@@ -40,11 +41,12 @@ func RegisterRestHandler(mux *http.ServeMux, e *env) {
 	mux.HandleFunc("DELETE /api/changelogs/{cid}/source", serveHTTP(e, deleteChangelogSource))
 }
 
-func NewEnv(store store.Store, loader *load.Loader, parser parse.Parser) *env {
+func NewEnv(store store.Store, loader *load.Loader, parser parse.Parser, e *mint.Emitter) *env {
 	return &env{
 		store:  store,
 		loader: loader,
 		parser: parser,
+		e:      e,
 	}
 }
 
@@ -52,6 +54,7 @@ type env struct {
 	store  store.Store
 	loader *load.Loader
 	parser parse.Parser
+	e      *mint.Emitter
 }
 
 func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
