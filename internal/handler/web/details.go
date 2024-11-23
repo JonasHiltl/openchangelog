@@ -26,9 +26,9 @@ func details(e *env, w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			slog.InfoContext(
 				r.Context(),
-				"blocked access to changelog release note details",
+				"blocked access to changelog details",
 				slog.String("changelog", loaded.CL.ID.String()),
-				slog.String("note", noteID),
+				slog.String("release", noteID),
 			)
 			return views.PasswordProtection(views.PasswordProtectionArgs{
 				CSS: static.BaseCSS,

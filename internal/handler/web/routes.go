@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/internal/analytics"
 	"github.com/jonashiltl/openchangelog/internal/analytics/tinybird"
 	"github.com/jonashiltl/openchangelog/internal/config"
@@ -24,6 +25,7 @@ func RegisterWebHandler(mux *http.ServeMux, e *env) {
 	mux.HandleFunc("POST /password", serveHTTP(e, passwordSubmit))
 	mux.HandleFunc("POST /search", serveHTTP(e, searchSubmit))
 	mux.HandleFunc("GET /search/tags", serveHTTP(e, searchTags))
+	mux.Handle("DELETE /remove-me", serveHTTP(e, func(e *env, w http.ResponseWriter, r *http.Request) error { return nil }))
 }
 
 func NewEnv(
@@ -112,6 +114,14 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 			// if requesting widget, don't render html error, just error message
 			if _, ok := r.URL.Query()["widget"]; ok {
 				http.Error(w, args.Message, args.Status)
+				return
+			}
+
+			if r.Header.Get("HX-Request") == "true" {
+				err := components.Toast(components.Fail, args.Message).Render(r.Context(), w)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
 				return
 			}
 

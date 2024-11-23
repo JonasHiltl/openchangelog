@@ -1,6 +1,9 @@
 package layout
 
-import "html/template"
+import (
+	"github.com/jonashiltl/openchangelog/components"
+	"html/template"
+)
 
 type MainArgs struct {
 	Title       string
@@ -43,6 +46,7 @@ templ Main(args MainArgs) {
 		</head>
 		<body>
 			{ children... }
+			@components.ToastContainer()
 		</body>
 	</html>
 }
