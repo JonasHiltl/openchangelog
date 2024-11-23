@@ -69,6 +69,7 @@ func TestChangelogMarshaling(t *testing.T) {
 				"hasPassword": true,
 				"protected": false,
 				"analytics": false,
+				"searchable": false,
 				"colorScheme": "dark",
 				"createdAt": "%s"
 			}`, nowStr),
@@ -91,6 +92,7 @@ func TestChangelogMarshaling(t *testing.T) {
 				"hasPassword": false,
 				"protected": false,
 				"analytics": false,
+				"searchable": false,
 				"createdAt": "%s"
 			}`, nowStr),
 		},
@@ -110,6 +112,7 @@ func TestChangelogMarshaling(t *testing.T) {
 				"hasPassword": false,
 				"protected": false,
 				"analytics": true,
+				"searchable": false,
 				"logo": {
 					"alt": "test"
 				}
@@ -157,8 +160,9 @@ func TestChangelogUnmarshal(t *testing.T) {
 			ColorScheme: Light,
 		},
 		{
-			Analytics: true,
-			Protected: true,
+			Analytics:  true,
+			Protected:  true,
+			Searchable: true,
 		},
 	}
 
@@ -181,6 +185,7 @@ func TestChangelogUnmarshal(t *testing.T) {
 func TestUpdateChangelogBodyMarshal(t *testing.T) {
 	hidePoweredBy := true
 	analytics := true
+	searchable := true
 	tests := []struct {
 		name     string
 		input    UpdateChangelogBody
@@ -295,6 +300,22 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 				"analytics": true
 			}`,
 		},
+		{
+			name: "valid searchable",
+			input: UpdateChangelogBody{
+				Searchable: &searchable,
+			},
+			expected: `{
+				"title": "",
+				"subtitle": "",
+				"logo": {},
+				"domain": "",
+				"subdomain": "",
+				"colorScheme": "",
+				"password": "",
+				"searchable": true
+			}`,
+		},
 	}
 
 	for _, test := range tests {
@@ -312,6 +333,7 @@ func TestUpdateChangelogBodyMarshal(t *testing.T) {
 func TestUpdateChangelogBodyUnmarshal(t *testing.T) {
 	hidePoweredBy := true
 	analytics := true
+	searchable := true
 	tests := []struct {
 		name  string
 		input UpdateChangelogBody
@@ -364,6 +386,12 @@ func TestUpdateChangelogBodyUnmarshal(t *testing.T) {
 			name: "valid analytics",
 			input: UpdateChangelogBody{
 				Analytics: &analytics,
+			},
+		},
+		{
+			name: "valid searchable",
+			input: UpdateChangelogBody{
+				Searchable: &searchable,
 			},
 		},
 	}
