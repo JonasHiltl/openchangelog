@@ -2,10 +2,13 @@ package source
 
 import (
 	"context"
+	"errors"
 	"io"
 
 	"github.com/jonashiltl/openchangelog/internal"
+	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/internal/xcache"
 )
 
 type RawReleaseNote struct {
@@ -48,4 +51,13 @@ func NewIDFromChangelog(cl store.Changelog) ID {
 		return NewGitHubID(cl.GHSource.V.Owner, cl.GHSource.V.Repo, cl.GHSource.V.Path)
 	}
 	return ""
+}
+
+func NewSourceFromStore(cfg config.Config, cl store.Changelog, cache xcache.Cache) (Source, error) {
+	if cl.LocalSource.Valid {
+		return NewLocalSourceFromStore(cl.LocalSource.ValueOrZero(), cache), nil
+	} else if cl.GHSource.Valid {
+		return NewGHSourceFromStore(cfg, cl.GHSource.ValueOrZero(), cache)
+	}
+	return nil, errors.New("changelog has no active source")
 }

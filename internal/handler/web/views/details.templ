@@ -16,6 +16,7 @@ type DetailsArgs struct {
 	Prev components.ArticleArgs
 	Next components.ArticleArgs
 	components.FooterArgs
+	components.SearchButtonArgs
 }
 
 templ Details(arg DetailsArgs) {
@@ -29,9 +30,9 @@ templ Details(arg DetailsArgs) {
 			@components.Navbar() {
 				@components.LogoImg(arg.Logo)
 				@components.NavbarActions() {
-					@components.SearchButton(components.SearchButtonArgs{
-						HasMetaKey: true,
-					})
+					if arg.SearchButtonArgs.Show {
+						@components.SearchButton(arg.SearchButtonArgs)
+					}
 					@components.RSS(arg.RSSArgs)
 				}
 			}

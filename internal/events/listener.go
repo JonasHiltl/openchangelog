@@ -8,6 +8,7 @@ import (
 	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/parse"
 	"github.com/jonashiltl/openchangelog/internal/search"
+	"github.com/jonashiltl/openchangelog/internal/source"
 	"github.com/jonashiltl/openchangelog/internal/xlog"
 )
 
@@ -44,22 +45,30 @@ func (l EventListener) Close() {
 
 func (l EventListener) OnSourceChanged(e SourceContentChanged) {
 	slog.Debug("source content changed", slog.String("sid", e.Source.ID().String()))
-	go func() {
-		slog.Debug("reindexing content of source", slog.String("sid", e.Source.ID().String()))
-		ctx := context.Background()
-		loaded, err := e.Source.Load(ctx, internal.NoPagination())
-		if err != nil {
-			slog.Error("failed to load source content for search indexing", xlog.ErrAttr(err))
-			return
-		}
-		parsed := l.parser.Parse(ctx, loaded.Raw, internal.NoPagination())
-		err = l.searcher.BatchIndex(ctx, search.BatchIndexArgs{
-			SID:          e.Source.ID().String(),
-			ReleaseNotes: parsed.ReleaseNotes,
-		})
-		if err != nil {
-			slog.Error("failed to index parsed release notes", xlog.ErrAttr(err))
-			return
-		}
-	}()
+	if e.CL.Searchable {
+		go l.reindexSource(e.Source)
+	}
+}
+
+func (l EventListener) reindexSource(source source.Source) {
+	if source == nil {
+		return
+	}
+
+	slog.Debug("reindexing content of source", slog.String("sid", source.ID().String()))
+	ctx := context.Background()
+	loaded, err := source.Load(ctx, internal.NoPagination())
+	if err != nil {
+		slog.Error("failed to load source content for search indexing", xlog.ErrAttr(err))
+		return
+	}
+	parsed := l.parser.Parse(ctx, loaded.Raw, internal.NoPagination())
+	err = l.searcher.BatchIndex(ctx, search.BatchIndexArgs{
+		SID:          source.ID().String(),
+		ReleaseNotes: parsed.ReleaseNotes,
+	})
+	if err != nil {
+		slog.Error("failed to index parsed release notes", xlog.ErrAttr(err))
+		return
+	}
 }

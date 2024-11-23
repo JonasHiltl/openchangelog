@@ -60,6 +60,7 @@ func details(e *env, w http.ResponseWriter, r *http.Request) error {
 				FeedURL:     handler.GetFeedURL(r),
 				Prev:        prev,
 				Next:        next,
+				HasMetaKey:  requestFromMac(r.Header),
 			})
 		}
 	}

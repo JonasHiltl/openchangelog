@@ -1,9 +1,12 @@
 package events
 
-import "github.com/jonashiltl/openchangelog/internal/source"
+import (
+	"github.com/jonashiltl/openchangelog/internal/source"
+	"github.com/jonashiltl/openchangelog/internal/store"
+)
 
 // Fired if sources data changed
 type SourceContentChanged struct {
-	WID    string
+	CL     store.Changelog
 	Source source.Source
 }

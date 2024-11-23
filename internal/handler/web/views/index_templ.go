@@ -22,6 +22,7 @@ type IndexArgs struct {
 	components.HeaderArgs
 	components.ArticleListArgs
 	components.FooterArgs
+	components.SearchButtonArgs
 }
 
 func Index(arg IndexArgs) templ.Component {
@@ -98,11 +99,11 @@ func Index(arg IndexArgs) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = components.SearchButton(components.SearchButtonArgs{
-							HasMetaKey: true,
-						}).Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
+						if arg.SearchButtonArgs.Show {
+							templ_7745c5c3_Err = components.SearchButton(arg.SearchButtonArgs).Render(ctx, templ_7745c5c3_Buffer)
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
 						if templ_7745c5c3_Err != nil {

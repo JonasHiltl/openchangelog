@@ -50,6 +50,7 @@ func passwordSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 		CL:           loaded.CL,
 		ReleaseNotes: loaded.Notes,
 		HasMore:      loaded.HasMore,
+		HasMetaKey:   requestFromMac(r.Header),
 	})
 }
 

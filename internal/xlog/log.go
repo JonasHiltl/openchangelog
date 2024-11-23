@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
-	"net/url"
 	"time"
 
 	"github.com/rs/xid"
@@ -22,19 +21,17 @@ var (
 	ctxKeyRequestPath   = contextKey("request-path")
 	ctxKeyRequestMethod = contextKey("request-method")
 	ctxKeyRequestStart  = contextKey("request-start")
+	ctxKeyRequestHost   = contextKey("request-host")
 )
 
 // Attaches logger attributes to the handler.
 func AttachLogger(fn http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		requestID := r.Header.Get("X-Request-ID")
-		if requestID == "" {
-			requestID = xid.New().String()
-		}
-		addRequestID(r, requestID)
-		addRequestPath(r, r.URL)
-		addRequestMethod(r, r.Method)
+		addRequestID(r)
+		addRequestPath(r)
+		addRequestMethod(r)
 		addRequestStart(r)
+		addHost(r)
 		fn(w, r)
 	}
 }
@@ -45,20 +42,32 @@ func AddWorkspaceID(r *http.Request, id string) {
 	*r = *r.WithContext(context.WithValue(r.Context(), ctxKeyWorkspaceID, id))
 }
 
-func addRequestID(r *http.Request, id string) {
+func addRequestID(r *http.Request) {
+	id := r.Header.Get("X-Request-ID")
+	if id == "" {
+		id = xid.New().String()
+	}
 	*r = *r.WithContext(context.WithValue(r.Context(), ctxKeyRequestID, id))
 }
 
-func addRequestPath(r *http.Request, url *url.URL) {
-	*r = *r.WithContext(context.WithValue(r.Context(), ctxKeyRequestPath, url.String()))
+func addRequestPath(r *http.Request) {
+	*r = *r.WithContext(context.WithValue(r.Context(), ctxKeyRequestPath, r.URL.String()))
 }
 
-func addRequestMethod(r *http.Request, method string) {
-	*r = *r.WithContext(context.WithValue(r.Context(), ctxKeyRequestMethod, method))
+func addRequestMethod(r *http.Request) {
+	*r = *r.WithContext(context.WithValue(r.Context(), ctxKeyRequestMethod, r.Method))
 }
 
 func addRequestStart(r *http.Request) {
 	*r = *r.WithContext(context.WithValue(r.Context(), ctxKeyRequestStart, time.Now()))
+}
+
+func addHost(r *http.Request) {
+	host := r.Host
+	if r.Header.Get("X-Forwarded-Host") != "" {
+		host = r.Header.Get("X-Forwarded-Host")
+	}
+	*r = *r.WithContext(context.WithValue(r.Context(), ctxKeyRequestHost, host))
 }
 
 func ErrAttr(err error) slog.Attr {

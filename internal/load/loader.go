@@ -60,9 +60,8 @@ func (l *Loader) GetChangelog(r *http.Request) (store.Changelog, error) {
 
 	if l.cfg.IsConfigMode() {
 		return l.store.GetChangelog(r.Context(), "", "")
-	} else {
-		return l.fromHost(r.Context(), host)
 	}
+	return l.fromHost(r.Context(), host)
 }
 
 // Loads the changelog and parses it's release notes for the specified http request.
@@ -77,13 +76,7 @@ func (l *Loader) LoadAndParse(r *http.Request, page internal.Pagination) (Loaded
 
 // Loads and parses the release notes for the specified changelog.
 func (l *Loader) LoadAndParseReleaseNotes(ctx context.Context, cl store.Changelog, page internal.Pagination) (LoadedChangelog, error) {
-	var err error
-	var s source.Source
-	if cl.LocalSource.Valid {
-		s = source.NewLocalSourceFromStore(cl.LocalSource.ValueOrZero(), l.cache)
-	} else if cl.GHSource.Valid {
-		s, err = source.NewGHSourceFromStore(l.cfg, cl.GHSource.ValueOrZero(), l.cache)
-	}
+	s, err := source.NewSourceFromStore(l.cfg, cl, l.cache)
 	if err != nil {
 		return LoadedChangelog{}, err
 	}
@@ -96,7 +89,7 @@ func (l *Loader) LoadAndParseReleaseNotes(ctx context.Context, cl store.Changelo
 		// emit event if release notes have changed
 		if loaded.HasChanged() {
 			err = mint.Emit(l.e, ctx, events.SourceContentChanged{
-				WID:    cl.WorkspaceID.String(),
+				CL:     cl,
 				Source: s,
 			})
 			if err != nil {

@@ -22,6 +22,10 @@ func searchSubmit(e *env, w http.ResponseWriter, r *http.Request) error {
 		return errs.NewBadRequest(err)
 	}
 
+	if !cl.Searchable {
+		return errs.NewBadRequest(errors.New("changelog is not searchable"))
+	}
+
 	if cl.Protected {
 		err = ensurePasswordProvided(r, cl.PasswordHash)
 		if err != nil {
@@ -67,6 +71,10 @@ func searchTags(e *env, w http.ResponseWriter, r *http.Request) error {
 	cl, err := e.loader.GetChangelog(r)
 	if err != nil {
 		return errs.NewBadRequest(err)
+	}
+
+	if !cl.Searchable {
+		return errs.NewBadRequest(errors.New("changelog is not searchable"))
 	}
 
 	if cl.Protected {

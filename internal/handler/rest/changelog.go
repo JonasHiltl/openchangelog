@@ -40,6 +40,7 @@ func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 		Protected:     cl.Protected,
 		HasPassword:   cl.PasswordHash != "",
 		Analytics:     cl.Analytics,
+		Searchable:    cl.Searchable,
 	}
 
 	if cl.GHSource.Valid {
@@ -85,6 +86,7 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		HidePoweredBy: req.HidePoweredBy,
 		Protected:     req.Protected,
 		Analytics:     req.Analytics,
+		Searchable:    req.Searchable,
 	}
 
 	if req.ColorScheme == "" {
@@ -161,6 +163,7 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		Protected:     req.Protected,
 		PasswordHash:  hashedPassword,
 		Analytics:     req.Analytics,
+		Searchable:    req.Searchable,
 	})
 	if err != nil {
 		return err

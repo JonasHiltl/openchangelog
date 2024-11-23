@@ -115,6 +115,7 @@ func renderChangelog(
 		CL:           loaded.CL,
 		ReleaseNotes: loaded.Notes,
 		HasMore:      loaded.HasMore,
+		HasMetaKey:   requestFromMac(r.Header),
 	}
 
 	go e.getAnalyticsEmitter(loaded.CL).Emit(analytics.NewEvent(r, loaded.CL))
@@ -122,4 +123,11 @@ func renderChangelog(
 		return e.render.RenderWidget(r.Context(), w, args)
 	}
 	return e.render.RenderChangelog(r.Context(), w, args)
+}
+
+func requestFromMac(h http.Header) bool {
+	userAgent := h.Get("User-Agent")
+	userAgent = strings.ToLower(userAgent)
+
+	return strings.Contains(userAgent, "macintosh") || strings.Contains(userAgent, "mac os x")
 }

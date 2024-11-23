@@ -27,6 +27,7 @@ type RenderChangelogArgs struct {
 	HasMore      bool
 	CurrentURL   string
 	FeedURL      string
+	HasMetaKey   bool
 }
 
 type RenderArticleListArgs struct {
@@ -44,6 +45,7 @@ type RenderDetailsArgs struct {
 	Prev        parse.ParsedReleaseNote
 	Next        parse.ParsedReleaseNote
 	FeedURL     string
+	HasMetaKey  bool
 }
 
 func NewRenderer(cfg config.Config) Renderer {
@@ -70,6 +72,10 @@ func (r *renderer) RenderChangelog(ctx context.Context, w io.Writer, args Render
 	return views.Index(views.IndexArgs{
 		RSSArgs: components.RSSArgs{
 			FeedURL: args.FeedURL,
+		},
+		SearchButtonArgs: components.SearchButtonArgs{
+			Show:       args.CL.Searchable,
+			HasMetaKey: args.HasMetaKey,
 		},
 		ChangelogContainerArgs: components.ChangelogContainerArgs{
 			CurrentURL:     args.CurrentURL,
@@ -131,6 +137,10 @@ func (r *renderer) RenderDetails(ctx context.Context, w io.Writer, args RenderDe
 	return views.Details(views.DetailsArgs{
 		RSSArgs: components.RSSArgs{
 			FeedURL: args.FeedURL,
+		},
+		SearchButtonArgs: components.SearchButtonArgs{
+			Show:       args.CL.Searchable,
+			HasMetaKey: args.HasMetaKey,
 		},
 		MainArgs: layout.MainArgs{
 			Title:       args.CL.Title.V(),
