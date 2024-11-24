@@ -160,6 +160,29 @@ func TestSearch(t *testing.T) {
 	}
 }
 
+func TestBatchRemove(t *testing.T) {
+	searcher := newMemorySearcher(t)
+	ctx := context.Background()
+	err := searcher.BatchRemove(ctx, BatchRemoveArgs{
+		SID:          sid.String(),
+		ReleaseNotes: indexData.ReleaseNotes,
+	})
+	if err != nil {
+		t.Error(err)
+	}
+
+	res, err := searcher.Search(ctx, SearchArgs{
+		SID: sid.String(),
+	})
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(res.Hits) != 0 {
+		t.Errorf("expected 0 hits, but got %d", len(res.Hits))
+	}
+}
+
 func TestGetTags(t *testing.T) {
 	searcher := newMemorySearcher(t)
 

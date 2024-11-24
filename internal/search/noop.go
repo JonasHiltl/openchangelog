@@ -27,3 +27,7 @@ func (s noopSearcher) Search(context.Context, SearchArgs) (SearchResults, error)
 func (s noopSearcher) GetAllTags(ctx context.Context, sid string) []string {
 	return []string{}
 }
+
+func (s noopSearcher) BatchRemove(ctx context.Context, args BatchRemoveArgs) error {
+	return nil
+}

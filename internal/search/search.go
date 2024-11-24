@@ -24,6 +24,7 @@ type Searcher interface {
 	GetAllTags(ctx context.Context, sid string) []string
 	Index(context.Context, IndexArgs) error
 	BatchIndex(context.Context, BatchIndexArgs) error
+	BatchRemove(ctx context.Context, args BatchRemoveArgs) error
 	Close()
 }
 
@@ -364,6 +365,27 @@ func (s *bleveSearcher) BatchIndex(ctx context.Context, args BatchIndexArgs) err
 		if err != nil {
 			slog.DebugContext(ctx, fmt.Sprintf("failed to batch index %s, skipping it", id))
 		}
+	}
+
+	if b.Size() > 0 {
+		if err := s.idx.Batch(b); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type BatchRemoveArgs struct {
+	SID          string
+	ReleaseNotes []parse.ParsedReleaseNote
+}
+
+func (s *bleveSearcher) BatchRemove(ctx context.Context, args BatchRemoveArgs) error {
+	b := s.idx.NewBatch()
+	for _, note := range args.ReleaseNotes {
+		id := createID(args.SID, note.Meta.ID)
+		slog.Debug("removing document", slog.String("id", id))
+		b.Delete(id)
 	}
 
 	if b.Size() > 0 {

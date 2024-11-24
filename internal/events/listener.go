@@ -70,6 +70,11 @@ func (l *EventListener) OnChangelogUpdated(e ChangelogUpdated) {
 		if err == nil {
 			go l.reindexSource(souce)
 		}
+	} else if e.Args.Searchable != nil && !*e.Args.Searchable {
+		souce, err := source.NewSourceFromStore(l.cfg, e.CL, l.cache)
+		if err == nil {
+			go l.removeIndex(souce)
+		}
 	}
 }
 
@@ -87,6 +92,29 @@ func (l *EventListener) reindexSource(source source.Source) {
 	}
 	parsed := l.parser.Parse(ctx, loaded.Raw, internal.NoPagination())
 	err = l.searcher.BatchIndex(ctx, search.BatchIndexArgs{
+		SID:          source.ID().String(),
+		ReleaseNotes: parsed.ReleaseNotes,
+	})
+	if err != nil {
+		slog.Error("failed to index parsed release notes", xlog.ErrAttr(err))
+		return
+	}
+}
+
+func (l *EventListener) removeIndex(source source.Source) {
+	if source == nil {
+		return
+	}
+
+	slog.Debug("removing search index of source", slog.String("sid", source.ID().String()))
+	ctx := context.Background()
+	loaded, err := source.Load(ctx, internal.NoPagination())
+	if err != nil {
+		slog.Error("failed to load source content for search indexing", xlog.ErrAttr(err))
+		return
+	}
+	parsed := l.parser.Parse(ctx, loaded.Raw, internal.NoPagination())
+	err = l.searcher.BatchRemove(ctx, search.BatchRemoveArgs{
 		SID:          source.ID().String(),
 		ReleaseNotes: parsed.ReleaseNotes,
 	})
