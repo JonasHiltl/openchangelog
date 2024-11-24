@@ -15,7 +15,7 @@ require (
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/grokify/html-strip-tags-go v0.1.0
 	github.com/guregu/null/v5 v5.0.0
-	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241123114718-0416928fd673
+	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241124125835-a4a1bb42e055
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/naveensrinivasan/httpcache v1.2.2
