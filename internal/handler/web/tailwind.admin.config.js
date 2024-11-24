@@ -2,7 +2,7 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./admin/views/**/*.templ"],
+  content: ["./admin/views/**/*.templ", "./icons/**/*.templ"],
   theme: {
     extend: {
       fontFamily: {
@@ -12,6 +12,7 @@ module.exports = {
   },
   prefix: "o-",
   plugins: [
+    require('tailwind-scrollbar-hide'),
     require('daisyui'),
   ]
 }

@@ -31,6 +31,7 @@ func (cl changelog) toExported(source changelogSource) Changelog {
 		HidePoweredBy: cl.HidePoweredBy == 1,
 		Protected:     cl.Protected == 1,
 		Analytics:     cl.Analytics == 1,
+		Searchable:    cl.Searchable == 1,
 		PasswordHash:  cl.PasswordHash.V(),
 		CreatedAt:     time.Unix(cl.CreatedAt, 0),
 		GHSource:      null.NewValue(GHSource{}, false),
@@ -96,6 +97,7 @@ func (s *sqlite) CreateChangelog(ctx context.Context, cl Changelog) (Changelog, 
 		HidePoweredBy: boolToInt(cl.HidePoweredBy),
 		Protected:     boolToInt(cl.Protected),
 		Analytics:     boolToInt(cl.Analytics),
+		Searchable:    boolToInt(cl.Searchable),
 		PasswordHash:  apitypes.NewString(cl.PasswordHash),
 	})
 	if err != nil {
@@ -199,13 +201,17 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 		SetLogoHeight:  !args.LogoHeight.IsZero(),
 		LogoWidth:      args.LogoWidth,
 		SetLogoWidth:   !args.LogoWidth.IsZero(),
-		Protected: sql.NullInt64{ // update if args.Protected != nil
+		Protected: sql.NullInt64{ // update if args.Protected is defined
 			Int64: saveDerefToInt(args.Protected),
 			Valid: args.Protected != nil,
 		},
-		Analytics: sql.NullInt64{ // update if args.Analytics != nil
+		Analytics: sql.NullInt64{ // update if args.Analytics is defined
 			Int64: saveDerefToInt(args.Analytics),
 			Valid: args.Analytics != nil,
+		},
+		Searchable: sql.NullInt64{ // update if args.Searchable is defined
+			Int64: saveDerefToInt(args.Searchable),
+			Valid: args.Searchable != nil,
 		},
 		PasswordHash:    args.PasswordHash,
 		SetPasswordHash: !args.PasswordHash.IsZero(),

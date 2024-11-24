@@ -78,6 +78,10 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 		cl.Analytics = true
 	}
 
+	if s.cfg.Search != nil {
+		cl.Searchable = true
+	}
+
 	// parse local source from config
 	if s.cfg.Local != nil {
 		cl.LocalSource = null.NewValue(LocalSource{

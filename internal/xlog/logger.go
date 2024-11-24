@@ -1,4 +1,4 @@
-package lgr
+package xlog
 
 import (
 	"context"
@@ -37,6 +37,9 @@ func (h *myHandler) Handle(ctx context.Context, r slog.Record) error {
 	}
 	if wID, ok := ctx.Value(ctxKeyWorkspaceID).(string); ok {
 		r.AddAttrs(slog.String("workspace_id", wID))
+	}
+	if host, ok := ctx.Value(ctxKeyRequestHost).(string); ok {
+		r.AddAttrs(slog.String("host", host))
 	}
 	if rPath, ok := ctx.Value(ctxKeyRequestPath).(string); ok {
 		r.AddAttrs(slog.String("path", rPath))

@@ -1,0 +1,53 @@
+package components
+
+import "github.com/jonashiltl/openchangelog/internal/handler/web/icons"
+
+type ToastType int
+
+const (
+	Success ToastType = iota
+	Warning
+	Fail
+)
+
+type ToastArgs struct {
+	Msg  string
+	Type ToastType
+}
+
+func toastStyle(t ToastType) string {
+	switch t {
+	case Warning:
+		return "o-bg-orange-200 o-border-orange-300 o-text-orange-700"
+	case Fail:
+		return "o-bg-red-200 o-border-red-300 o-text-red-800"
+	default:
+		return "o-bg-base-100"
+	}
+}
+
+templ Toast(t ToastType, msg string) {
+	<div hx-swap-oob="innerHTML:#o-toast-container">
+		<div
+			id="o-toast"
+			class="o-animate-slide-bottom o-p-4 htmx-swapping:o-animate-slide-right"
+			hx-trigger="load delay:5s"
+			hx-delete="/remove-me"
+			hx-target="this"
+			hx-swap="outerHTML swap:0.2s"
+		>
+			<div
+				class={ toastStyle(t), "o-group o-relative o-p-4 o-rounded-lg o-border" }
+			>
+				{ msg }
+				<button hx-delete="/remove-me" hx-target="closest #o-toast" hx-swap="outerHTML swap:0.2s" class="o-opacity-0 group-hover:o-opacity-100 o-transition-opacity o-absolute o-top-1 o-right-1">
+					@icons.X(16, 16)
+				</button>
+			</div>
+		</div>
+	</div>
+}
+
+templ ToastContainer() {
+	<div id="o-toast-container" class="o-overflow-hidden o-fixed o-bottom-0 o-right-0"></div>
+}

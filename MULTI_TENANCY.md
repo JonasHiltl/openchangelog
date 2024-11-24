@@ -10,7 +10,7 @@ Also set `?_foreign_keys=on` on the sqlite url to enfore foreign key constraints
 sqliteUrl:
 ```
 
-You can render the changelog of a specific workspace by calling `GET /?wid=...&cid=...` and Openchangelog will fetch the changelog & source of the specified changelog from SQLite.
+You can render the changelog of a specific workspace by accessing it through the changelog's subdomain or host.
 
 To interact with `workspaces`, `sources` & `changelogs` you can use the REST API under the `/api/` endpoint.  
 You need to authenticate on every request with a specific workspace by using the supplied `bearer` token when creating/returning your workspace.

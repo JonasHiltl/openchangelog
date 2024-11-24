@@ -1,0 +1,69 @@
+package views
+
+import (
+	"fmt"
+	"github.com/jonashiltl/openchangelog/components"
+	"github.com/jonashiltl/openchangelog/internal/handler/web/views/layout"
+)
+
+type DetailsArgs struct {
+	layout.MainArgs
+	components.ThemeArgs
+	components.RSSArgs
+	components.Logo
+	components.HeaderArgs
+	components.ArticleArgs
+	Prev components.ArticleArgs
+	Next components.ArticleArgs
+	components.FooterArgs
+	ShowSearchButton bool
+	components.SearchButtonArgs
+}
+
+templ Details(arg DetailsArgs) {
+	@layout.Main(layout.MainArgs{
+		Title:       arg.MainArgs.Title,
+		Description: arg.MainArgs.Description,
+		CSS:         arg.MainArgs.CSS,
+		IncludeHTMX: true,
+	}) {
+		@components.Theme(arg.ThemeArgs) {
+			@components.Navbar() {
+				@components.LogoImg(arg.Logo)
+				@components.NavbarActions() {
+					if arg.ShowSearchButton {
+						@components.SearchButton(arg.SearchButtonArgs)
+					}
+					@components.RSS(arg.RSSArgs)
+				}
+			}
+			@components.Prose() {
+				@components.ChangelogContainer(components.ChangelogContainerArgs{
+					HasMoreArticle: false,
+				}) {
+					@components.HeaderContainer() {
+						@components.HeaderContent(arg.HeaderArgs)
+					}
+					@components.Article(arg.ArticleArgs)
+					<div class="o-flex o-justify-between o-my-8">
+						if arg.Prev.ID != "" {
+							@components.BackButton(fmt.Sprintf("/%s", arg.Prev.ID)) {
+								{ arg.Prev.Title }
+							}
+						} else {
+							<div></div>
+						}
+						if arg.Next.ID != "" {
+							@components.ForwardButton(fmt.Sprintf("/%s", arg.Next.ID)) {
+								{ arg.Next.Title }
+							}
+						} else {
+							<div></div>
+						}
+					</div>
+				}
+				@components.Footer(arg.FooterArgs)
+			}
+		}
+	}
+}

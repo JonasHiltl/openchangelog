@@ -1,0 +1,184 @@
+package components
+
+import (
+	"fmt"
+	"github.com/jonashiltl/openchangelog/internal/handler/web/icons"
+	"github.com/jonashiltl/openchangelog/internal/search"
+	"github.com/microcosm-cc/bluemonday"
+)
+
+type SearchResultsArgs struct {
+	Query  string
+	Result search.SearchResults
+}
+
+var p = bluemonday.UGCPolicy()
+
+templ SearchResults(args SearchResultsArgs) {
+	<div id="search-results" class="o-flex-1 o-overflow-auto">
+		if len(args.Result.Hits) > 0 {
+			<div class="o-bg-white dark:o-bg-black o-rounded-lg o-p-2">
+				for _, h := range args.Result.Hits {
+					@SearchResult(h)
+				}
+			</div>
+		} else if args.Query != "" {
+			@emptySearchResults(args.Query)
+		}
+	</div>
+}
+
+templ SearchResult(h search.SearchResult) {
+	<a
+		href={ templ.URL(fmt.Sprintf("/%s", h.ID)) }
+		class="o-group o-flex o-items-center o-px-4 o-py-2 o-rounded-lg hover:o-bg-primary/5"
+	>
+		<div class="o-flex-1">
+			<div class="o-flex o-gap-2 o-items-center">
+				<h2 class="o-text-lg o-font-semibold dark:o-text-white">
+					@templ.Raw(p.Sanitize(h.Title))
+				</h2>
+				if !h.PublishedAt.IsZero() {
+					<span class="o-bg-caption o-size-1 o-rounded-full"></span>
+					<p class="o-text-caption o-text-nowrap">{ h.PublishedAt.Format("02 Jan 2006") }</p>
+				}
+			</div>
+			<p class="o-text-caption">
+				if h.ContentHighlight != "" {
+					@templ.Raw(p.Sanitize(h.ContentHighlight))
+				} else if h.Description != "" {
+					@templ.Raw(p.Sanitize(h.Description))
+				} else {
+					{ h.Content }
+				}
+			</p>
+		</div>
+		<div class="o-opacity-0 group-hover:o-opacity-100 o-text-primary">
+			@icons.ChevronRight(16, 16)
+		</div>
+	</a>
+}
+
+templ emptySearchResults(query string) {
+	<div class="o-bg-white dark:o-bg-black o-rounded-lg o-p-8 o-flex o-flex-col o-items-center o-text-center">
+		@icons.Inbox(30, 30)
+		<h2 class="o-font-semibold o-mt-2 dark:o-text-white">No release notes found</h2>
+		<p class="o-text-caption o-max-w-80">
+			"{ query }" did not match any results.
+			if len(query) < 3 {
+				Please try a longer or more specific query.
+			}
+		</p>
+	</div>
+}
+
+type SearchButtonArgs struct {
+	HasMetaKey bool
+	Active     bool // whether the click should open the search modal
+}
+
+templ SearchButton(args SearchButtonArgs) {
+	if args.Active {
+		@searchDialog(args)
+	}
+	<button
+		class="o-flex o-items-center o-gap-2 o-py-1 o-px-1 sm:o-px-2 o-rounded 
+		sm:o-text-black/40 sm:hover:o-text-black/60 hover:o-bg-black/5 
+		dark:o-text-white/50 dark:hover:o-text-white/70 dark:o-bg-white/5 hover:dark:o-bg-white/5"
+		if args.Active {
+			hx-on::trigger="toggleSearchDialog()"
+			hx-trigger="click, keyup[ctrlKey&&key=='k'] from:body, keydown[metaKey&&key=='k'] from:body"
+		}
+	>
+		@icons.Search(16, 16)
+		<p class="o-text-sm o-leading-none o-hidden sm:o-block">Search...</p>
+		@searchKbd(args.HasMetaKey)
+	</button>
+	if args.Active {
+		<script>
+		function toggleSearchDialog() {
+			const dialog = document.getElementById('search-dialog')
+			if (!dialog) return
+			if (dialog.open) {
+				dialog.close()
+			} else {
+				dialog.showModal()
+			}
+		}
+	</script>
+	}
+}
+
+templ searchDialog(args SearchButtonArgs) {
+	<dialog
+		id="search-dialog"
+		class="backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent"
+	>
+		<div class="o-h-full o-flex o-flex-col">
+			<div
+				id="search"
+				hx-post="/search"
+				hx-trigger="input changed delay:500ms from:[name='query'], change from:'#search [type='checkbox']'"
+				hx-include="#search input"
+				hx-target="#search-results"
+				hx-indicator="#loader"
+				class="o-rounded-lg o-overflow-hidden o-bg-white dark:o-bg-black o-mb-2"
+			>
+				<div class="input o-rounded-none o-border-none o-flex o-items-center o-gap-2 ">
+					<div id="loader" class="o-flex o-gap-2">
+						<div class="htmx-indicator-rev">
+							@icons.Search(20, 20)
+						</div>
+						<div class="htmx-indicator">
+							@icons.Spinner(20, 20)
+						</div>
+					</div>
+					<input name="query" placeholder="Search Release Notes" class="o-flex-1 o-text-lg"/>
+					@searchKbd(args.HasMetaKey)
+				</div>
+				<div class="o-flex o-gap-3 o-justify-between o-items-center o-border-t o-border-t-black/10 dark:o-border-t-white/10 o-p-3">
+					@loadingTagSelectors()
+					<div
+						class="o-inline-flex o-gap-2 o-items-center o-text-sm dark:o-text-white"
+					>
+						<span class="o-text-caption">Close</span>
+						@KBD("esc")
+					</div>
+				</div>
+			</div>
+			@SearchResults(SearchResultsArgs{})
+		</div>
+	</dialog>
+}
+
+templ TagSelectors(tags []string) {
+	<div class="o-overflow-auto o-scrollbar-hide o-flex o-gap-2">
+		for _, tag := range tags {
+			<label>
+				<input class="o-peer o-hidden" type="checkbox" id={ tag } name={ fmt.Sprintf("tag-%s", tag) }/>
+				<div class="o-opacity-70 o-grayscale peer-checked:o-opacity-100 peer-checked:o-grayscale-0 o-cursor-pointer">
+					@Tag(tag)
+				</div>
+			</label>
+		}
+	</div>
+}
+
+templ loadingTagSelectors() {
+	<div
+		hx-trigger="load"
+		hx-get="/search/tags"
+		hx-target="this"
+		hx-swap="outerHTML"
+	></div>
+}
+
+templ searchKbd(hasMetaKey bool) {
+	<div class="o-hidden sm:o-block">
+		if hasMetaKey {
+			@KBD("⌘K")
+		} else {
+			@KBD("ctrl+K")
+		}
+	</div>
+}

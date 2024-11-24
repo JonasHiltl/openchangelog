@@ -7,9 +7,11 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/btvoidx/mint"
 	"github.com/jonashiltl/openchangelog/apitypes"
-	"github.com/jonashiltl/openchangelog/internal/changelog"
+	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/errs"
+	"github.com/jonashiltl/openchangelog/internal/events"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/store"
 	"golang.org/x/crypto/bcrypt"
@@ -40,6 +42,7 @@ func changelogToApiType(cl store.Changelog) apitypes.Changelog {
 		Protected:     cl.Protected,
 		HasPassword:   cl.PasswordHash != "",
 		Analytics:     cl.Analytics,
+		Searchable:    cl.Searchable,
 	}
 
 	if cl.GHSource.Valid {
@@ -85,6 +88,7 @@ func createChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		HidePoweredBy: req.HidePoweredBy,
 		Protected:     req.Protected,
 		Analytics:     req.Analytics,
+		Searchable:    req.Searchable,
 	}
 
 	if req.ColorScheme == "" {
@@ -146,7 +150,7 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		hashedPassword = apitypes.NewString(hash)
 	}
 
-	c, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, store.UpdateChangelogArgs{
+	args := store.UpdateChangelogArgs{
 		Title:         req.Title,
 		Subdomain:     req.Subdomain,
 		Domain:        domain,
@@ -161,11 +165,18 @@ func updateChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		Protected:     req.Protected,
 		PasswordHash:  hashedPassword,
 		Analytics:     req.Analytics,
-	})
+		Searchable:    req.Searchable,
+	}
+
+	cl, err := e.store.UpdateChangelog(r.Context(), t.WorkspaceID, cId, args)
 	if err != nil {
 		return err
 	}
-	return encodeChangelog(w, c)
+	mint.Emit(e.e, events.ChangelogUpdated{
+		CL:   cl,
+		Args: args,
+	})
+	return encodeChangelog(w, cl)
 }
 
 func setChangelogSource(e *env, w http.ResponseWriter, r *http.Request) error {
@@ -238,38 +249,39 @@ func getFullChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	cId := r.PathValue(changelog_id_param)
-	page, pageSize := handler.ParsePagination(r.URL.Query())
-
-	loader, err := e.loader.FromWorkspace(
-		r.Context(),
-		t.WorkspaceID.String(),
-		cId,
-		changelog.NewPagination(pageSize, page),
-	)
+	cID, err := store.ParseCID(r.PathValue(changelog_id_param))
 	if err != nil {
 		return errs.NewBadRequest(err)
 	}
 
-	parsed := loader.Parse(r.Context())
-
-	articles := make([]apitypes.Article, len(parsed.Articles))
-	for i, a := range parsed.Articles {
-		content, _ := io.ReadAll(a.Content)
-
-		articles[i] = apitypes.Article{
-			ID:          a.Meta.ID,
-			Title:       a.Meta.Title,
-			Description: a.Meta.Description,
-			PublishedAt: a.Meta.PublishedAt,
-			Tags:        a.Meta.Tags,
-			HTMLContent: string(content),
-		}
+	cl, err := e.store.GetChangelog(r.Context(), t.WorkspaceID, cID)
+	if err != nil {
+		return errs.NewBadRequest(err)
 	}
+
 	res := apitypes.FullChangelog{
-		Changelog:       changelogToApiType(parsed.CL),
-		Articles:        articles,
-		HasMoreArticles: parsed.HasMore,
+		Changelog: changelogToApiType(cl),
+	}
+
+	page, pageSize := handler.ParsePagination(r.URL.Query())
+	pagination := internal.NewPagination(pageSize, page)
+
+	loaded, err := e.loader.LoadAndParseReleaseNotes(r.Context(), cl, pagination)
+	if err == nil {
+		articles := make([]apitypes.Article, len(loaded.Notes))
+		for i, a := range loaded.Notes {
+			content, _ := io.ReadAll(a.Content)
+			articles[i] = apitypes.Article{
+				ID:          a.Meta.ID,
+				Title:       a.Meta.Title,
+				Description: a.Meta.Description,
+				PublishedAt: a.Meta.PublishedAt,
+				Tags:        a.Meta.Tags,
+				HTMLContent: string(content),
+			}
+		}
+		res.Articles = articles
+		res.HasMoreArticles = loaded.HasMore
 	}
 
 	w.Header().Set("Content-Type", "application/json")

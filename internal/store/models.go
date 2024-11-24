@@ -29,6 +29,7 @@ type changelog struct {
 	Protected     int64
 	PasswordHash  apitypes.NullString
 	Analytics     int64
+	Searchable    int64
 }
 
 type changelogSource struct {

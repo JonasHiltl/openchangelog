@@ -14,11 +14,6 @@ func TestFeedToChangelogURL(t *testing.T) {
 		expected   string
 	}{
 		{
-			requestURL: "/feed?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
-			host:       "openchangelog.com",
-			expected:   "https://openchangelog.com?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
-		},
-		{
 			requestURL: "https://tenant.openchangelog.com/feed",
 			host:       "tenant.openchangelog.com",
 			expected:   "https://tenant.openchangelog.com",
@@ -55,9 +50,9 @@ func TestGetFeedURL(t *testing.T) {
 		expected   string
 	}{
 		{
-			requestURL: "/?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
+			requestURL: "/",
 			host:       "openchangelog.com",
-			expected:   "https://openchangelog.com/feed?cid=cl_cqj9t0fd5lbga0eemd10&wid=ws_cqj9svnd5lbga0eemd00",
+			expected:   "https://openchangelog.com/feed",
 		},
 		{
 			requestURL: "https://tenant.openchangelog.com",
@@ -102,9 +97,9 @@ func TestGetFullURL(t *testing.T) {
 		expected   string
 	}{
 		{
-			requestURL: "/?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
+			requestURL: "/",
 			host:       "openchangelog.com",
-			expected:   "https://openchangelog.com/?wid=ws_cqj9svnd5lbga0eemd00&cid=cl_cqj9t0fd5lbga0eemd10",
+			expected:   "https://openchangelog.com/",
 		},
 		{
 			requestURL: "https://tenant.openchangelog.com",
@@ -180,51 +175,6 @@ func TestParsePagination(t *testing.T) {
 		}
 		if table.pageSize != s {
 			t.Errorf("expected %d to equal %d", s, table.pageSize)
-		}
-	}
-}
-
-func TestGetQueryIDs(t *testing.T) {
-	tables := []struct {
-		url   string
-		hxURL string
-		wID   string
-		cID   string
-	}{
-		{
-			url: "/?wid=ws_1&cid=cl_1",
-			wID: "ws_1",
-			cID: "cl_1",
-		},
-		{
-			url: "/",
-			wID: "",
-			cID: "",
-		},
-		{
-			hxURL: "http://localhost:6001/?wid=ws_2&cid=cl_2",
-			wID:   "ws_2",
-			cID:   "cl_2",
-		},
-	}
-
-	for _, table := range tables {
-		u, err := url.Parse(table.url)
-		if err != nil {
-			t.Error(err)
-		}
-
-		r := &http.Request{URL: u, Header: http.Header{}}
-		if table.hxURL != "" {
-			r.Header.Set("HX-Current-URL", table.hxURL)
-		}
-
-		wID, cID := GetQueryIDs(r)
-		if wID != table.wID {
-			t.Errorf("Expected %s to equals %s", wID, table.wID)
-		}
-		if cID != table.cID {
-			t.Errorf("Expected %s to equals %s", cID, table.cID)
 		}
 	}
 }

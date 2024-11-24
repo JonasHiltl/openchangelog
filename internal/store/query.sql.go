@@ -29,9 +29,10 @@ INSERT INTO changelogs (
     hide_powered_by,
     protected,
     analytics,
+    searchable,
     password_hash
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at, domain, color_scheme, hide_powered_by, protected, password_hash, analytics
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at, domain, color_scheme, hide_powered_by, protected, password_hash, analytics, searchable
 `
 
 type createChangelogParams struct {
@@ -50,6 +51,7 @@ type createChangelogParams struct {
 	HidePoweredBy int64
 	Protected     int64
 	Analytics     int64
+	Searchable    int64
 	PasswordHash  apitypes.NullString
 }
 
@@ -70,6 +72,7 @@ func (q *Queries) createChangelog(ctx context.Context, arg createChangelogParams
 		arg.HidePoweredBy,
 		arg.Protected,
 		arg.Analytics,
+		arg.Searchable,
 		arg.PasswordHash,
 	)
 	var i changelog
@@ -92,6 +95,7 @@ func (q *Queries) createChangelog(ctx context.Context, arg createChangelogParams
 		&i.Protected,
 		&i.PasswordHash,
 		&i.Analytics,
+		&i.Searchable,
 	)
 	return i, err
 }
@@ -208,7 +212,7 @@ func (q *Queries) deleteWorkspace(ctx context.Context, id string) error {
 }
 
 const getChangelog = `-- name: getChangelog :one
-SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, c.color_scheme, c.hide_powered_by, c.protected, c.password_hash, c.analytics, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
+SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, c.color_scheme, c.hide_powered_by, c.protected, c.password_hash, c.analytics, c.searchable, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
 WHERE c.workspace_id = ? AND c.id = ?
@@ -246,6 +250,7 @@ func (q *Queries) getChangelog(ctx context.Context, arg getChangelogParams) (get
 		&i.changelog.Protected,
 		&i.changelog.PasswordHash,
 		&i.changelog.Analytics,
+		&i.changelog.Searchable,
 		&i.ChangelogSource.ID,
 		&i.ChangelogSource.WorkspaceID,
 		&i.ChangelogSource.Owner,
@@ -257,7 +262,7 @@ func (q *Queries) getChangelog(ctx context.Context, arg getChangelogParams) (get
 }
 
 const getChangelogByDomainOrSubdomain = `-- name: getChangelogByDomainOrSubdomain :one
-SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, c.color_scheme, c.hide_powered_by, c.protected, c.password_hash, c.analytics, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
+SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, c.color_scheme, c.hide_powered_by, c.protected, c.password_hash, c.analytics, c.searchable, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
 WHERE c.domain = ? OR c.subdomain = ?
@@ -297,6 +302,7 @@ func (q *Queries) getChangelogByDomainOrSubdomain(ctx context.Context, arg getCh
 		&i.changelog.Protected,
 		&i.changelog.PasswordHash,
 		&i.changelog.Analytics,
+		&i.changelog.Searchable,
 		&i.ChangelogSource.ID,
 		&i.ChangelogSource.WorkspaceID,
 		&i.ChangelogSource.Owner,
@@ -383,7 +389,7 @@ func (q *Queries) getWorkspace(ctx context.Context, id string) (getWorkspaceRow,
 }
 
 const listChangelogs = `-- name: listChangelogs :many
-SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, c.color_scheme, c.hide_powered_by, c.protected, c.password_hash, c.analytics, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
+SELECT c.id, c.workspace_id, c.subdomain, c.title, c.subtitle, c.source_id, c.logo_src, c.logo_link, c.logo_alt, c.logo_height, c.logo_width, c.created_at, c.domain, c.color_scheme, c.hide_powered_by, c.protected, c.password_hash, c.analytics, c.searchable, cs.id, cs.workspace_id, cs.owner, cs.repo, cs.path, cs.installation_id
 FROM changelogs c
 LEFT JOIN changelog_source cs ON c.workspace_id = cs.workspace_id AND c.source_id = cs.id
 WHERE c.workspace_id = ?
@@ -422,6 +428,7 @@ func (q *Queries) listChangelogs(ctx context.Context, workspaceID string) ([]lis
 			&i.changelog.Protected,
 			&i.changelog.PasswordHash,
 			&i.changelog.Analytics,
+			&i.changelog.Searchable,
 			&i.ChangelogSource.ID,
 			&i.ChangelogSource.WorkspaceID,
 			&i.ChangelogSource.Owner,
@@ -567,9 +574,10 @@ SET
    color_scheme = CASE WHEN cast(?19 as bool) THEN ?20 ELSE color_scheme END,
    protected = coalesce(?21, protected),
    analytics = coalesce(?22, analytics),
-   password_hash = CASE WHEN cast(?23 as bool) THEN ?24 ELSE password_hash END
-WHERE workspace_id = ?25 AND id = ?26
-RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at, domain, color_scheme, hide_powered_by, protected, password_hash, analytics
+   searchable = coalesce(?23, searchable),
+   password_hash = CASE WHEN cast(?24 as bool) THEN ?25 ELSE password_hash END
+WHERE workspace_id = ?26 AND id = ?27
+RETURNING id, workspace_id, subdomain, title, subtitle, source_id, logo_src, logo_link, logo_alt, logo_height, logo_width, created_at, domain, color_scheme, hide_powered_by, protected, password_hash, analytics, searchable
 `
 
 type updateChangelogParams struct {
@@ -595,6 +603,7 @@ type updateChangelogParams struct {
 	ColorScheme     ColorScheme
 	Protected       sql.NullInt64
 	Analytics       sql.NullInt64
+	Searchable      sql.NullInt64
 	SetPasswordHash bool
 	PasswordHash    apitypes.NullString
 	WorkspaceID     string
@@ -625,6 +634,7 @@ func (q *Queries) updateChangelog(ctx context.Context, arg updateChangelogParams
 		arg.ColorScheme,
 		arg.Protected,
 		arg.Analytics,
+		arg.Searchable,
 		arg.SetPasswordHash,
 		arg.PasswordHash,
 		arg.WorkspaceID,
@@ -650,6 +660,7 @@ func (q *Queries) updateChangelog(ctx context.Context, arg updateChangelogParams
 		&i.Protected,
 		&i.PasswordHash,
 		&i.Analytics,
+		&i.Searchable,
 	)
 	return i, err
 }

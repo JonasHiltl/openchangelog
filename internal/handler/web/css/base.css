@@ -4,7 +4,7 @@
 
 @layer components {
     .input {
-        @apply o-text-sm o-py-2 o-px-3 o-rounded-md o-border dark:o-border-white/10 dark:focus-within:o-border-white/20
+        @apply o-text-sm o-py-2 o-px-3 o-rounded-md o-border o-text-black/70 dark:o-text-white/80 dark:o-border-white/10 dark:focus-within:o-border-white/20
     }
 
     .btn {
@@ -20,6 +20,30 @@
         @apply o-bg-primary hover:o-bg-primary/90 o-text-white
     }
 
+    .htmx-indicator {
+        display: none;
+    }
+
+    .htmx-request .htmx-indicator {
+        display: inline;
+    }
+
+    .htmx-request.htmx-indicator {
+        display: inline;
+    }
+
+    .htmx-indicator-rev {
+        display: inline;
+    }
+
+    .htmx-request .htmx-indicator-rev {
+        display: none;
+    }
+
+    .htmx-request.htmx-indicator-rev {
+        display: none;
+    }
+
     input {
         background-color: transparent;
     }
@@ -30,6 +54,10 @@
 
     form {
         margin: 0px;
+    }
+
+    mark {
+        @apply o-bg-primary/20 dark:o-bg-primary/40 o-rounded o-text-current
     }
 }
 

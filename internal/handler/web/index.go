@@ -1,57 +1,60 @@
 package web
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/jonashiltl/openchangelog/components"
+	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/analytics"
-	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/static"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
+	"github.com/jonashiltl/openchangelog/internal/load"
 )
 
 func index(e *env, w http.ResponseWriter, r *http.Request) error {
 	q := r.URL.Query()
 	page, pageSize := handler.ParsePagination(q)
-	l, err := handler.LoadChangelog(e.loader, e.cfg.IsDBMode(), r, changelog.NewPagination(pageSize, page))
+	pagination := internal.NewPagination(pageSize, page)
+
+	loaded, err := e.loader.LoadAndParse(r, pagination)
 	if err != nil {
 		return err
 	}
 
 	_, isWidget := q["widget"]
-	parsed := l.Parse(r.Context())
 
-	if parsed.CL.Protected {
+	if loaded.CL.Protected {
 		if isWidget {
 			return errs.NewBadRequest(errors.New("can't display protected changelog in widget"))
 		}
-		err = ensurePasswordProvided(r, parsed.CL.PasswordHash)
+		err = ensurePasswordProvided(r, loaded.CL.PasswordHash)
 		if err != nil {
-			slog.InfoContext(r.Context(), "blocked access to changelog", slog.String("changelog", parsed.CL.ID.String()))
-
-			go e.getAnalyticsEmitter(parsed.CL).Emit(analytics.NewAccessDeniedEvent(r, parsed.CL))
+			slog.InfoContext(r.Context(), "blocked access to changelog", slog.String("changelog", loaded.CL.ID.String()))
+			go e.getAnalyticsEmitter(loaded.CL).Emit(analytics.NewAccessDeniedEvent(r, loaded.CL))
 			return views.PasswordProtection(views.PasswordProtectionArgs{
 				CSS: static.BaseCSS,
 				ThemeArgs: components.ThemeArgs{
-					ColorScheme: parsed.CL.ColorScheme.ToApiTypes(),
+					ColorScheme: loaded.CL.ColorScheme.ToApiTypes(),
 				},
 				FooterArgs: components.FooterArgs{
-					HidePoweredBy: parsed.CL.HidePoweredBy,
+					HidePoweredBy: loaded.CL.HidePoweredBy,
 				},
 			}).Render(r.Context(), w)
 		}
 	}
 
 	if _, ok := q["articles"]; ok {
-		return handleArticles(e, w, r, &parsed, page, pageSize)
+		return handleArticles(e, w, r.Context(), loaded, page, pageSize)
 	}
 
-	setCacheControlHeader(w, parsed.CL.Protected)
-	return renderChangelog(e, w, r, &parsed, isWidget)
+	setCacheControlHeader(r, w, loaded.CL.Protected)
+	return renderChangelog(e, w, r, loaded, isWidget)
 }
 
 func ensurePasswordProvided(r *http.Request, pwHash string) error {
@@ -65,13 +68,19 @@ func ensurePasswordProvided(r *http.Request, pwHash string) error {
 	return handler.ValidatePassword(pwHash, authorize)
 }
 
-func handleArticles(e *env, w http.ResponseWriter, r *http.Request, parsed *changelog.ParsedChangelog, page, pageSize int) error {
-	if len(parsed.Articles) > 0 {
-		return e.render.RenderArticleList(r.Context(), w, RenderArticleListArgs{
-			WID:      parsed.CL.WorkspaceID,
-			CID:      parsed.CL.ID,
-			Articles: parsed.Articles,
-			HasMore:  parsed.HasMore,
+func handleArticles(
+	e *env,
+	w http.ResponseWriter,
+	ctx context.Context,
+	loaded load.LoadedChangelog,
+	page, pageSize int,
+) error {
+	if len(loaded.Notes) > 0 {
+		return e.render.RenderArticleList(ctx, w, RenderArticleListArgs{
+			WID:      loaded.CL.WorkspaceID,
+			CID:      loaded.CL.ID,
+			Articles: loaded.Notes,
+			HasMore:  loaded.HasMore,
 			NextPage: page + 1,
 			PageSize: pageSize,
 		})
@@ -81,7 +90,11 @@ func handleArticles(e *env, w http.ResponseWriter, r *http.Request, parsed *chan
 	}
 }
 
-func setCacheControlHeader(w http.ResponseWriter, isProtected bool) {
+func setCacheControlHeader(r *http.Request, w http.ResponseWriter, isProtected bool) {
+	if strings.Contains(r.Host, "localhost") {
+		return
+	}
+
 	if isProtected {
 		w.Header().Set("Cache-Control", "private,max-age=300")
 	} else {
@@ -89,18 +102,32 @@ func setCacheControlHeader(w http.ResponseWriter, isProtected bool) {
 	}
 }
 
-func renderChangelog(e *env, w http.ResponseWriter, r *http.Request, parsed *changelog.ParsedChangelog, isWidget bool) error {
+func renderChangelog(
+	e *env,
+	w http.ResponseWriter,
+	r *http.Request,
+	loaded load.LoadedChangelog,
+	isWidget bool,
+) error {
 	args := RenderChangelogArgs{
-		FeedURL:    handler.GetFeedURL(r),
-		CurrentURL: handler.GetFullURL(r),
-		CL:         parsed.CL,
-		Articles:   parsed.Articles,
-		HasMore:    parsed.HasMore,
+		FeedURL:      handler.GetFeedURL(r),
+		CurrentURL:   handler.GetFullURL(r),
+		CL:           loaded.CL,
+		ReleaseNotes: loaded.Notes,
+		HasMore:      loaded.HasMore,
+		HasMetaKey:   requestFromMac(r.Header),
 	}
 
-	go e.getAnalyticsEmitter(parsed.CL).Emit(analytics.NewEvent(r, parsed.CL))
+	go e.getAnalyticsEmitter(loaded.CL).Emit(analytics.NewEvent(r, loaded.CL))
 	if isWidget {
 		return e.render.RenderWidget(r.Context(), w, args)
 	}
 	return e.render.RenderChangelog(r.Context(), w, args)
+}
+
+func requestFromMac(h http.Header) bool {
+	userAgent := h.Get("User-Agent")
+	userAgent = strings.ToLower(userAgent)
+
+	return strings.Contains(userAgent, "macintosh") || strings.Contains(userAgent, "mac os x")
 }

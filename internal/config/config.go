@@ -8,12 +8,15 @@ import (
 
 type CacheTyp string
 type AnalyticsProvider string
+type SearchType string
 
 const (
-	Memory   CacheTyp          = "memory"
-	S3       CacheTyp          = "s3"
-	Disk     CacheTyp          = "disk"
-	Tinybird AnalyticsProvider = "tinybird"
+	Memory     CacheTyp          = "memory"
+	S3         CacheTyp          = "s3"
+	Disk       CacheTyp          = "disk"
+	Tinybird   AnalyticsProvider = "tinybird"
+	SearchDisk SearchType        = "disk"
+	SearchMem  SearchType        = "memory"
 )
 
 type GithubConfig struct {
@@ -98,6 +101,13 @@ func (l LogLevel) ToSlog() slog.Level {
 	return sl
 }
 
+type SearchConfig struct {
+	Type SearchType `mapstructure:"type"`
+	Disk struct {
+		Path string `mapstructure:"path"`
+	} `mapstructure:"disk"`
+}
+
 type Config struct {
 	Addr      string           `mapstructure:"addr"`
 	SqliteURL string           `mapstructure:"sqliteUrl"`
@@ -108,15 +118,21 @@ type Config struct {
 	Analytics *AnalyticsConfig `mapstructure:"analytics"`
 	Admin     *AdminConfig     `mapstructure:"admin"`
 	Log       *LogConfig       `mapstructure:"log"`
+	Search    *SearchConfig    `mapstructure:"search"`
 }
 
 func (c Config) HasGithubAuth() bool {
 	return c.Github != nil && c.Github.Auth != nil
 }
 
-// Returns wether openchangelog should by started in database mode or in config mode
+// Returns true if Openchangelog was started in db mode (using sqlite to store changelog configs, multi tenancy)
 func (c Config) IsDBMode() bool {
 	return c.SqliteURL != ""
+}
+
+// Returns true if Openchangelog was started in config mode (using config file to store changelog configs)
+func (c Config) IsConfigMode() bool {
+	return !c.IsDBMode()
 }
 
 // Loads the config file from configPath if specified.

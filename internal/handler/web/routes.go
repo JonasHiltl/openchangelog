@@ -4,40 +4,53 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/jonashiltl/openchangelog/components"
 	"github.com/jonashiltl/openchangelog/internal/analytics"
 	"github.com/jonashiltl/openchangelog/internal/analytics/tinybird"
-	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/static"
 	"github.com/jonashiltl/openchangelog/internal/handler/web/views"
-	"github.com/jonashiltl/openchangelog/internal/lgr"
+	"github.com/jonashiltl/openchangelog/internal/load"
+	"github.com/jonashiltl/openchangelog/internal/parse"
+	"github.com/jonashiltl/openchangelog/internal/search"
 	"github.com/jonashiltl/openchangelog/internal/store"
+	"github.com/jonashiltl/openchangelog/internal/xlog"
 	"golang.org/x/exp/slog"
 )
 
 func RegisterWebHandler(mux *http.ServeMux, e *env) {
 	mux.HandleFunc("GET /", serveHTTP(e, index))
+	mux.HandleFunc("GET /{nid}", serveHTTP(e, details))
 	mux.HandleFunc("POST /password", serveHTTP(e, passwordSubmit))
+	mux.HandleFunc("POST /search", serveHTTP(e, searchSubmit))
+	mux.HandleFunc("GET /search/tags", serveHTTP(e, searchTags))
+	mux.Handle("DELETE /remove-me", serveHTTP(e, func(e *env, w http.ResponseWriter, r *http.Request) error { return nil }))
 }
 
 func NewEnv(
 	cfg config.Config,
-	loader *changelog.Loader,
+	loader *load.Loader,
+	parser parse.Parser,
 	render Renderer,
+	searcher search.Searcher,
 ) *env {
 	return &env{
-		cfg:    cfg,
-		loader: loader,
-		render: render,
+		cfg:      cfg,
+		loader:   loader,
+		parser:   parser,
+		render:   render,
+		searcher: searcher,
 	}
 }
 
 type env struct {
-	loader  *changelog.Loader
-	cfg     config.Config
-	render  Renderer
-	emitter analytics.Emitter
+	cfg      config.Config
+	render   Renderer
+	emitter  analytics.Emitter
+	loader   *load.Loader
+	parser   parse.Parser
+	searcher search.Searcher
 }
 
 // Returns the analytics emitter of the changelog.
@@ -75,7 +88,7 @@ func createEmitter(cfg config.Config) analytics.Emitter {
 }
 
 func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
-	return lgr.AttachLogger(func(w http.ResponseWriter, r *http.Request) {
+	return xlog.AttachLogger(func(w http.ResponseWriter, r *http.Request) {
 		err := h(env, w, r)
 		if err != nil {
 			path := r.URL.Path
@@ -96,11 +109,19 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 				args.Status = domErr.Status()
 			}
 
-			defer lgr.LogRequest(r.Context(), args.Status, args.Message)
+			defer xlog.LogRequest(r.Context(), args.Status, args.Message)
 
 			// if requesting widget, don't render html error, just error message
 			if _, ok := r.URL.Query()["widget"]; ok {
 				http.Error(w, args.Message, args.Status)
+				return
+			}
+
+			if r.Header.Get("HX-Request") == "true" {
+				err := components.Toast(components.Fail, args.Message).Render(r.Context(), w)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
 				return
 			}
 

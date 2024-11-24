@@ -9,7 +9,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/jonashiltl/openchangelog/internal/changelog"
+	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/jonashiltl/openchangelog/internal/errs"
 	"github.com/jonashiltl/openchangelog/internal/handler"
 )
@@ -18,20 +18,18 @@ import (
 var feedTemplate string
 
 func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
-	l, err := handler.LoadChangelog(e.loader, e.cfg.IsDBMode(), r, changelog.NoPagination())
+	loaded, err := e.loader.LoadAndParse(r, internal.NoPagination())
 	if err != nil {
 		return err
 	}
 
-	parsed := l.Parse(r.Context())
-
-	if parsed.CL.Protected {
+	if loaded.CL.Protected {
 		authorize := r.URL.Query().Get(handler.AUTHORIZE_QUERY)
 		if authorize == "" {
 			return errs.NewBadRequest(errors.New("can't load rss feed of protected changelog, specify \"authorize\" query param to subscribe"))
 		}
 
-		err = handler.ValidatePassword(parsed.CL.PasswordHash, authorize)
+		err = handler.ValidatePassword(loaded.CL.PasswordHash, authorize)
 		if err != nil {
 			return errs.NewBadRequest(err)
 		}
@@ -51,9 +49,9 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/rss+xml")
 	link := handler.FeedToChangelogURL(r)
 	args := map[string]any{
-		"CL":       parsed.CL,
-		"Articles": parsed.Articles,
-		"HasMore":  parsed.HasMore,
+		"CL":       loaded.CL,
+		"Articles": loaded.Notes,
+		"HasMore":  loaded.HasMore,
 		"Link":     strings.ReplaceAll(link, "&", "&amp;"), // & is reserved in xml
 	}
 	return tmpl.Execute(w, args)

@@ -1,4 +1,4 @@
-package changelog
+package parse
 
 import (
 	"bufio"
@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jonashiltl/openchangelog/internal"
 	"github.com/yuin/goldmark"
 )
 
@@ -25,9 +26,7 @@ func NewKeepAChangelogParser(gm goldmark.Markdown) *kparser {
 // Also returns whether the markdown file has any more releases to parse.
 // Skips any release that failed to be parsed.
 // The already read part (detect file format) needs to be provided independently.
-func (g *kparser) parse(read string, rest io.ReadCloser, page Pagination) ParseResult {
-	defer rest.Close()
-
+func (g *kparser) parse(read string, rest io.Reader, page internal.Pagination) ParseResult {
 	// sanitize pagination
 	if page.IsDefined() && page.PageSize() < 1 {
 		return ParseResult{}
@@ -36,7 +35,7 @@ func (g *kparser) parse(read string, rest io.ReadCloser, page Pagination) ParseR
 	sc := bufio.NewScanner(rest)
 	sc.Split(splitOnRelease)
 
-	var articles []ParsedArticle
+	var articles []ParsedReleaseNote
 	var currentIdx = 0
 	var hasMore = false
 
@@ -70,17 +69,17 @@ func (g *kparser) parse(read string, rest io.ReadCloser, page Pagination) ParseR
 	}
 
 	return ParseResult{
-		Articles: articles,
-		HasMore:  hasMore,
+		ReleaseNotes: articles,
+		HasMore:      hasMore,
 	}
 }
 
 // Should be called for each new ## section of the changelog file.
 // Returns the currently parsed article and the new line of the next release if another article exists.
-func (g *kparser) parseRelease(release string) (ParsedArticle, error) {
+func (g *kparser) parseRelease(release string) (ParsedReleaseNote, error) {
 	firstLineIdx := strings.Index(release, "\n")
 	if firstLineIdx == -1 {
-		return ParsedArticle{}, errors.New("no new line character found")
+		return ParsedReleaseNote{}, errors.New("no new line character found")
 	}
 	firstLine := release[:firstLineIdx]
 	content := release[firstLineIdx+1:]
@@ -88,7 +87,7 @@ func (g *kparser) parseRelease(release string) (ParsedArticle, error) {
 	title := parseTitle(firstLine)
 	releaseDate := parseReleaseDate(firstLine)
 
-	a := ParsedArticle{
+	a := ParsedReleaseNote{
 		Meta: Meta{
 			Title:       title,
 			ID:          strings.ToLower(title),
@@ -108,7 +107,7 @@ func (g *kparser) parseRelease(release string) (ParsedArticle, error) {
 	var htmlContent bytes.Buffer
 	err := g.gm.Convert([]byte(content), &htmlContent)
 	if err != nil {
-		return ParsedArticle{}, err
+		return ParsedReleaseNote{}, err
 	}
 
 	a.Content = &htmlContent

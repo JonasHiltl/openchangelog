@@ -26,6 +26,7 @@ type Changelog struct {
 	Analytics     bool
 	HidePoweredBy bool
 	Protected     bool
+	Searchable    bool
 	PasswordHash  string
 	CreatedAt     time.Time
 	GHSource      null.Value[GHSource]
@@ -65,6 +66,7 @@ type UpdateChangelogArgs struct {
 	HidePoweredBy *bool
 	Protected     *bool
 	Analytics     *bool
+	Searchable    *bool
 	PasswordHash  apitypes.NullString
 }
 

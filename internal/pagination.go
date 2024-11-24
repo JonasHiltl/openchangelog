@@ -1,4 +1,4 @@
-package changelog
+package internal
 
 type Pagination interface {
 	PageSize() int

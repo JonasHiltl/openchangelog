@@ -14,14 +14,26 @@ type IndexArgs struct {
 	components.HeaderArgs
 	components.ArticleListArgs
 	components.FooterArgs
+	ShowSearchButton bool
+	components.SearchButtonArgs
 }
 
 templ Index(arg IndexArgs) {
-	@layout.Main(arg.MainArgs) {
+	@layout.Main(layout.MainArgs{
+		Title:       arg.MainArgs.Title,
+		Description: arg.MainArgs.Description,
+		CSS:         arg.MainArgs.CSS,
+		IncludeHTMX: true,
+	}) {
 		@components.Theme(arg.ThemeArgs) {
 			@components.Navbar() {
 				@components.LogoImg(arg.Logo)
-				@components.RSS(arg.RSSArgs)
+				@components.NavbarActions() {
+					if arg.ShowSearchButton {
+						@components.SearchButton(arg.SearchButtonArgs)
+					}
+					@components.RSS(arg.RSSArgs)
+				}
 			}
 			@components.Prose() {
 				@components.ChangelogContainer(arg.ChangelogContainerArgs) {

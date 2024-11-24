@@ -5,21 +5,24 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/jonashiltl/openchangelog/internal/changelog"
 	"github.com/jonashiltl/openchangelog/internal/config"
 	"github.com/jonashiltl/openchangelog/internal/errs"
-	"github.com/jonashiltl/openchangelog/internal/lgr"
+	"github.com/jonashiltl/openchangelog/internal/load"
+	"github.com/jonashiltl/openchangelog/internal/parse"
+	"github.com/jonashiltl/openchangelog/internal/xlog"
 )
 
 type env struct {
 	cfg    config.Config
-	loader *changelog.Loader
+	loader *load.Loader
+	parser parse.Parser
 }
 
-func NewEnv(cfg config.Config, loader *changelog.Loader) *env {
+func NewEnv(cfg config.Config, loader *load.Loader, parser parse.Parser) *env {
 	return &env{
-		loader: loader,
 		cfg:    cfg,
+		loader: loader,
+		parser: parser,
 	}
 }
 
@@ -28,7 +31,7 @@ func RegisterRSSHandler(mux *http.ServeMux, e *env) {
 }
 
 func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
-	return lgr.AttachLogger(func(w http.ResponseWriter, r *http.Request) {
+	return xlog.AttachLogger(func(w http.ResponseWriter, r *http.Request) {
 		err := h(env, w, r)
 		if err != nil {
 			status := http.StatusInternalServerError
@@ -66,7 +69,7 @@ func serveHTTP(env *env, h func(e *env, w http.ResponseWriter, r *http.Request) 
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 
-			lgr.LogRequest(r.Context(), status, msg)
+			xlog.LogRequest(r.Context(), status, msg)
 		}
 	})
 }

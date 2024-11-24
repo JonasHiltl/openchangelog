@@ -1,4 +1,4 @@
-package changelog
+package parse
 
 import (
 	"fmt"
@@ -17,13 +17,13 @@ func openOGTestData(name string) (*os.File, error) {
 }
 
 func TestOGParseArticle(t *testing.T) {
-	p := NewOGParser(createGoldmark())
+	p := NewOGParser(CreateGoldmark())
 	file, err := openOGTestData("v0.0.1-commonmark")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	parsed, err := p.parseArticle(file)
+	parsed, err := p.parseReleaseNote(file)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,13 +45,13 @@ func TestOGParseArticle(t *testing.T) {
 }
 
 func TestOGParseArticleRead(t *testing.T) {
-	p := NewOGParser(createGoldmark())
+	p := NewOGParser(CreateGoldmark())
 	file, err := openOGTestData("v0.0.5-beta")
 	if err != nil {
 		t.Fatal(err)
 	}
 	_, read := detectFileFormat(file)
-	parsed, err := p.parseArticleRead(read, file)
+	parsed, err := p.parseReleaseNoteRead(read, file)
 	if err != nil {
 		t.Fatal(err)
 	}
