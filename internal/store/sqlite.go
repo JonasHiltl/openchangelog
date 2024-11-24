@@ -175,7 +175,7 @@ func boolToInt(b bool) int64 {
 
 func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID ChangelogID, args UpdateChangelogArgs) (Changelog, error) {
 	// does not update string fields if they are zero value
-	c, err := s.q.updateChangelog(ctx, updateChangelogParams{
+	_, err := s.q.updateChangelog(ctx, updateChangelogParams{
 		ID:          cID.String(),
 		WorkspaceID: wID.String(),
 		Subdomain:   args.Subdomain,
@@ -222,7 +222,7 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 		}
 		return Changelog{}, formatUnqueConstraint(err)
 	}
-	return c.toExported(changelogSource{}), nil
+	return s.GetChangelog(ctx, wID, cID)
 }
 
 // If err is a unique constraint error, return humanized error message.
