@@ -69,11 +69,15 @@ func (l *EventListener) OnChangelogUpdated(e ChangelogUpdated) {
 		souce, err := source.NewSourceFromStore(l.cfg, e.CL, l.cache)
 		if err == nil {
 			go l.reindexSource(souce)
+		} else {
+			slog.Error("failed to create source", xlog.ErrAttr(err))
 		}
 	} else if e.Args.Searchable != nil && !*e.Args.Searchable {
 		souce, err := source.NewSourceFromStore(l.cfg, e.CL, l.cache)
 		if err == nil {
 			go l.removeIndex(souce)
+		} else {
+			slog.Error("failed to create source", xlog.ErrAttr(err))
 		}
 	}
 }
