@@ -23,11 +23,12 @@
 </p>
 
 Openchangelog takes your Changelog, hosted on GitHub or locally and renders it as a beautiful Changelog Website.
-- Dark, Light and System themes
-- Colorful Tags
-- Automatic RSS feed
+- Full Text Search
 - Password Protection
 - Analytics
+- Dark, Light and System themes
+- Automatic RSS feed
+- Colorful Tags
 - Supports [keep a changelog](https://keepachangelog.com/en/1.1.0/) `CHANGELOG.md` format or one Markdown file per release
 - Next.js embed
 - Various integrations, open an issue to request a new integration
