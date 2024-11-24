@@ -259,30 +259,29 @@ func getFullChangelog(e *env, w http.ResponseWriter, r *http.Request) error {
 		return errs.NewBadRequest(err)
 	}
 
+	res := apitypes.FullChangelog{
+		Changelog: changelogToApiType(cl),
+	}
+
 	page, pageSize := handler.ParsePagination(r.URL.Query())
 	pagination := internal.NewPagination(pageSize, page)
 
 	loaded, err := e.loader.LoadAndParseReleaseNotes(r.Context(), cl, pagination)
-	if err != nil {
-		return errs.NewBadRequest(err)
-	}
-
-	articles := make([]apitypes.Article, len(loaded.Notes))
-	for i, a := range loaded.Notes {
-		content, _ := io.ReadAll(a.Content)
-		articles[i] = apitypes.Article{
-			ID:          a.Meta.ID,
-			Title:       a.Meta.Title,
-			Description: a.Meta.Description,
-			PublishedAt: a.Meta.PublishedAt,
-			Tags:        a.Meta.Tags,
-			HTMLContent: string(content),
+	if err == nil {
+		articles := make([]apitypes.Article, len(loaded.Notes))
+		for i, a := range loaded.Notes {
+			content, _ := io.ReadAll(a.Content)
+			articles[i] = apitypes.Article{
+				ID:          a.Meta.ID,
+				Title:       a.Meta.Title,
+				Description: a.Meta.Description,
+				PublishedAt: a.Meta.PublishedAt,
+				Tags:        a.Meta.Tags,
+				HTMLContent: string(content),
+			}
 		}
-	}
-	res := apitypes.FullChangelog{
-		Changelog:       changelogToApiType(loaded.CL),
-		Articles:        articles,
-		HasMoreArticles: loaded.HasMore,
+		res.Articles = articles
+		res.HasMoreArticles = loaded.HasMore
 	}
 
 	w.Header().Set("Content-Type", "application/json")
