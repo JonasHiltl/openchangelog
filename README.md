@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://demo.openchangelog.com" target="_blank">
-    <img width="750" src="https://github.com/user-attachments/assets/41d11528-0445-4370-8196-33a3c3923f58"/>
+    <img width="750" src="https://github.com/user-attachments/assets/153e3efe-a951-4a29-a065-09a6c7dd7e21"/>
   </a>
   <h1 align="center"><b>Openchangelog</b></h1>
 </p>
@@ -15,8 +15,6 @@
   <a href="https://cloud.openchangelog.com">Get Started</a>
   ·
   <a href="https://demo.openchangelog.com">Demo</a>
-  ·
-  <a href="https://twitter.com/jonasdevs">Twitter</a>
 </p>
 <br />
 <br />
