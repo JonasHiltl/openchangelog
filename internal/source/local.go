@@ -116,16 +116,20 @@ func (s *localSource) openAndCacheFile(path string) (RawReleaseNote, error) {
 		return RawReleaseNote{}, err
 	}
 
-	cached, found := s.cache.Get(path)
-	equal := bytes.Equal(cached, content)
-
-	if !found || !equal {
-		s.cache.Set(path, content)
+	// by default, assume file has changed
+	hasChanged := true
+	if s.cache != nil {
+		cached, found := s.cache.Get(path)
+		equal := bytes.Equal(cached, content)
+		if !found || !equal {
+			s.cache.Set(path, content)
+		}
+		hasChanged = !equal
 	}
 
 	return RawReleaseNote{
 		Content:    bytes.NewReader(content),
-		hasChanged: !equal,
+		hasChanged: hasChanged,
 	}, nil
 }
 
