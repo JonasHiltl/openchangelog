@@ -31,3 +31,7 @@ page:
   auth:
     enabled: false
     # passwordHash: bcrypt encrypted hash of password
+search:
+  type: disk
+  disk:
+    path: /data/search
