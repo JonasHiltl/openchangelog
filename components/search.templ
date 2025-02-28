@@ -30,7 +30,7 @@ templ SearchResults(args SearchResultsArgs) {
 
 templ SearchResult(h search.SearchResult) {
 	<a
-		href={ templ.URL(fmt.Sprintf("/%s", h.ID)) }
+		href={ templ.URL(fmt.Sprintf("/release/%s", h.ID)) }
 		class="o-group o-flex o-items-center o-px-4 o-py-2 o-rounded-lg hover:o-bg-primary/5"
 	>
 		<div class="o-flex-1">

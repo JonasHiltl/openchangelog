@@ -28,7 +28,7 @@ type ArticleArgs struct {
 templ Article(a ArticleArgs) {
 	<article class="o-relative">
 		<h2 id={ a.ID } class="o-group">
-			<a class="o-not-prose" href={ templ.URL(fmt.Sprintf("/%s", a.ID)) }>{ a.Title }</a>
+			<a class="o-not-prose" href={ templ.URL(fmt.Sprintf("/release/%s", a.ID)) }>{ a.Title }</a>
 			<a
 				class="o-opacity-0 group-hover:o-opacity-100 o-transition-opacity"
 				href={ templ.URL(fmt.Sprintf("#%s", a.ID)) }

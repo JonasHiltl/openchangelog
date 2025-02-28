@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log/slog"
 
+	"github.com/jonashiltl/openchangelog/internal/xlog"
 	enclave "github.com/quail-ink/goldmark-enclave"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
@@ -78,6 +80,7 @@ func (g *ogparser) parseReleaseNoteBytes(content []byte) (ParsedReleaseNote, err
 	var target bytes.Buffer
 	err := g.gm.Convert(content, &target, gmparser.WithContext(ctx))
 	if err != nil {
+		slog.Warn("failed to convert to html", xlog.ErrAttr(err))
 		return ParsedReleaseNote{}, err
 	}
 
@@ -90,6 +93,7 @@ func (g *ogparser) parseReleaseNoteBytes(content []byte) (ParsedReleaseNote, err
 	var meta Meta
 	err = data.Decode(&meta)
 	if err != nil {
+		slog.Warn("failed to parse frontmatter", xlog.ErrAttr(err))
 		return ParsedReleaseNote{}, err
 	}
 
