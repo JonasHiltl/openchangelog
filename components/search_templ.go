@@ -95,7 +95,7 @@ func SearchResult(h search.SearchResult) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var3 templ.SafeURL = templ.URL(fmt.Sprintf("/%s", h.ID))
+		var templ_7745c5c3_Var3 templ.SafeURL = templ.URL(fmt.Sprintf("/release/%s", h.ID))
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var3)))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -231,7 +231,7 @@ func emptySearchResults(query string) templ.Component {
 
 type SearchButtonArgs struct {
 	HasMetaKey bool
-	Active     bool // whether the click should actually open the search modal
+	Active     bool // whether the click should open the search modal
 }
 
 func SearchButton(args SearchButtonArgs) templ.Component {
