@@ -1,10 +1,12 @@
 # Multi-platform build with CGO support
 FROM --platform=$BUILDPLATFORM golang:1.23 AS builder
 
-# Install ARM64 cross-compilation toolchain
+# Install ARM cross-compilation toolchain
 RUN apt-get update && apt-get install -y \
     gcc-aarch64-linux-gnu \
     libc6-dev-arm64-cross \
+    gcc-arm-linux-gnueabihf \
+    libc6-dev-armhf-cross \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
@@ -23,6 +25,12 @@ ENV GOARCH=${TARGETARCH}
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
       export CC=aarch64-linux-gnu-gcc && \
+      export CGO_CFLAGS="-g -O2" && \
+      export CGO_CXXFLAGS="-g -O2" && \
+      export CGO_LDFLAGS="-g -O2" && \
+      go build -buildvcs=false -ldflags "-s -w" -o ./openchangelog cmd/server.go; \
+    elif [ "$TARGETARCH" = "arm" ]; then \
+      export CC=arm-linux-gnueabihf-gcc && \
       export CGO_CFLAGS="-g -O2" && \
       export CGO_CXXFLAGS="-g -O2" && \
       export CGO_LDFLAGS="-g -O2" && \
