@@ -15,6 +15,7 @@ require (
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/grokify/html-strip-tags-go v0.1.0
 	github.com/guregu/null/v5 v5.0.0
+	github.com/jonashiltl/openchangelog/api v0.0.0-20250228134634-807f27bb7b58
 	github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241124125835-a4a1bb42e055
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/microcosm-cc/bluemonday v1.0.27
@@ -67,6 +68,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
+	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/http v0.0.0-20150505212737-77bd98b60462 // indirect
