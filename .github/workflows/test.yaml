@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build:
+  unit-tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,11 +22,33 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v1
 
-      - name: Test
+      - name: Run Unit Tests
         run: go run gotest.tools/gotestsum@latest --junitfile unit-tests.xml --format pkgname github.com/jonashiltl/openchangelog/...
 
-      - name: Test Summary
+      - name: Unit Test Summary
         uses: test-summary/action@v2
         with:
           paths: "unit-tests.xml"
+        if: always()
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Set up Go 1.23
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.23
+
+      - name: Check out code
+        uses: actions/checkout@v1
+
+      - name: Run Integration Tests
+        run: go run gotest.tools/gotestsum@latest --junitfile integration-tests.xml -- -v ./integration_test.go
+
+      - name: Integration Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "integration-tests.xml"
         if: always()
