@@ -1,5 +1,13 @@
-# Non alpine because of CGO glibc dependency
-FROM golang:1.23 AS builder
+# Multi-platform build with CGO support
+FROM --platform=$BUILDPLATFORM golang:1.23 AS builder
+
+# Install ARM cross-compilation toolchain
+RUN apt-get update && apt-get install -y \
+    gcc-aarch64-linux-gnu \
+    libc6-dev-arm64-cross \
+    gcc-arm-linux-gnueabihf \
+    libc6-dev-armhf-cross \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
 ENV CGO_ENABLED=1
@@ -8,12 +16,39 @@ COPY go.sum .
 RUN go mod tidy
 
 COPY . .
-RUN go build -buildvcs=false -ldflags "-s -w -extldflags '-static'" -o ./openchangelog cmd/server.go
+
+# Build binary for target architecture
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
+ENV GOOS=${TARGETOS}
+ENV GOARCH=${TARGETARCH}
+
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      export CC=aarch64-linux-gnu-gcc && \
+      export CGO_CFLAGS="-g -O2" && \
+      export CGO_CXXFLAGS="-g -O2" && \
+      export CGO_LDFLAGS="-g -O2" && \
+      go build -buildvcs=false -ldflags "-s -w" -o ./openchangelog cmd/server.go; \
+    elif [ "$TARGETARCH" = "arm" ]; then \
+      export CC=arm-linux-gnueabihf-gcc && \
+      export CGO_CFLAGS="-g -O2" && \
+      export CGO_CXXFLAGS="-g -O2" && \
+      export CGO_LDFLAGS="-g -O2" && \
+      go build -buildvcs=false -ldflags "-s -w" -o ./openchangelog cmd/server.go; \
+    else \
+      go build -buildvcs=false -ldflags "-s -w -extldflags '-static'" -o ./openchangelog cmd/server.go; \
+    fi
 
 # Build goose binary
-FROM golang:1.23 AS goose_builder
+FROM --platform=$BUILDPLATFORM golang:1.23 AS goose_builder
 
 WORKDIR /build
+
+# Build goose for target architecture
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
+ENV GOOS=${TARGETOS}
+ENV GOARCH=${TARGETARCH}
 
 RUN git clone https://github.com/pressly/goose && \
     cd goose && \
@@ -26,11 +61,13 @@ ARG config=i-should-never-exists.jla
 # Try to copy config, the * makes sure we don't fail if the file isn't found
 COPY *$config /etc/openchangelog.yaml
 
-RUN apk add sqlite
+# Setup our environment to include SQLite. We install ca-certificates
+# so we can communicate with external sources over HTTPS.
+RUN apk add ca-certificates sqlite
+COPY --from=builder /build/openchangelog /app/openchangelog
+COPY --from=builder /build/migrations /app/migrations
 
-WORKDIR /app
-COPY --from=builder /build/openchangelog ./openchangelog
-COPY --from=builder /build/migrations ./migrations
 COPY --from=goose_builder /build/goose/goose /usr/bin/goose
 
+WORKDIR /app
 ENTRYPOINT ["/app/openchangelog"]

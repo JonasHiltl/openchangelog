@@ -9,7 +9,8 @@ Below are a set of guidlines for contributing to Openchangelog. These are mostly
 2. [Project structure](#project-structure)
 3. [Environment Setup](#environment-setup)
 4. [Starting Openchangelog as a contributor](#starting-openchangelog-as-a-contributor)
-5. [Creating a PR](#creating-a-pr)
+5. [Testing](#testing)
+6. [Creating a PR](#creating-a-pr)
 
 ## Tech Stack
 - [Go](https://go.dev) The main programming language for writing the Openchangelog server.
@@ -35,6 +36,18 @@ Inside `internal/handler/web` run `npm run watch:base` to generate the `base.css
 Now run `air` or `go run cmd/server.go` in the repo root to start Openchangelog with live reloading. Since `base.css` is embedded on server start, `air` sometimes doesn't update the `css` file after it changes. Rerunning `air` fixes this issue.  
 
 Since the changelog page is cached for 5 minutes, you might need to disable the cache in the dev tools to see latest changelog updates.
+
+## Testing
+Run the test suite to ensure your changes don't break existing functionality:
+```bash
+# Run unit tests
+go test ./...
+
+# Run integration tests  
+go test -v ./integration_test.go
+```
+
+All tests should pass before submitting a PR. When adding new features, include appropriate tests to verify the functionality works as expected.
 
 ## Creating a PR
 If you've made changes to any `*.templ` files, ensure you run `templ generate` afterward.  
