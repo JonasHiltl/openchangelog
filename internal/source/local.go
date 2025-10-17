@@ -71,27 +71,26 @@ func (s *localSource) loadDir(path string, page internal.Pagination) (LoadResult
 		return files[i].Name() >= files[j].Name()
 	})
 
+	result := make([]RawReleaseNote, end-start)
 	var wg sync.WaitGroup
-	var mutex sync.Mutex
-	notes := make([]RawReleaseNote, 0, page.PageSize())
 
-	for _, file := range files[start:end] {
-		wg.Add(1)
-		go func(file fs.DirEntry) {
-			defer wg.Done()
-			raw, err := s.openAndCacheFile(filepath.Join(path, file.Name()))
-			if err != nil {
-				return
-			}
-			mutex.Lock()
-			notes = append(notes, raw)
-			mutex.Unlock()
-		}(file)
-	}
+	for i, file := range files[start:end] {
+            wg.Add(1)
+            go func(index int, file fs.DirEntry) {
+                defer wg.Done()
+                raw, err := s.openAndCacheFile(filepath.Join(path, file.Name()))
+                if err != nil {
+                    // Handle error appropriately
+                    return
+               }
+                // Store at the correct index to maintain order
+                result[index] = raw
+            }(i, file)
+        }
 	wg.Wait()
 
 	return LoadResult{
-		Raw:     notes,
+		Raw:     result,
 		HasMore: end < len(files),
 	}, nil
 }

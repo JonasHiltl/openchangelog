@@ -83,27 +83,32 @@ func (p *Parser) Parse(ctx context.Context, raw []source.RawReleaseNote, kPage i
 		return p.parseOne(raw[0], kPage)
 	}
 
-	result := ParseResult{}
+	result := make([]ParsedReleaseNote, len(raw))
 	var wg sync.WaitGroup
-	mutex := &sync.Mutex{}
-	for _, a := range raw {
+	for i, a := range raw {
 		wg.Add(1)
-		go func(a source.RawReleaseNote) {
+		go func(index int, a source.RawReleaseNote) {
 			defer wg.Done()
 			parsed, err := p.og.parseReleaseNote(a.Content)
 			if err != nil {
 				return
 			}
-			mutex.Lock()
-			result.ReleaseNotes = append(result.ReleaseNotes, parsed)
-			mutex.Unlock()
-		}(a)
+			// Store at the correct index to maintain order
+			result[index] = parsed
+		}(i, a)
 	}
 	wg.Wait()
 
-	slices.SortFunc(result.ReleaseNotes, sortArticleDesc)
+	// Create ParseResult with the correctly ordered results
+	parseResult := ParseResult{
+		ReleaseNotes: result,
+		HasMore:      false, // hasMore is only true for keep-a-changelog parser
+	}
 
-	return result
+	// Sort by descending order
+	slices.SortFunc(parseResult.ReleaseNotes, sortArticleDesc)
+
+	return parseResult
 }
 
 func (p *Parser) parseOne(raw source.RawReleaseNote, kPage internal.Pagination) ParseResult {
