@@ -80,7 +80,7 @@ func (s *localSource) loadDir(path string, page internal.Pagination) (LoadResult
                 defer wg.Done()
                 raw, err := s.openAndCacheFile(filepath.Join(path, file.Name()))
                 if err != nil {
-                    // Handle error appropriately
+                    
                     return
                }
                 // Store at the correct index to maintain order
