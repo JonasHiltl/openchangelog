@@ -2,8 +2,9 @@ package components
 
 import (
 	"fmt"
-	"math"
 	"time"
+	"strings"
+	"hash/fnv"
 )
 
 type ArticleListArgs struct {
@@ -75,16 +76,66 @@ func tagBaseColor(tag string) string {
 	return fmt.Sprintf("hsl(%d %d%% %d%%)", h, s, l)
 }
 
-func stringToHSL(str string) (h int32, s int32, l int32) {
-	var hash int32
-	for _, char := range str {
-		hash = int32(char) + ((hash << 5) - hash)
-	}
+// HSLFromString produces H, S, L in ranges:
+// H: 0-359
+// S: 45-90
+// L: 28-64
+func stringToHSL(s string) (h, sat, light int) {
+	h32 := fnvHash32(s)
 
-	hash = int32(math.Abs(float64(hash)))
+	// check if type hint exists for `s`
+	var hint *ColorHint
+    lower := strings.ToLower(s)
+    for key, hRange := range colorHints {
+        if strings.Contains(lower, key) {
+            hint = &hRange
+            break
+        }
+    }
 
-	h = hash % 360
-	s = 60 + (hash % 40) // 60-100%
-	l = 30 + (hash % 30) // 30-60%
+    if hint == nil {
+        // Default random hue
+        h = int(h32 % 360)
+    } else {
+        // deterministic hue inside hint range
+        span := hueRangeSize(*hint)
+        offset := int((h32 >> 2) % uint32(span))
+        h = wrapHue(hint.MinHue + offset)
+    }
+
+
+	// Use different bit slices so small changes in input change H/S/L
+	sat = 50 + int((h32>>8)%41)                         // 50-90
+	light = 28 + int((h32>>16)%37)                      // 28-64
 	return
+}
+
+func fnvHash32(s string) uint32 {
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(s))
+	return h.Sum32()
+}
+
+type ColorHint struct {
+    MinHue int
+    MaxHue int
+}
+
+var colorHints = map[string]ColorHint{
+    "bug":      {MinHue: 350, MaxHue: 15},   // red range (wraps around)
+    "feat":  {MinHue: 90, MaxHue: 150},   // greenish
+}
+
+func hueRangeSize(h ColorHint) int {
+    if h.MinHue <= h.MaxHue {
+        return h.MaxHue - h.MinHue + 1
+    }
+    // wraparound (e.g. 350 → 20)
+    return (360 - h.MinHue) + (h.MaxHue + 1)
+}
+
+func wrapHue(v int) int {
+    v %= 360
+    if v < 0 { v += 360 }
+    return v
 }
