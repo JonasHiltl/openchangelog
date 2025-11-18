@@ -102,10 +102,10 @@ github.com/hashicorp/go-cleanhttp v0.5.2/go.mod h1:kO/YDlP8L1346E6Sodw+PrpBSV4/S
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
-github.com/jonashiltl/openchangelog/api v0.0.0-20250228134634-807f27bb7b58 h1:vd4HMBATUZG3lGnCwmIR/I8EqYBEHZXi0lx8Qr1wZVc=
-github.com/jonashiltl/openchangelog/api v0.0.0-20250228134634-807f27bb7b58/go.mod h1:m+w9g90vGxaCLVHME7Kj6mLt9PKKs3prueVq1jS4OsI=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241124125835-a4a1bb42e055 h1:JcFCIBJ7vG1n+CXq4URn6btgLWBQY569QiHaVhboNd8=
-github.com/jonashiltl/openchangelog/apitypes v0.0.0-20241124125835-a4a1bb42e055/go.mod h1:1C1oY27qUCTAqi0SLZRCBGA6QoMTHkWtGlMMwh8pZxk=
+github.com/jonashiltl/openchangelog/api v0.0.0-20251118091408-aba9aa1c5aba h1:0vEZw/hyg1sD12Okgg1vUrg7Sc1POyC/MG4GKb/VhOc=
+github.com/jonashiltl/openchangelog/api v0.0.0-20251118091408-aba9aa1c5aba/go.mod h1:m+w9g90vGxaCLVHME7Kj6mLt9PKKs3prueVq1jS4OsI=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20250712174732-c10a2096f079 h1:blq0q2ttBVez7mr8Opgu0Go0Pa85PUzTqY9Wl8lXuBg=
+github.com/jonashiltl/openchangelog/apitypes v0.0.0-20250712174732-c10a2096f079/go.mod h1:1C1oY27qUCTAqi0SLZRCBGA6QoMTHkWtGlMMwh8pZxk=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/kr/http v0.0.0-20150505212737-77bd98b60462 h1:b07ir+udaggBgCywmX2B8jIvNJJaEYXLjnLzIHm/uVg=
