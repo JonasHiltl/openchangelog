@@ -34,13 +34,13 @@ Openchangelog takes your Changelog, hosted on GitHub or locally and renders it a
 ## Quickstart
 Create an `openchangelog.yml` config file, from the sample `openchangelog.example.yml`. For more configuration settings visit our [Docs](https://openchangelog.com/docs/getting-started/self-hosting/#configuration).
 ```
-docker run -v ./openchangelog.yml:/etc/openchangelog.yml:ro -v ./release-notes:/release-notes -p 6001:6001 ghcr.io/jonashiltl/openchangelog:0.6.2
+docker run -v ./openchangelog.yml:/etc/openchangelog.yml:ro -v ./release-notes:/release-notes -p 6001:6001 ghcr.io/jonashiltl/openchangelog:0.7.1
 ```
 Or
 ```yaml
 services:
   openchangelog:
-    image: "ghcr.io/jonashiltl/openchangelog:0.6.2"
+    image: "ghcr.io/jonashiltl/openchangelog:0.7.1"
     ports:
       - "6001:6001"
     volumes:
