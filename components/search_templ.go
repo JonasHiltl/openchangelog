@@ -335,7 +335,7 @@ func searchDialog(args SearchButtonArgs) templ.Component {
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<dialog id=\"search-dialog\" class=\"backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent\"><div class=\"o-h-full o-flex o-flex-col\"><div id=\"search\" hx-post=\"/search\" hx-trigger=\"input changed delay:500ms from:[name='query'], change from:'#search [type='checkbox']'\" hx-include=\"#search input\" hx-target=\"#search-results\" hx-indicator=\"#loader\" class=\"o-rounded-lg o-overflow-hidden o-bg-white dark:o-bg-black o-mb-2\"><div class=\"input o-rounded-none o-border-none o-flex o-items-center o-gap-2 \"><div id=\"loader\" class=\"o-flex o-gap-2\"><div class=\"htmx-indicator-rev\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<dialog id=\"search-dialog\" onclick=\"if(event.target===this)this.close()\" class=\"backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent\"><div class=\"o-flex o-flex-col\"><div id=\"search\" hx-post=\"/search\" hx-trigger=\"input changed delay:500ms from:[name='query'], change from:'#search [type='checkbox']'\" hx-include=\"#search input\" hx-target=\"#search-results\" hx-indicator=\"#loader\" class=\"o-rounded-lg o-overflow-hidden o-bg-white dark:o-bg-black o-mb-2\"><div class=\"input o-rounded-none o-border-none o-flex o-items-center o-gap-2 \"><div id=\"loader\" class=\"o-flex o-gap-2\"><div class=\"htmx-indicator-rev\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -367,7 +367,7 @@ func searchDialog(args SearchButtonArgs) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"o-inline-flex o-gap-2 o-items-center o-text-sm dark:o-text-white\"><span class=\"o-text-caption\">Close</span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<button onclick=\"this.closest('dialog').close()\" class=\"o-inline-flex o-gap-2 o-items-center o-text-sm dark:o-text-white o-cursor-pointer\"><span class=\"o-text-caption\">Close</span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -375,7 +375,7 @@ func searchDialog(args SearchButtonArgs) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -424,7 +424,7 @@ func TagSelectors(tags []string) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(tag)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/search.templ`, Line: 158, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/search.templ`, Line: 160, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -437,7 +437,7 @@ func TagSelectors(tags []string) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("tag-%s", tag))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/search.templ`, Line: 158, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/search.templ`, Line: 160, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {

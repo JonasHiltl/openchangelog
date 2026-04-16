@@ -112,9 +112,10 @@ templ SearchButton(args SearchButtonArgs) {
 templ searchDialog(args SearchButtonArgs) {
 	<dialog
 		id="search-dialog"
+		onclick="if(event.target===this)this.close()"
 		class="backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent"
 	>
-		<div class="o-h-full o-flex o-flex-col">
+		<div class="o-flex o-flex-col">
 			<div
 				id="search"
 				hx-post="/search"
@@ -138,12 +139,13 @@ templ searchDialog(args SearchButtonArgs) {
 				</div>
 				<div class="o-flex o-gap-3 o-justify-between o-items-center o-border-t o-border-t-black/10 dark:o-border-t-white/10 o-p-3">
 					@loadingTagSelectors()
-					<div
-						class="o-inline-flex o-gap-2 o-items-center o-text-sm dark:o-text-white"
+					<button
+						onclick="this.closest('dialog').close()"
+						class="o-inline-flex o-gap-2 o-items-center o-text-sm dark:o-text-white o-cursor-pointer"
 					>
 						<span class="o-text-caption">Close</span>
 						@KBD("esc")
-					</div>
+					</button>
 				</div>
 			</div>
 			@SearchResults(SearchResultsArgs{})
