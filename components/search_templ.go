@@ -335,7 +335,7 @@ func searchDialog(args SearchButtonArgs) templ.Component {
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<dialog id=\"search-dialog\" onclick=\"if(event.target===this)this.close()\" class=\"backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent\"><div class=\"o-h-full o-flex o-flex-col\"><div id=\"search\" hx-post=\"/search\" hx-trigger=\"input changed delay:500ms from:[name='query'], change from:'#search [type='checkbox']'\" hx-include=\"#search input\" hx-target=\"#search-results\" hx-indicator=\"#loader\" class=\"o-rounded-lg o-overflow-hidden o-bg-white dark:o-bg-black o-mb-2\"><div class=\"input o-rounded-none o-border-none o-flex o-items-center o-gap-2 \"><div id=\"loader\" class=\"o-flex o-gap-2\"><div class=\"htmx-indicator-rev\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<dialog id=\"search-dialog\" onclick=\"if(event.target===this)this.close()\" class=\"backdrop:o-backdrop-blur-sm o-max-w-prose o-w-full o-h-full o-px-4 sm:o-px-0 o-bg-transparent\"><div class=\"o-flex o-flex-col\"><div id=\"search\" hx-post=\"/search\" hx-trigger=\"input changed delay:500ms from:[name='query'], change from:'#search [type='checkbox']'\" hx-include=\"#search input\" hx-target=\"#search-results\" hx-indicator=\"#loader\" class=\"o-rounded-lg o-overflow-hidden o-bg-white dark:o-bg-black o-mb-2\"><div class=\"input o-rounded-none o-border-none o-flex o-items-center o-gap-2 \"><div id=\"loader\" class=\"o-flex o-gap-2\"><div class=\"htmx-indicator-rev\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
