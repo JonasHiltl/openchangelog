@@ -39,7 +39,7 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 		New("feed").
 		Funcs(template.FuncMap{
 			"addFragment": addFragment,
-			"toPubDate":    toPubDate,
+			"toPubDate":   toPubDate,
 		}).
 		Parse(feedTemplate)
 	if err != nil {
@@ -47,19 +47,26 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	w.Header().Set("Content-Type", "application/rss+xml")
+
 	link := handler.FeedToChangelogURL(r)
+	createdAt := loaded.CL.CreatedAt
+	if createdAt.IsZero() && len(loaded.Notes) > 0 {
+		createdAt = loaded.Notes[0].Meta.PublishedAt
+	}
+
 	args := map[string]any{
-		"CL":       loaded.CL,
-		"Articles": loaded.Notes,
-		"HasMore":  loaded.HasMore,
-		"Link":     strings.ReplaceAll(link, "&", "&amp;"), // & is reserved in xml
+		"CL":        loaded.CL,
+		"Articles":  loaded.Notes,
+		"HasMore":   loaded.HasMore,
+		"CreatedAt": createdAt,
+		"Link":      strings.ReplaceAll(link, "&", "&amp;"), // & is reserved in xml
 	}
 	return tmpl.Execute(w, args)
 }
 
 func toPubDate(t time.Time) string {
-    // time.RFC822 produces an different format than the expected format for RSS. Day of the week is missing.
-    // time.RFC822 and time.RFC1123 may produce "UTC" as timezone but the spec only allows "GMT", "UT", "Z", or "0000".
+	// time.RFC822 produces an different format than the expected format for RSS. Day of the week is missing.
+	// time.RFC822 and time.RFC1123 may produce "UTC" as timezone but the spec only allows "GMT", "UT", "Z", or "0000".
 	return strings.ReplaceAll(t.Format(time.RFC1123), "UTC", "GMT")
 }
 
