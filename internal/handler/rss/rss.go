@@ -39,7 +39,7 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 		New("feed").
 		Funcs(template.FuncMap{
 			"addFragment": addFragment,
-			"toRFC822":    toRFC822,
+			"toPubDate":    toPubDate,
 		}).
 		Parse(feedTemplate)
 	if err != nil {
@@ -57,8 +57,10 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 	return tmpl.Execute(w, args)
 }
 
-func toRFC822(t time.Time) string {
-	return t.Format(time.RFC822)
+func toPubDate(t time.Time) string {
+    // time.RFC822 produces an different format than the expected format for RSS. Day of the week is missing.
+    // time.RFC822 and time.RFC1123 may produce "UTC" as timezone but the spec only allows "GMT", "UT", "Z", or "0000".
+	return strings.ReplaceAll(t.Format(time.RFC1123), "UTC", "GMT")
 }
 
 // Adds a fragment to the specified url
