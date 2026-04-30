@@ -5,7 +5,7 @@
     <title>{{.CL.Title.V}}</title>
     <description>{{.CL.Subtitle.V}}</description>
     <link>{{ .Link }}</link>
-    <pubDate>{{ toPubDate .CL.CreatedAt }}</pubDate>
+    <pubDate>{{ toPubDate .CreatedAt }}</pubDate>
 
     {{range .Articles}}
     <item>
