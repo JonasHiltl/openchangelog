@@ -35,11 +35,6 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	createdAt := loaded.CL.CreatedAt
-	if createdAt.IsZero() && len(loaded.Notes) > 0 {
-		createdAt = loaded.Notes[0].Meta.PublishedAt
-	}
-
 	tmpl, err := template.
 		New("feed").
 		Funcs(template.FuncMap{
@@ -52,7 +47,13 @@ func feedHandler(e *env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	w.Header().Set("Content-Type", "application/rss+xml")
+
 	link := handler.FeedToChangelogURL(r)
+	createdAt := loaded.CL.CreatedAt
+	if createdAt.IsZero() && len(loaded.Notes) > 0 {
+		createdAt = loaded.Notes[0].Meta.PublishedAt
+	}
+
 	args := map[string]any{
 		"CL":        loaded.CL,
 		"Articles":  loaded.Notes,
