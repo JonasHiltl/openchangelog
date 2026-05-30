@@ -88,6 +88,15 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 			Path: s.cfg.Local.FilesPath,
 		}, true)
 	}
+	if s.cfg.Gitlab != nil {
+		cl.GLSource = null.NewValue(GLSource{
+			BaseURL: s.cfg.Gitlab.BaseURL,
+			Project: s.cfg.Gitlab.Project,
+			Path:    s.cfg.Gitlab.Path,
+			Ref:     s.cfg.Gitlab.Ref,
+			Token:   s.cfg.Gitlab.Token,
+		}, true)
+	}
 
 	// parse github source from config
 	g, err := s.GetGHSource(ctx, wID, GH_DEFAULT_ID)
