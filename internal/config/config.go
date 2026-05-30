@@ -26,6 +26,13 @@ type GithubConfig struct {
 	Auth  *GithubAuth `mapstructure:"auth"`
 }
 
+type GitlabConfig struct {
+	BaseURL string `mapstructure:"baseUrl"`
+	Project string `mapstructure:"project"`
+	Path    string `mapstructure:"path"`
+	Ref     string `mapstructure:"ref"`
+	Token   string `mapstructure:"token"`
+}
 type CacheConfig struct {
 	Type CacheTyp         `mapstructure:"type"`
 	Disk *DiskCacheConfig `mapstructure:"disk"`
@@ -112,6 +119,7 @@ type Config struct {
 	Addr      string           `mapstructure:"addr"`
 	SqliteURL string           `mapstructure:"sqliteUrl"`
 	Github    *GithubConfig    `mapstructure:"github"`
+	Gitlab    *GitlabConfig    `mapstructure:"gitlab"`
 	Local     *LocalConfig     `mapstructure:"local"`
 	Page      *PageConfig      `mapstructure:"page"`
 	Cache     *CacheConfig     `mapstructure:"cache"`
