@@ -30,6 +30,7 @@ type Changelog struct {
 	PasswordHash  string
 	CreatedAt     time.Time
 	GHSource      null.Value[GHSource]
+	GLSource      null.Value[GLSource]
 	LocalSource   null.Value[LocalSource]
 }
 
@@ -46,6 +47,14 @@ type GHSource struct {
 	Repo           string
 	Path           string
 	InstallationID int64
+}
+
+type GLSource struct {
+	BaseURL string
+	Project string
+	Path    string
+	Ref     string
+	Token   string
 }
 
 type LocalSource struct {
