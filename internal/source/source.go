@@ -49,6 +49,8 @@ func NewIDFromChangelog(cl store.Changelog) ID {
 		return NewLocalID(cl.LocalSource.V.Path)
 	} else if cl.GHSource.Valid {
 		return NewGitHubID(cl.GHSource.V.Owner, cl.GHSource.V.Repo, cl.GHSource.V.Path)
+	} else if cl.GLSource.Valid {
+		return NewGitLabID(cl.GLSource.V.Project, cl.GLSource.V.Path)
 	}
 	return ""
 }
@@ -58,6 +60,9 @@ func NewSourceFromStore(cfg config.Config, cl store.Changelog, cache xcache.Cach
 		return NewLocalSourceFromStore(cl.LocalSource.ValueOrZero(), cache), nil
 	} else if cl.GHSource.Valid {
 		return NewGHSourceFromStore(cfg, cl.GHSource.ValueOrZero(), cache)
+	} else if cl.GLSource.Valid {
+		return NewGLSourceFromStore(cfg, cl.GLSource.ValueOrZero(), cache)
 	}
+
 	return nil, errors.New("changelog has no active source")
 }
