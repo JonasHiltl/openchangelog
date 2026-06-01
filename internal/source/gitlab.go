@@ -3,6 +3,7 @@ package source
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -32,14 +33,26 @@ func NewGLSourceFromStore(cfg config.Config, gl store.GLSource, cache xcache.Cac
 		cachedTransport.Transport = tr
 		tr = cachedTransport
 	}
-	client, err := gitlab.NewClient(
-		cfg.Gitlab.Token,
+
+	token := gl.Token
+	if token == "" && cfg.Gitlab != nil {
+		token = cfg.Gitlab.Token
+	}
+
+	opts := []gitlab.ClientOptionFunc{
 		gitlab.WithHTTPClient(&http.Client{
 			Transport: tr,
-		}))
+		}),
+	}
+	if gl.BaseURL != "" {
+		opts = append(opts, gitlab.WithBaseURL(gl.BaseURL))
+	}
+
+	client, err := gitlab.NewClient(token, opts...)
 	if err != nil {
 		return nil, err
 	}
+
 	return &glSource{
 		client:  client,
 		baseURL: gl.BaseURL,
@@ -47,39 +60,52 @@ func NewGLSourceFromStore(cfg config.Config, gl store.GLSource, cache xcache.Cac
 		path:    gl.Path,
 		ref:     gl.Ref,
 	}, nil
+}
 
+func NewGitLabID(project, path string) ID {
+	return ID(fmt.Sprintf("gl/%s/%s", project, path))
 }
 
 func (s *glSource) ID() ID {
-	return ID(fmt.Sprintf("gl/%s/%s", s.project, s.path))
+	return NewGitLabID(s.project, s.path)
 }
 
 func (s *glSource) Load(ctx context.Context, page internal.Pagination) (LoadResult, error) {
-	return s.load(ctx, page)
-}
-
-func (s *glSource) load(ctx context.Context, page internal.Pagination) (LoadResult, error) {
 	if page.IsDefined() && page.PageSize() < 1 {
 		return LoadResult{}, nil
 	}
 
-	file, _, err := s.client.RepositoryFiles.GetFile(
+	//-> Load as FIle if that works-> return that else load as Folder
+	file, resp, err := s.client.RepositoryFiles.GetFile(
 		s.project,
 		s.path,
 		&gitlab.GetFileOptions{Ref: gitlab.Ptr(s.ref)},
 		gitlab.WithContext(ctx),
 	)
-	if err == nil {
-		note, err := s.loadFile(ctx, file.FileName)
-		if err != nil {
-			return LoadResult{}, err
-		}
-		return LoadResult{
-			Raw: []RawReleaseNote{note},
-		}, nil
+	if err == nil && file != nil {
+		return s.singleFileResult(resp, file)
 	}
 
-	dir, _, err := s.client.Repositories.ListTree(
+	return s.loadDir(ctx, page)
+}
+
+func (s *glSource) singleFileResult(resp *gitlab.Response, file *gitlab.File) (LoadResult, error) {
+	decoded, err := base64.StdEncoding.DecodeString(file.Content)
+	if err != nil {
+		return LoadResult{}, fmt.Errorf("failed to decode file content: %w", err)
+	}
+	return LoadResult{
+		Raw: []RawReleaseNote{
+			{
+				hasChanged: !fromCache(resp.Header),
+				Content:    bytes.NewReader(decoded),
+			},
+		},
+	}, nil
+}
+
+func (s *glSource) loadDir(ctx context.Context, page internal.Pagination) (LoadResult, error) {
+	nodes, _, err := s.client.Repositories.ListTree(
 		s.project,
 		&gitlab.ListTreeOptions{
 			Path: gitlab.Ptr(s.path),
@@ -87,53 +113,28 @@ func (s *glSource) load(ctx context.Context, page internal.Pagination) (LoadResu
 		},
 		gitlab.WithContext(ctx),
 	)
-	if err == nil {
-		return s.loadDir(ctx, dir, page)
-	}
-	return LoadResult{}, err
-}
-
-func (s *glSource) loadFile(ctx context.Context, filename string) (RawReleaseNote, error) {
-	content, resp, err := s.client.RepositoryFiles.GetRawFile(
-		s.project,
-		filename,
-		&gitlab.GetRawFileOptions{Ref: gitlab.Ptr(s.ref)},
-		gitlab.WithContext(ctx),
-	)
 	if err != nil {
-		return RawReleaseNote{}, err
-	}
-	if resp.StatusCode >= 400 {
-		return RawReleaseNote{}, fmt.Errorf("failed to download file from gitlab, status %d", resp.StatusCode)
+		return LoadResult{}, err
 	}
 
-	return RawReleaseNote{
-		hasChanged: !fromCache(resp.Header),
-		Content:    bytes.NewReader(content),
-	}, nil
-}
+	// Only keep markdown files and sort newest first by filename
+	mdFiles := filter(nodes, gitlabFileIsMD)
+	sort.Slice(mdFiles, func(i, j int) bool {
+		return mdFiles[i].Name >= mdFiles[j].Name
+	})
 
-func (s *glSource) loadDir(ctx context.Context, files []*gitlab.TreeNode, page internal.Pagination) (LoadResult, error) {
-	files = filter(files, gitlabFileIsMD)
-	totalFiles := len(files)
+	totalFiles := len(mdFiles)
 	start, end := calculatePaginationIndices(page, totalFiles)
 	if start >= totalFiles {
 		return LoadResult{}, nil
 	}
-
-	// sort files in descending order by filename
-	sort.Slice(files, func(i, j int) bool {
-		return files[i].Name >= files[j].Name
-	})
-
 	notes := make([]RawReleaseNote, end-start)
 	var wg sync.WaitGroup
-
-	for i, file := range files[start:end] {
+	for i, file := range mdFiles[start:end] {
 		wg.Add(1)
 		go func(index int, path string) {
 			defer wg.Done()
-			note, err := s.loadFile(ctx, path)
+			note, err := s.fetchFile(ctx, path)
 			if err != nil {
 				return
 			}
@@ -144,11 +145,30 @@ func (s *glSource) loadDir(ctx context.Context, files []*gitlab.TreeNode, page i
 
 	return LoadResult{
 		Raw:     notes,
-		HasMore: end < len(files),
+		HasMore: end < totalFiles,
 	}, nil
 }
 
-// using some functions from github.go
+func (s *glSource) fetchFile(ctx context.Context, path string) (RawReleaseNote, error) {
+	content, resp, err := s.client.RepositoryFiles.GetRawFile(
+		s.project,
+		path,
+		&gitlab.GetRawFileOptions{Ref: gitlab.Ptr(s.ref)},
+		gitlab.WithContext(ctx),
+	)
+	if err != nil {
+		return RawReleaseNote{}, err
+	}
+	if resp.StatusCode >= 400 {
+		return RawReleaseNote{}, fmt.Errorf("gitlab returned status %d for file %s", resp.StatusCode, path)
+	}
+	return RawReleaseNote{
+		hasChanged: !fromCache(resp.Header),
+		Content:    bytes.NewReader(content),
+	}, nil
+}
+
+// some functions are used from github.go itself,
 func gitlabFileIsMD(f *gitlab.TreeNode) bool {
 	return filepath.Ext(f.Name) == ".md"
 }
