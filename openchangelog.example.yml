@@ -1,7 +1,7 @@
 addr: 0.0.0.0:6001
 #log:
-#level: INFO (default), DEBUG, WARN, ERROR
-#style: text (default), json
+  #level: INFO (default), DEBUG, WARN, ERROR
+  #style: text (default), json
 
 #----- Use Github
 #github:
