@@ -20,7 +20,7 @@
 <br />
 </p>
 
-Openchangelog takes your Changelog, hosted on GitHub or locally and renders it as a beautiful Changelog Website.
+Openchangelog takes your Changelog, hosted on GitHub, GitLab or locally and renders it as a beautiful Changelog Website.
 - Full Text Search
 - Password Protection
 - Analytics
