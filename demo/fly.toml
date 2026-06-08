@@ -1,0 +1,25 @@
+# fly.toml - Openchangelog Demo
+# Deploy: fly deploy --config demo/fly.toml
+
+app = "openchangelog"
+primary_region = "ams"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 6001
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[mounts]]
+  source = 'openchangelog_data'
+  destination = '/data'
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1

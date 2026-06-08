@@ -1,0 +1,29 @@
+# Openchangelog Demo Config
+# Reads changelog files from the .testdata directory of the openchangelog repo on GitHub.
+addr: 0.0.0.0:6001
+
+github:
+  owner: jonashiltl
+  repo: openchangelog
+  path: .testdata
+
+cache:
+  type: disk
+  disk:
+    location: /data/cache
+    maxSize: 1073741824 # 1 GB
+
+search:
+  type: disk
+  disk:
+    path: /data/search
+
+page:
+  title: Changelog
+  subtitle: The latest product updates from Openchangelog
+  colorScheme: system
+  logo:
+    src: https://openchangelog.com/logo-full.webp
+    width: auto
+    height: 32px
+    link: https://openchangelog.com
