@@ -88,6 +88,7 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 			Path: s.cfg.Local.FilesPath,
 		}, true)
 	}
+
 	if s.cfg.Gitlab != nil {
 		cl.GLSource = null.NewValue(GLSource{
 			BaseURL: s.cfg.Gitlab.BaseURL,
@@ -95,6 +96,16 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 			Path:    s.cfg.Gitlab.Path,
 			Ref:     s.cfg.Gitlab.Ref,
 			Token:   s.cfg.Gitlab.Token,
+		}, true)
+	}
+
+	if s.cfg.Forgejo != nil {
+		cl.FJSource = null.NewValue(FJSource{
+			BaseURL: s.cfg.Forgejo.BaseURL,
+			Project: s.cfg.Forgejo.Project,
+			Path:    s.cfg.Forgejo.Path,
+			Ref:     s.cfg.Forgejo.Ref,
+			Token:   s.cfg.Forgejo.Token,
 		}, true)
 	}
 
