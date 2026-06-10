@@ -13,6 +13,11 @@ addr: 0.0.0.0:6001
 #  project: gitlab-org/gitlab-vscode-extension
 #  path: CHANGELOG.md
 #  ref: main
+#forgejo:
+#  baseUrl: https:// 
+#  project: foo/bar
+#  path: CHANGELOG.md
+#  ref: main
 local:
   filesPath: /release-notes
 cache:
