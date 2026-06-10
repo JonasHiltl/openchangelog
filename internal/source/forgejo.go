@@ -87,11 +87,14 @@ func (f *fjSource) Load(ctx context.Context, page internal.Pagination) (LoadResu
 		return LoadResult{}, nil
 	}
 
-	owner := strings.Split(f.project, "/")
+	owner, repo, found := strings.Cut(f.project, "/")
+	if !found || owner == "" || repo == "" {
+		return LoadResult{}, fmt.Errorf("invalid project format: %s", f.project)
+	}
 
 	file, resp, err := f.client.GetFile(
-		owner[0],
-		owner[1],
+		owner,
+		repo,
 		f.ref,
 		f.path,
 		false,
@@ -171,11 +174,13 @@ func (f *fjSource) loadDir(ctx context.Context, page internal.Pagination) (LoadR
 
 func (f *fjSource) fetchFile(ctx context.Context, path string) (RawReleaseNote, error) {
 
-	owner := strings.Split(f.project, "/")
-
+	owner, repo, found := strings.Cut(f.project, "/")
+	if !found || owner == "" || repo == "" {
+		return RawReleaseNote{}, fmt.Errorf("invalid project format: %s", f.project)
+	}
 	content, resp, err := f.client.GetFile(
-		owner[0],
-		owner[1],
+		owner,
+		repo,
 		f.ref,
 		f.path,
 		false,
