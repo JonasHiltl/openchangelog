@@ -17,6 +17,7 @@ type DetailsArgs struct {
 	Next components.ArticleArgs
 	components.FooterArgs
 	ShowSearchButton bool
+	HideRssIcon bool
 	components.SearchButtonArgs
 }
 
@@ -34,7 +35,9 @@ templ Details(arg DetailsArgs) {
 					if arg.ShowSearchButton {
 						@components.SearchButton(arg.SearchButtonArgs)
 					}
-					@components.RSS(arg.RSSArgs)
+					if !arg.HideRssIcon {
+						@components.RSS(arg.RSSArgs)
+					}
 				}
 			}
 			@components.Prose() {
