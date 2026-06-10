@@ -45,23 +45,31 @@ func (i ID) String() string {
 }
 
 func NewIDFromChangelog(cl store.Changelog) ID {
-	if cl.LocalSource.Valid {
+
+	switch {
+	case cl.LocalSource.Valid:
 		return NewLocalID(cl.LocalSource.V.Path)
-	} else if cl.GHSource.Valid {
+	case cl.GHSource.Valid:
 		return NewGitHubID(cl.GHSource.V.Owner, cl.GHSource.V.Repo, cl.GHSource.V.Path)
-	} else if cl.GLSource.Valid {
+	case cl.GLSource.Valid:
 		return NewGitLabID(cl.GLSource.V.Project, cl.GLSource.V.Path)
+	case cl.FJSource.Valid:
+		return NewForgejoID(cl.FJSource.V.Project, cl.FJSource.V.Path)
 	}
 	return ""
 }
 
 func NewSourceFromStore(cfg config.Config, cl store.Changelog, cache xcache.Cache) (Source, error) {
-	if cl.LocalSource.Valid {
+
+	switch {
+	case cl.LocalSource.Valid:
 		return NewLocalSourceFromStore(cl.LocalSource.ValueOrZero(), cache), nil
-	} else if cl.GHSource.Valid {
+	case cl.GHSource.Valid:
 		return NewGHSourceFromStore(cfg, cl.GHSource.ValueOrZero(), cache)
-	} else if cl.GLSource.Valid {
+	case cl.GLSource.Valid:
 		return NewGLSourceFromStore(cfg, cl.GLSource.ValueOrZero(), cache)
+	case cl.FJSource.Valid:
+		return NewFJSourceFromStore(cfg, cl.FJSource.ValueOrZero(), cache)
 	}
 
 	return nil, errors.New("changelog has no active source")
