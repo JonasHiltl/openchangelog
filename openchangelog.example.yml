@@ -13,6 +13,12 @@ addr: 0.0.0.0:6001
 #  project: gitlab-org/gitlab-vscode-extension
 #  path: CHANGELOG.md
 #  ref: main
+#forgejo:
+#  baseUrl: opencommit.eu  defaults to https://.
+#  project: mvdkleijn/forgejo-sdk
+#  path: CHANGELOG.md
+#  ref: main
+#  token: 
 local:
   filesPath: /release-notes
 cache:

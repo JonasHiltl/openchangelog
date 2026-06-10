@@ -33,6 +33,15 @@ type GitlabConfig struct {
 	Ref     string `mapstructure:"ref"`
 	Token   string `mapstructure:"token"`
 }
+
+type ForgejoConfig struct {
+	BaseURL string `mapstructure:"baseUrl"`
+	Project string `mapstructure:"project"`
+	Path    string `mapstructure:"path"`
+	Ref     string `mapstructure:"ref"`
+	Token   string `mapstructure:"token"`
+}
+
 type CacheConfig struct {
 	Type CacheTyp         `mapstructure:"type"`
 	Disk *DiskCacheConfig `mapstructure:"disk"`
@@ -120,6 +129,7 @@ type Config struct {
 	SqliteURL string           `mapstructure:"sqliteUrl"`
 	Github    *GithubConfig    `mapstructure:"github"`
 	Gitlab    *GitlabConfig    `mapstructure:"gitlab"`
+	Forgejo   *ForgejoConfig   `mapstructure:"forgejo"`
 	Local     *LocalConfig     `mapstructure:"local"`
 	Page      *PageConfig      `mapstructure:"page"`
 	Cache     *CacheConfig     `mapstructure:"cache"`

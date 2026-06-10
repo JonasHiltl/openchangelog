@@ -241,6 +241,35 @@ func createTestConfig(t *testing.T, tempDir string) config.Config {
 	}
 }
 
+func createForgejoTestConfig(t *testing.T, tempDir string) config.Config {
+	t.Helper()
+
+	return config.Config{
+		Addr: "127.0.0.1:0",
+		Forgejo: &config.ForgejoConfig{
+			BaseURL: "https://opencommit.eu",
+			Project: "mvdkleijn/forgejo-sdk",
+			Path:    "CHANGELOG.md",
+			Ref:     "main",
+		},
+	}
+}
+
+func createGitLabTestConfig(t *testing.T, tempDir string) config.Config {
+	t.Helper()
+
+	return config.Config{
+		Addr: "127.0.0.1:0",
+		Gitlab: &config.GitlabConfig{
+			BaseURL: "https://gitlab.com",
+			Project: "gitlab-org/gitlab-foss",
+			Path:    "CHANGELOG.md",
+			Ref:     "main",
+			Token:   "",
+		},
+	}
+}
+
 // copyTestData copies test data files to the release notes directory
 func copyTestData(t *testing.T, destDir string) {
 	t.Helper()
@@ -556,6 +585,14 @@ func TestDifferentConfigurations(t *testing.T) {
 			name:     "Database mode configuration",
 			setupCfg: createTestConfigWithDB,
 		},
+		{
+			name:     "Forgejo source configuration",
+			setupCfg: createForgejoTestConfig,
+		},
+		{
+			name:     "GitLab Source Configuration",
+			setupCfg: createGitLabTestConfig,
+		},
 	}
 
 	for _, tt := range tests {
@@ -607,7 +644,7 @@ func TestConcurrentRequests(t *testing.T) {
 	const numRequests = 10
 	results := make(chan error, numRequests)
 
-	for i := 0; i < numRequests; i++ {
+	for range numRequests {
 		go func() {
 			resp, err := app.Get("/")
 			if err != nil {
@@ -625,7 +662,7 @@ func TestConcurrentRequests(t *testing.T) {
 	}
 
 	// Wait for all requests to complete
-	for i := 0; i < numRequests; i++ {
+	for range numRequests {
 		select {
 		case err := <-results:
 			if err != nil {
@@ -853,7 +890,7 @@ func TestE2EEdgeCases(t *testing.T) {
 		const numConcurrent = 5
 		results := make(chan error, numConcurrent)
 
-		for i := 0; i < numConcurrent; i++ {
+		for i := range numConcurrent {
 			go func(id int) {
 				resp, err := app.Get("/")
 				if resp != nil {
@@ -863,7 +900,7 @@ func TestE2EEdgeCases(t *testing.T) {
 			}(i)
 		}
 
-		for i := 0; i < numConcurrent; i++ {
+		for i := range numConcurrent {
 			err := <-results
 			if err != nil {
 				t.Errorf("Concurrent request %d failed: %v", i, err)

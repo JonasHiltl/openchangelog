@@ -31,6 +31,7 @@ type Changelog struct {
 	CreatedAt     time.Time
 	GHSource      null.Value[GHSource]
 	GLSource      null.Value[GLSource]
+	FJSource      null.Value[FJSource]
 	LocalSource   null.Value[LocalSource]
 }
 
@@ -50,6 +51,14 @@ type GHSource struct {
 }
 
 type GLSource struct {
+	BaseURL string
+	Project string
+	Path    string
+	Ref     string
+	Token   string
+}
+
+type FJSource struct {
 	BaseURL string
 	Project string
 	Path    string
