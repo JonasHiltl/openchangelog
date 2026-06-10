@@ -50,6 +50,11 @@ func NewFJSourceFromStore(cfg config.Config, fj store.FJSource, cache xcache.Cac
 		url = cfg.Forgejo.BaseURL
 	}
 
+	// Default to https. but overridden in the cfg
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+		url = fmt.Sprintf("https://%s", url)
+	}
+
 	client, err := forgejo.NewClient(
 		url,
 		forgejo.SetToken(token),

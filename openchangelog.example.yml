@@ -14,10 +14,11 @@ addr: 0.0.0.0:6001
 #  path: CHANGELOG.md
 #  ref: main
 #forgejo:
-#  baseUrl: https:// 
-#  project: foo/bar
+#  baseUrl: opencommit.eu  defaults to https://.
+#  project: mvdkleijn/forgejo-sdk
 #  path: CHANGELOG.md
 #  ref: main
+#  token: 
 local:
   filesPath: /release-notes
 cache:
