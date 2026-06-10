@@ -48,6 +48,7 @@ func (s *configStore) GetChangelog(ctx context.Context, wID WorkspaceID, cID Cha
 		cl.Title = apitypes.NewString(s.cfg.Page.Title)
 		cl.Subtitle = apitypes.NewString(s.cfg.Page.Subtitle)
 		cl.HidePoweredBy = s.cfg.Page.HidePoweredBy
+		cl.HideRssIcon = s.cfg.Page.HideRssIcon
 		switch strings.ToLower(s.cfg.Page.ColorScheme) {
 		case System.String():
 			cl.ColorScheme = System

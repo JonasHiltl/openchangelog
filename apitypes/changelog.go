@@ -302,7 +302,7 @@ type UpdateChangelogBody struct {
 	ColorScheme   ColorScheme `json:"colorScheme"`
 	Subdomain     NullString  `json:"subdomain"`
 	HidePoweredBy *bool       `json:"hidePoweredBy,omitempty"`
-	HideRssIcon   bool        `json:"hideRssIcon,omitempty"`
+	HideRssIcon   *bool       `json:"hideRssIcon,omitempty"`
 	Protected     *bool       `json:"protected,omitempty"`
 	Password      NullString  `json:"password,omitempty"` // actual password, no hash
 	Analytics     *bool       `json:"analytics,omitempty"`
