@@ -187,7 +187,7 @@ func (s *sqlite) UpdateChangelog(ctx context.Context, wID WorkspaceID, cID Chang
 		},
 		HideRssIcon: sql.NullInt64{
 			Int64: saveDerefToInt(args.HideRssIcon),
-			Valid: *args.HideRssIcon != nil,
+			Valid: args.HideRssIcon != nil,
 		},
 		ColorScheme:    args.ColorScheme,
 		SetColorScheme: int(args.ColorScheme) != 0,
