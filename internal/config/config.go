@@ -83,6 +83,7 @@ type PageConfig struct {
 	Subtitle      string      `mapstructure:"subtitle"`
 	ColorScheme   string      `mapstructure:"colorScheme"`
 	HidePoweredBy bool        `mapstructure:"hidePoweredBy"`
+	HideRssIcon   bool        `mapstructure:"hideRssIcon"`
 	Auth          *AuthConfig `mapstructure:"auth"`
 }
 

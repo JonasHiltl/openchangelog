@@ -49,11 +49,12 @@ INSERT INTO changelogs (
     logo_width,
     color_scheme,
     hide_powered_by,
+    hide_rss_icon,
     protected,
     analytics,
     searchable,
     password_hash
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 RETURNING *;
 
 -- name: deleteChangelog :exec
@@ -85,6 +86,7 @@ UPDATE changelogs
 SET
    subdomain = coalesce(sqlc.narg(subdomain), subdomain),
    hide_powered_by = coalesce(sqlc.narg(hide_powered_by), hide_powered_by),
+   hide_rss_icon = coalesce(sqlc.narg(hide_rss_icon), hide_rss_icon),
    title = CASE WHEN cast(@set_title as bool) THEN @title ELSE title END,
    subtitle = CASE WHEN cast(@set_subtitle as bool) THEN @subtitle ELSE subtitle END,
    domain = CASE WHEN cast(@set_domain as bool) THEN @domain ELSE domain END,

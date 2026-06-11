@@ -15,6 +15,7 @@ type IndexArgs struct {
 	components.ArticleListArgs
 	components.FooterArgs
 	ShowSearchButton bool
+	HideRssIcon bool
 	components.SearchButtonArgs
 }
 
@@ -32,7 +33,9 @@ templ Index(arg IndexArgs) {
 					if arg.ShowSearchButton {
 						@components.SearchButton(arg.SearchButtonArgs)
 					}
-					@components.RSS(arg.RSSArgs)
+					if !arg.HideRssIcon {
+						@components.RSS(arg.RSSArgs)
+					}
 				}
 			}
 			@components.Prose() {

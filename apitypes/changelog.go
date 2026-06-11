@@ -16,6 +16,7 @@ type Changelog struct {
 	Subtitle      NullString
 	ColorScheme   ColorScheme
 	HidePoweredBy bool
+	HideRssIcon   bool
 	Protected     bool
 	HasPassword   bool
 	Analytics     bool
@@ -58,6 +59,7 @@ func (cl Changelog) MarshalJSON() ([]byte, error) {
 		Subtitle      string     `json:"subtitle,omitempty"`
 		ColorScheme   string     `json:"colorScheme,omitempty"`
 		HidePoweredBy bool       `json:"hidePoweredBy"`
+		HideRssIcon   bool       `json:"hideRssIcon"`
 		Protected     bool       `json:"protected"`
 		HasPassword   bool       `json:"hasPassword"`
 		Analytics     bool       `json:"analytics"`
@@ -74,6 +76,7 @@ func (cl Changelog) MarshalJSON() ([]byte, error) {
 		Subtitle:      cl.Subtitle.V(),
 		ColorScheme:   string(cl.ColorScheme),
 		HidePoweredBy: cl.HidePoweredBy,
+		HideRssIcon:   cl.HideRssIcon,
 		Protected:     cl.Protected,
 		HasPassword:   cl.HasPassword,
 		Analytics:     cl.Analytics,
@@ -156,6 +159,12 @@ func (c *Changelog) UnmarshalJSON(b []byte) error {
 		}
 	}
 
+	if hideRssIconRaw, ok := objMap["hideRssIcon"]; ok {
+		err = json.Unmarshal(*hideRssIconRaw, &c.HideRssIcon)
+		if err != nil {
+			return err
+		}
+	}
 	if protectedRaw, ok := objMap["protected"]; ok {
 		err = json.Unmarshal(*protectedRaw, &c.Protected)
 		if err != nil {
@@ -278,6 +287,7 @@ type CreateChangelogBody struct {
 	Domain        NullString  `json:"domain"`
 	ColorScheme   ColorScheme `json:"colorScheme"`
 	HidePoweredBy bool        `json:"hidePoweredBy"`
+	HideRssIcon   bool        `json:"hideRssIcon"`
 	Protected     bool        `json:"protected"`
 	Password      string      `json:"password"` // actual password, no hash
 	Analytics     bool        `json:"analytics"`
@@ -292,6 +302,7 @@ type UpdateChangelogBody struct {
 	ColorScheme   ColorScheme `json:"colorScheme"`
 	Subdomain     NullString  `json:"subdomain"`
 	HidePoweredBy *bool       `json:"hidePoweredBy,omitempty"`
+	HideRssIcon   *bool       `json:"hideRssIcon,omitempty"`
 	Protected     *bool       `json:"protected,omitempty"`
 	Password      NullString  `json:"password,omitempty"` // actual password, no hash
 	Analytics     *bool       `json:"analytics,omitempty"`

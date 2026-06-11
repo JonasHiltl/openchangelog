@@ -70,6 +70,7 @@ func (r *renderer) RenderArticleList(ctx context.Context, w io.Writer, args Rend
 func (r *renderer) RenderChangelog(ctx context.Context, w io.Writer, args RenderChangelogArgs) error {
 	notes := parsedArticlesToComponentArticles(args.ReleaseNotes)
 	return views.Index(views.IndexArgs{
+		HideRssIcon: args.CL.HideRssIcon,
 		RSSArgs: components.RSSArgs{
 			FeedURL: args.FeedURL,
 		},
@@ -140,6 +141,7 @@ func (r *renderer) RenderDetails(ctx context.Context, w io.Writer, args RenderDe
 			FeedURL: args.FeedURL,
 		},
 		ShowSearchButton: args.CL.Searchable,
+		HideRssIcon:      args.CL.HideRssIcon,
 		SearchButtonArgs: components.SearchButtonArgs{
 			Active:     true,
 			HasMetaKey: args.HasMetaKey,
