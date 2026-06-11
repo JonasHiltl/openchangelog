@@ -29,7 +29,7 @@ Install [Go](https://go.dev/dl/), [Templ](https://templ.guide/quick-start/instal
 
 ## Starting Openchangelog as a contributor
 Create a `openchangelog.yml` file in the repo root. Have a look at the `openchangelog.example.yml` file for inspiration or just copy it's content fully for a working config.  
-Run `templ generate --watch` in the repo root to have `templ` automatically generate go code from the `*.templ` files.  
+Run `go tool templ generate --watch` in the repo root to have `templ` automatically generate go code from the `*.templ` files.  
 
 Inside `internal/handler/web` run `npm run watch:base` to generate the `base.css` file with tailwind whenever anything changes.  
 
@@ -50,8 +50,8 @@ go test -v ./integration_test.go
 All tests should pass before submitting a PR. When adding new features, include appropriate tests to verify the functionality works as expected.
 
 ## Creating a PR
-If you've made changes to any `*.templ` files, ensure you run `templ generate` afterward.  
-Additionally, after using watch mode, manually run `templ generate` again. Watch mode updates every `*_templ.go` file, even if no actual changes were made. Without this step, many lines may appear modified, even though no `*.templ` files were changed.  
+If you've made changes to any `*.templ` files, ensure you run `go tool templ generate` afterward.  
+Additionally, after using watch mode, manually run `go tool templ generate` again. Watch mode updates every `*_templ.go` file, even if no actual changes were made. Without this step, many lines may appear modified, even though no `*.templ` files were changed.  
 
 If you changed any tailwind classes, make sure you ran `npm run watch` to generate the new `base.css` file with the tailwind styling.  
 
