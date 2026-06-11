@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
@@ -31,6 +32,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/naveensrinivasan/httpcache"
 	"github.com/rs/cors"
+	"golang.org/x/net/html"
 )
 
 // runMigrations executes database migrations for testing
@@ -226,6 +228,8 @@ func createTestConfig(t *testing.T, tempDir string) config.Config {
 				Height: "50px",
 				Link:   "https://example.com",
 			},
+			HidePoweredBy: true,
+			HideRssIcon:   true,
 		},
 		Cache: &config.CacheConfig{
 			Type: config.Memory,
@@ -590,7 +594,7 @@ func TestDifferentConfigurations(t *testing.T) {
 			setupCfg: createForgejoTestConfig,
 		},
 		{
-			name:     "GitLab Source Configuration",
+			name:     "GitLab source configuration",
 			setupCfg: createGitLabTestConfig,
 		},
 	}
@@ -612,6 +616,20 @@ func TestDifferentConfigurations(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to make request: %v", err)
 			}
+
+			// Use Local for speed
+			if tt.name == "Local source configuration" {
+				body, err := io.ReadAll(resp.Body)
+				if err != nil {
+					t.Fatalf("Failed to read body: %v", err)
+				}
+				doc, err := html.Parse(bytes.NewReader(body))
+				if !strings.Contains(doc.Data, "`<a href=''/feeds''>`") &&
+					!strings.Contains(doc.Data, "`<a href=''https://openchangelog.com''target=''_blank''>Openchangelog</a>`") {
+					t.Logf("✅ HideRssIcon & HidePoweredBy not rendered.")
+				}
+			}
+
 			defer resp.Body.Close()
 
 			if tt.name == "Database mode configuration" {
