@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"time"
 
 	mint "github.com/btvoidx/mint/context"
 	"github.com/jonashiltl/openchangelog/internal"
@@ -65,13 +66,33 @@ func (l *Loader) GetChangelog(r *http.Request) (store.Changelog, error) {
 }
 
 // Loads the changelog and parses it's release notes for the specified http request.
+// Release notes scheduled to be published in the future are excluded from the result.
 func (l *Loader) LoadAndParse(r *http.Request, page internal.Pagination) (LoadedChangelog, error) {
 	cl, err := l.GetChangelog(r)
 	if err != nil {
 		return LoadedChangelog{}, err
 	}
 
-	return l.LoadAndParseReleaseNotes(r.Context(), cl, page)
+	loaded, err := l.LoadAndParseReleaseNotes(r.Context(), cl, page)
+	if err != nil {
+		return LoadedChangelog{}, err
+	}
+
+	loaded.Notes = removeUnpublished(loaded.Notes)
+	return loaded, nil
+}
+
+// Filters out release notes with a publishedAt date in the future,
+// so they stay hidden until that date/time arrives.
+func removeUnpublished(notes []parse.ParsedReleaseNote) []parse.ParsedReleaseNote {
+	now := time.Now()
+	published := notes[:0]
+	for _, n := range notes {
+		if !n.Meta.PublishedAt.After(now) {
+			published = append(published, n)
+		}
+	}
+	return published
 }
 
 // Loads and parses the release notes for the specified changelog.
